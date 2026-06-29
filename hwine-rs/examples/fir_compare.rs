@@ -1,4 +1,6 @@
 use hwine_rs::egraph::EGraph;
+use hwine_rs::cost::ExtractMode;
+use hwine_rs::ir::DataType;
 use hwine_rs::ir::{AtomOp, ENode};
 use std::fs;
 
@@ -10,14 +12,14 @@ fn main() {
     for i in 0..n { ps.push(eg.add(ENode::leaf(AtomOp::Var(i)))); }
     
     let mut chain = ps[0];
-    for i in 1..n { chain = eg.add(ENode::new(AtomOp::Add, vec![chain, ps[i]])); }
+    for i in 1..n { chain = eg.add(ENode::new(AtomOp::Add, vec![chain, ps[i]], DataType::default())); }
 
     eg.saturate_with_config(30, 5000, 15, 10, false);
     
-    let (best, _) = eg.extract_optimal(chain);
+    let (best, _) = eg.extract_optimal(chain, ExtractMode::MinDelay);
     fn depth(n: &ENode, eg: &EGraph) -> usize {
         if n.children.is_empty() { 0 }
-        else { 1 + n.children.iter().map(|&c| depth(&eg.extract_optimal(c).0, eg)).max().unwrap_or(0) }
+        else { 1 + n.children.iter().map(|&c| depth(&eg.extract_optimal(c, ExtractMode::MinDelay).0, eg)).max().unwrap_or(0) }
     }
     
     println!("FIR-6 ADD tree:");

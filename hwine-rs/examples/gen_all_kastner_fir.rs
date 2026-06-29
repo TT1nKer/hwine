@@ -1,4 +1,5 @@
 use hwine_rs::egraph::EGraph;
+use hwine_rs::ir::DataType;
 use hwine_rs::ir::{AtomOp, ENode};
 use hwine_rs::rtl::{generate_rtl, generate_fine_pipelined_rtl};
 use std::fs;
@@ -9,12 +10,12 @@ fn build_const_fir(n_taps: usize, coeffs: &[i64]) -> (String, String) {
     for i in 0..n_taps {
         let a = eg.add(ENode::leaf(AtomOp::Var(i * 2)));
         let c = eg.add(ENode::leaf(AtomOp::Const(coeffs[i % coeffs.len()])));
-        let mul = eg.add(ENode::new(AtomOp::Mul, vec![a, c]));
+        let mul = eg.add(ENode::new(AtomOp::Mul, vec![a, c], DataType::default()));
         terms.push(mul);
     }
     let mut chain = terms[0];
-    for i in 1..n_taps { chain = eg.add(ENode::new(AtomOp::Add, vec![chain, terms[i]])); }
-    eg.saturate_with_config(30, 50000, 20, 15, false);
+    for i in 1..n_taps { chain = eg.add(ENode::new(AtomOp::Add, vec![chain, terms[i]], DataType::default())); }
+    eg.saturate(50, 30000);
     
     let rtl_pipe = generate_fine_pipelined_rtl(&eg, chain, &format!("hwine_fir_{n_taps}"), 16);
     let rtl_comb = generate_rtl(&eg, chain, &format!("hwine_comb_fir_{n_taps}"), 16);

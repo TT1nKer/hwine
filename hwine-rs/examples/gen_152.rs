@@ -1,4 +1,5 @@
 use hwine_rs::egraph::EGraph;
+use hwine_rs::ir::DataType;
 use hwine_rs::ir::{AtomOp, ENode};
 use hwine_rs::rtl::{generate_rtl, generate_pipelined_rtl};
 use std::fs;
@@ -8,7 +9,7 @@ fn main() {
     let mut vs = Vec::with_capacity(n);
     for i in 0..n { vs.push(eg.add(ENode::leaf(AtomOp::Var(i)))); }
     let mut c = vs[0];
-    for i in 1..n { c = eg.add(ENode::new(AtomOp::Add, vec![c, vs[i]])); }
+    for i in 1..n { c = eg.add(ENode::new(AtomOp::Add, vec![c, vs[i]], DataType::default())); }
     let rtl_s = generate_rtl(&eg, c, "serial_fir_152", 16);
     eg.saturate_with_config(30, 5000, 15, 10, false);
     let rtl_p = generate_pipelined_rtl(&eg, c, "pipe_fir_152", 16);

@@ -9,32 +9,15 @@ module hwine_fir_28 #(
   input  logic rst_n,
   input logic signed [16-1:0] a0,
   input logic signed [16-1:0] a1,
-  input logic signed [16-1:0] a2,
-  input logic signed [16-1:0] a3,
-  input logic signed [16-1:0] a4,
-  input logic signed [16-1:0] a5,
-  input logic signed [16-1:0] a6,
-  input logic signed [16-1:0] a7,
-  input logic signed [16-1:0] a8,
-  input logic signed [16-1:0] a9,
-  input logic signed [16-1:0] a10,
   input logic signed [16-1:0] a11,
   input logic signed [16-1:0] a12,
   input logic signed [16-1:0] a13,
-  input logic signed [16-1:0] a14,
-  input logic signed [16-1:0] a15,
-  input logic signed [16-1:0] a16,
-  input logic signed [16-1:0] a17,
   input logic signed [16-1:0] a18,
   input logic signed [16-1:0] a19,
   input logic signed [16-1:0] a20,
   input logic signed [16-1:0] a21,
-  input logic signed [16-1:0] a22,
-  input logic signed [16-1:0] a23,
   input logic signed [16-1:0] a24,
   input logic signed [16-1:0] a25,
-  input logic signed [16-1:0] a26,
-  input logic signed [16-1:0] a27,
   output logic signed [16-1:0] result
 );
 
@@ -132,187 +115,24 @@ module hwine_fir_28 #(
   logic signed [16-1:0] node_181;
   logic signed [16-1:0] node_182;
   logic signed [16-1:0] node_183;
-  logic signed [16-1:0] node_184;
-  logic signed [16-1:0] node_185;
-  logic signed [16-1:0] node_186;
-  logic signed [16-1:0] node_187;
-  logic signed [16-1:0] node_188;
-  logic signed [16-1:0] node_189;
   logic signed [16-1:0] node_19;
-  logic signed [16-1:0] node_190;
-  logic signed [16-1:0] node_191;
-  logic signed [16-1:0] node_192;
-  logic signed [16-1:0] node_193;
-  logic signed [16-1:0] node_194;
-  logic signed [16-1:0] node_195;
-  logic signed [16-1:0] node_196;
-  logic signed [16-1:0] node_197;
-  logic signed [16-1:0] node_198;
-  logic signed [16-1:0] node_199;
   logic signed [16-1:0] node_2;
   logic signed [16-1:0] node_20;
-  logic signed [16-1:0] node_200;
-  logic signed [16-1:0] node_201;
-  logic signed [16-1:0] node_202;
-  logic signed [16-1:0] node_203;
-  logic signed [16-1:0] node_204;
-  logic signed [16-1:0] node_205;
-  logic signed [16-1:0] node_206;
-  logic signed [16-1:0] node_207;
-  logic signed [16-1:0] node_208;
-  logic signed [16-1:0] node_209;
   logic signed [16-1:0] node_21;
-  logic signed [16-1:0] node_210;
-  logic signed [16-1:0] node_211;
-  logic signed [16-1:0] node_212;
-  logic signed [16-1:0] node_213;
-  logic signed [16-1:0] node_214;
-  logic signed [16-1:0] node_215;
-  logic signed [16-1:0] node_216;
-  logic signed [16-1:0] node_217;
-  logic signed [16-1:0] node_218;
-  logic signed [16-1:0] node_219;
   logic signed [16-1:0] node_22;
-  logic signed [16-1:0] node_220;
-  logic signed [16-1:0] node_221;
-  logic signed [16-1:0] node_222;
-  logic signed [16-1:0] node_223;
-  logic signed [16-1:0] node_224;
-  logic signed [16-1:0] node_225;
-  logic signed [16-1:0] node_226;
-  logic signed [16-1:0] node_227;
-  logic signed [16-1:0] node_228;
-  logic signed [16-1:0] node_229;
   logic signed [16-1:0] node_23;
-  logic signed [16-1:0] node_230;
-  logic signed [16-1:0] node_231;
-  logic signed [16-1:0] node_232;
-  logic signed [16-1:0] node_233;
-  logic signed [16-1:0] node_234;
-  logic signed [16-1:0] node_235;
-  logic signed [16-1:0] node_236;
-  logic signed [16-1:0] node_237;
-  logic signed [16-1:0] node_238;
-  logic signed [16-1:0] node_239;
   logic signed [16-1:0] node_24;
-  logic signed [16-1:0] node_240;
-  logic signed [16-1:0] node_241;
-  logic signed [16-1:0] node_242;
-  logic signed [16-1:0] node_243;
-  logic signed [16-1:0] node_244;
-  logic signed [16-1:0] node_245;
-  logic signed [16-1:0] node_246;
-  logic signed [16-1:0] node_247;
-  logic signed [16-1:0] node_248;
-  logic signed [16-1:0] node_249;
   logic signed [16-1:0] node_25;
-  logic signed [16-1:0] node_250;
-  logic signed [16-1:0] node_251;
-  logic signed [16-1:0] node_252;
-  logic signed [16-1:0] node_253;
-  logic signed [16-1:0] node_254;
-  logic signed [16-1:0] node_255;
-  logic signed [16-1:0] node_256;
-  logic signed [16-1:0] node_257;
-  logic signed [16-1:0] node_258;
-  logic signed [16-1:0] node_259;
   logic signed [16-1:0] node_26;
-  logic signed [16-1:0] node_260;
-  logic signed [16-1:0] node_261;
-  logic signed [16-1:0] node_262;
-  logic signed [16-1:0] node_263;
-  logic signed [16-1:0] node_264;
-  logic signed [16-1:0] node_265;
-  logic signed [16-1:0] node_266;
-  logic signed [16-1:0] node_267;
-  logic signed [16-1:0] node_268;
-  logic signed [16-1:0] node_269;
   logic signed [16-1:0] node_27;
-  logic signed [16-1:0] node_270;
-  logic signed [16-1:0] node_271;
-  logic signed [16-1:0] node_272;
-  logic signed [16-1:0] node_273;
-  logic signed [16-1:0] node_274;
-  logic signed [16-1:0] node_275;
-  logic signed [16-1:0] node_276;
-  logic signed [16-1:0] node_277;
-  logic signed [16-1:0] node_278;
-  logic signed [16-1:0] node_279;
   logic signed [16-1:0] node_28;
-  logic signed [16-1:0] node_280;
-  logic signed [16-1:0] node_281;
-  logic signed [16-1:0] node_282;
-  logic signed [16-1:0] node_283;
-  logic signed [16-1:0] node_284;
-  logic signed [16-1:0] node_285;
-  logic signed [16-1:0] node_286;
-  logic signed [16-1:0] node_287;
-  logic signed [16-1:0] node_288;
-  logic signed [16-1:0] node_289;
   logic signed [16-1:0] node_29;
-  logic signed [16-1:0] node_290;
-  logic signed [16-1:0] node_291;
-  logic signed [16-1:0] node_292;
-  logic signed [16-1:0] node_293;
-  logic signed [16-1:0] node_294;
-  logic signed [16-1:0] node_295;
-  logic signed [16-1:0] node_296;
-  logic signed [16-1:0] node_297;
-  logic signed [16-1:0] node_298;
-  logic signed [16-1:0] node_299;
   logic signed [16-1:0] node_3;
   logic signed [16-1:0] node_30;
-  logic signed [16-1:0] node_300;
-  logic signed [16-1:0] node_301;
-  logic signed [16-1:0] node_302;
-  logic signed [16-1:0] node_303;
-  logic signed [16-1:0] node_304;
-  logic signed [16-1:0] node_305;
-  logic signed [16-1:0] node_306;
-  logic signed [16-1:0] node_307;
-  logic signed [16-1:0] node_308;
-  logic signed [16-1:0] node_309;
   logic signed [16-1:0] node_31;
-  logic signed [16-1:0] node_310;
-  logic signed [16-1:0] node_311;
-  logic signed [16-1:0] node_312;
-  logic signed [16-1:0] node_313;
-  logic signed [16-1:0] node_314;
-  logic signed [16-1:0] node_315;
-  logic signed [16-1:0] node_316;
-  logic signed [16-1:0] node_317;
-  logic signed [16-1:0] node_318;
-  logic signed [16-1:0] node_319;
   logic signed [16-1:0] node_32;
-  logic signed [16-1:0] node_320;
-  logic signed [16-1:0] node_321;
-  logic signed [16-1:0] node_322;
-  logic signed [16-1:0] node_323;
-  logic signed [16-1:0] node_324;
-  logic signed [16-1:0] node_325;
-  logic signed [16-1:0] node_326;
-  logic signed [16-1:0] node_327;
-  logic signed [16-1:0] node_328;
-  logic signed [16-1:0] node_329;
   logic signed [16-1:0] node_33;
-  logic signed [16-1:0] node_330;
-  logic signed [16-1:0] node_331;
-  logic signed [16-1:0] node_332;
-  logic signed [16-1:0] node_333;
-  logic signed [16-1:0] node_334;
-  logic signed [16-1:0] node_335;
-  logic signed [16-1:0] node_336;
-  logic signed [16-1:0] node_337;
-  logic signed [16-1:0] node_338;
-  logic signed [16-1:0] node_339;
   logic signed [16-1:0] node_34;
-  logic signed [16-1:0] node_340;
-  logic signed [16-1:0] node_341;
-  logic signed [16-1:0] node_342;
-  logic signed [16-1:0] node_343;
-  logic signed [16-1:0] node_344;
-  logic signed [16-1:0] node_345;
-  logic signed [16-1:0] node_346;
   logic signed [16-1:0] node_35;
   logic signed [16-1:0] node_36;
   logic signed [16-1:0] node_37;
@@ -386,55 +206,15 @@ module hwine_fir_28 #(
   logic signed [16-1:0] node_99;
 
   // -- Sequential logic --
-  logic signed [16-1:0] node_11_reg;
+  logic signed [16-1:0] node_16_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_11_reg <= 16'd0;
-    else       node_11_reg <= node_12;
+    if (!rst_n) node_16_reg <= 16'd0;
+    else       node_16_reg <= node_17;
   end
-  logic signed [16-1:0] node_10_reg;
+  logic signed [16-1:0] node_15_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_10_reg <= 16'd0;
-    else       node_10_reg <= node_11;
-  end
-  logic signed [16-1:0] node_7_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_7_reg <= 16'd0;
-    else       node_7_reg <= node_8;
-  end
-  logic signed [16-1:0] node_6_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_6_reg <= 16'd0;
-    else       node_6_reg <= node_7;
-  end
-  logic signed [16-1:0] node_28_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_28_reg <= 16'd0;
-    else       node_28_reg <= node_29;
-  end
-  logic signed [16-1:0] node_27_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_27_reg <= 16'd0;
-    else       node_27_reg <= node_28;
-  end
-  logic signed [16-1:0] node_31_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_31_reg <= 16'd0;
-    else       node_31_reg <= node_32;
-  end
-  logic signed [16-1:0] node_30_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_30_reg <= 16'd0;
-    else       node_30_reg <= node_31;
-  end
-  logic signed [16-1:0] node_25_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_25_reg <= 16'd0;
-    else       node_25_reg <= node_26;
-  end
-  logic signed [16-1:0] node_24_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_24_reg <= 16'd0;
-    else       node_24_reg <= node_25;
+    if (!rst_n) node_15_reg <= 16'd0;
+    else       node_15_reg <= node_16;
   end
   logic signed [16-1:0] node_21_reg;
   always_ff @(posedge clk) begin
@@ -446,145 +226,25 @@ module hwine_fir_28 #(
     if (!rst_n) node_20_reg <= 16'd0;
     else       node_20_reg <= node_21;
   end
-  logic signed [16-1:0] node_48_reg;
+  logic signed [16-1:0] node_13_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_48_reg <= 16'd0;
-    else       node_48_reg <= node_49;
+    if (!rst_n) node_13_reg <= 16'd0;
+    else       node_13_reg <= node_14;
   end
-  logic signed [16-1:0] node_47_reg;
+  logic signed [16-1:0] node_12_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_47_reg <= 16'd0;
-    else       node_47_reg <= node_48;
+    if (!rst_n) node_12_reg <= 16'd0;
+    else       node_12_reg <= node_13;
   end
-  logic signed [16-1:0] node_44_reg;
+  logic signed [16-1:0] node_31_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_44_reg <= 16'd0;
-    else       node_44_reg <= node_45;
+    if (!rst_n) node_31_reg <= 16'd0;
+    else       node_31_reg <= node_32;
   end
-  logic signed [16-1:0] node_43_reg;
+  logic signed [16-1:0] node_30_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_43_reg <= 16'd0;
-    else       node_43_reg <= node_44;
-  end
-  logic signed [16-1:0] node_51_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_51_reg <= 16'd0;
-    else       node_51_reg <= node_52;
-  end
-  logic signed [16-1:0] node_50_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_50_reg <= 16'd0;
-    else       node_50_reg <= node_51;
-  end
-  logic signed [16-1:0] node_41_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_41_reg <= 16'd0;
-    else       node_41_reg <= node_42;
-  end
-  logic signed [16-1:0] node_40_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_40_reg <= 16'd0;
-    else       node_40_reg <= node_41;
-  end
-  logic signed [16-1:0] node_59_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_59_reg <= 16'd0;
-    else       node_59_reg <= node_60;
-  end
-  logic signed [16-1:0] node_58_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_58_reg <= 16'd0;
-    else       node_58_reg <= node_59;
-  end
-  logic signed [16-1:0] node_55_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_55_reg <= 16'd0;
-    else       node_55_reg <= node_56;
-  end
-  logic signed [16-1:0] node_54_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_54_reg <= 16'd0;
-    else       node_54_reg <= node_55;
-  end
-  logic signed [16-1:0] node_38_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_38_reg <= 16'd0;
-    else       node_38_reg <= node_39;
-  end
-  logic signed [16-1:0] node_37_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_37_reg <= 16'd0;
-    else       node_37_reg <= node_38;
-  end
-  logic signed [16-1:0] node_72_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_72_reg <= 16'd0;
-    else       node_72_reg <= node_73;
-  end
-  logic signed [16-1:0] node_71_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_71_reg <= 16'd0;
-    else       node_71_reg <= node_72;
-  end
-  logic signed [16-1:0] node_75_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_75_reg <= 16'd0;
-    else       node_75_reg <= node_76;
-  end
-  logic signed [16-1:0] node_74_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_74_reg <= 16'd0;
-    else       node_74_reg <= node_75;
-  end
-  logic signed [16-1:0] node_69_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_69_reg <= 16'd0;
-    else       node_69_reg <= node_70;
-  end
-  logic signed [16-1:0] node_68_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_68_reg <= 16'd0;
-    else       node_68_reg <= node_69;
-  end
-  logic signed [16-1:0] node_65_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_65_reg <= 16'd0;
-    else       node_65_reg <= node_66;
-  end
-  logic signed [16-1:0] node_64_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_64_reg <= 16'd0;
-    else       node_64_reg <= node_65;
-  end
-  logic signed [16-1:0] node_82_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_82_reg <= 16'd0;
-    else       node_82_reg <= node_83;
-  end
-  logic signed [16-1:0] node_81_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_81_reg <= 16'd0;
-    else       node_81_reg <= node_82;
-  end
-  logic signed [16-1:0] node_78_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_78_reg <= 16'd0;
-    else       node_78_reg <= node_79;
-  end
-  logic signed [16-1:0] node_77_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_77_reg <= 16'd0;
-    else       node_77_reg <= node_78;
-  end
-  logic signed [16-1:0] node_62_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_62_reg <= 16'd0;
-    else       node_62_reg <= node_63;
-  end
-  logic signed [16-1:0] node_61_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_61_reg <= 16'd0;
-    else       node_61_reg <= node_62;
+    if (!rst_n) node_30_reg <= 16'd0;
+    else       node_30_reg <= node_31;
   end
   logic signed [16-1:0] node_35_reg;
   always_ff @(posedge clk) begin
@@ -596,15 +256,165 @@ module hwine_fir_28 #(
     if (!rst_n) node_34_reg <= 16'd0;
     else       node_34_reg <= node_35;
   end
-  logic signed [16-1:0] node_18_reg;
+  logic signed [16-1:0] node_28_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_18_reg <= 16'd0;
-    else       node_18_reg <= node_19;
+    if (!rst_n) node_28_reg <= 16'd0;
+    else       node_28_reg <= node_29;
   end
-  logic signed [16-1:0] node_17_reg;
+  logic signed [16-1:0] node_27_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_17_reg <= 16'd0;
-    else       node_17_reg <= node_18;
+    if (!rst_n) node_27_reg <= 16'd0;
+    else       node_27_reg <= node_28;
+  end
+  logic signed [16-1:0] node_45_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_45_reg <= 16'd0;
+    else       node_45_reg <= node_46;
+  end
+  logic signed [16-1:0] node_44_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_44_reg <= 16'd0;
+    else       node_44_reg <= node_45;
+  end
+  logic signed [16-1:0] node_42_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_42_reg <= 16'd0;
+    else       node_42_reg <= node_43;
+  end
+  logic signed [16-1:0] node_41_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_41_reg <= 16'd0;
+    else       node_41_reg <= node_42;
+  end
+  logic signed [16-1:0] node_51_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_51_reg <= 16'd0;
+    else       node_51_reg <= node_52;
+  end
+  logic signed [16-1:0] node_50_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_50_reg <= 16'd0;
+    else       node_50_reg <= node_51;
+  end
+  logic signed [16-1:0] node_48_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_48_reg <= 16'd0;
+    else       node_48_reg <= node_49;
+  end
+  logic signed [16-1:0] node_47_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_47_reg <= 16'd0;
+    else       node_47_reg <= node_48;
+  end
+  logic signed [16-1:0] node_39_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_39_reg <= 16'd0;
+    else       node_39_reg <= node_40;
+  end
+  logic signed [16-1:0] node_38_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_38_reg <= 16'd0;
+    else       node_38_reg <= node_39;
+  end
+  logic signed [16-1:0] node_25_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_25_reg <= 16'd0;
+    else       node_25_reg <= node_26;
+  end
+  logic signed [16-1:0] node_24_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_24_reg <= 16'd0;
+    else       node_24_reg <= node_25;
+  end
+  logic signed [16-1:0] node_10_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_10_reg <= 16'd0;
+    else       node_10_reg <= node_11;
+  end
+  logic signed [16-1:0] node_9_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_9_reg <= 16'd0;
+    else       node_9_reg <= node_10;
+  end
+  logic signed [16-1:0] node_55_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_55_reg <= 16'd0;
+    else       node_55_reg <= node_56;
+  end
+  logic signed [16-1:0] node_54_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_54_reg <= 16'd0;
+    else       node_54_reg <= node_55;
+  end
+  logic signed [16-1:0] node_7_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_7_reg <= 16'd0;
+    else       node_7_reg <= node_8;
+  end
+  logic signed [16-1:0] node_6_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_6_reg <= 16'd0;
+    else       node_6_reg <= node_7;
+  end
+  logic signed [16-1:0] node_65_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_65_reg <= 16'd0;
+    else       node_65_reg <= node_66;
+  end
+  logic signed [16-1:0] node_64_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_64_reg <= 16'd0;
+    else       node_64_reg <= node_65;
+  end
+  logic signed [16-1:0] node_69_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_69_reg <= 16'd0;
+    else       node_69_reg <= node_70;
+  end
+  logic signed [16-1:0] node_68_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_68_reg <= 16'd0;
+    else       node_68_reg <= node_69;
+  end
+  logic signed [16-1:0] node_62_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_62_reg <= 16'd0;
+    else       node_62_reg <= node_63;
+  end
+  logic signed [16-1:0] node_61_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_61_reg <= 16'd0;
+    else       node_61_reg <= node_62;
+  end
+  logic signed [16-1:0] node_78_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_78_reg <= 16'd0;
+    else       node_78_reg <= node_79;
+  end
+  logic signed [16-1:0] node_77_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_77_reg <= 16'd0;
+    else       node_77_reg <= node_78;
+  end
+  logic signed [16-1:0] node_82_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_82_reg <= 16'd0;
+    else       node_82_reg <= node_83;
+  end
+  logic signed [16-1:0] node_81_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_81_reg <= 16'd0;
+    else       node_81_reg <= node_82;
+  end
+  logic signed [16-1:0] node_75_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_75_reg <= 16'd0;
+    else       node_75_reg <= node_76;
+  end
+  logic signed [16-1:0] node_74_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_74_reg <= 16'd0;
+    else       node_74_reg <= node_75;
   end
   logic signed [16-1:0] node_91_reg;
   always_ff @(posedge clk) begin
@@ -616,36 +426,6 @@ module hwine_fir_28 #(
     if (!rst_n) node_90_reg <= 16'd0;
     else       node_90_reg <= node_91;
   end
-  logic signed [16-1:0] node_98_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_98_reg <= 16'd0;
-    else       node_98_reg <= node_99;
-  end
-  logic signed [16-1:0] node_97_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_97_reg <= 16'd0;
-    else       node_97_reg <= node_98;
-  end
-  logic signed [16-1:0] node_102_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_102_reg <= 16'd0;
-    else       node_102_reg <= node_103;
-  end
-  logic signed [16-1:0] node_101_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_101_reg <= 16'd0;
-    else       node_101_reg <= node_102;
-  end
-  logic signed [16-1:0] node_95_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_95_reg <= 16'd0;
-    else       node_95_reg <= node_96;
-  end
-  logic signed [16-1:0] node_94_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_94_reg <= 16'd0;
-    else       node_94_reg <= node_95;
-  end
   logic signed [16-1:0] node_88_reg;
   always_ff @(posedge clk) begin
     if (!rst_n) node_88_reg <= 16'd0;
@@ -655,136 +435,6 @@ module hwine_fir_28 #(
   always_ff @(posedge clk) begin
     if (!rst_n) node_87_reg <= 16'd0;
     else       node_87_reg <= node_88;
-  end
-  logic signed [16-1:0] node_108_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_108_reg <= 16'd0;
-    else       node_108_reg <= node_109;
-  end
-  logic signed [16-1:0] node_107_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_107_reg <= 16'd0;
-    else       node_107_reg <= node_108;
-  end
-  logic signed [16-1:0] node_118_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_118_reg <= 16'd0;
-    else       node_118_reg <= node_119;
-  end
-  logic signed [16-1:0] node_117_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_117_reg <= 16'd0;
-    else       node_117_reg <= node_118;
-  end
-  logic signed [16-1:0] node_124_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_124_reg <= 16'd0;
-    else       node_124_reg <= node_125;
-  end
-  logic signed [16-1:0] node_123_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_123_reg <= 16'd0;
-    else       node_123_reg <= node_124;
-  end
-  logic signed [16-1:0] node_127_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_127_reg <= 16'd0;
-    else       node_127_reg <= node_128;
-  end
-  logic signed [16-1:0] node_126_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_126_reg <= 16'd0;
-    else       node_126_reg <= node_127;
-  end
-  logic signed [16-1:0] node_121_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_121_reg <= 16'd0;
-    else       node_121_reg <= node_122;
-  end
-  logic signed [16-1:0] node_120_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_120_reg <= 16'd0;
-    else       node_120_reg <= node_121;
-  end
-  logic signed [16-1:0] node_115_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_115_reg <= 16'd0;
-    else       node_115_reg <= node_116;
-  end
-  logic signed [16-1:0] node_114_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_114_reg <= 16'd0;
-    else       node_114_reg <= node_115;
-  end
-  logic signed [16-1:0] node_137_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_137_reg <= 16'd0;
-    else       node_137_reg <= node_138;
-  end
-  logic signed [16-1:0] node_136_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_136_reg <= 16'd0;
-    else       node_136_reg <= node_137;
-  end
-  logic signed [16-1:0] node_141_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_141_reg <= 16'd0;
-    else       node_141_reg <= node_142;
-  end
-  logic signed [16-1:0] node_140_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_140_reg <= 16'd0;
-    else       node_140_reg <= node_141;
-  end
-  logic signed [16-1:0] node_134_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_134_reg <= 16'd0;
-    else       node_134_reg <= node_135;
-  end
-  logic signed [16-1:0] node_133_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_133_reg <= 16'd0;
-    else       node_133_reg <= node_134;
-  end
-  logic signed [16-1:0] node_144_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_144_reg <= 16'd0;
-    else       node_144_reg <= node_145;
-  end
-  logic signed [16-1:0] node_143_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_143_reg <= 16'd0;
-    else       node_143_reg <= node_144;
-  end
-  logic signed [16-1:0] node_131_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_131_reg <= 16'd0;
-    else       node_131_reg <= node_132;
-  end
-  logic signed [16-1:0] node_130_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_130_reg <= 16'd0;
-    else       node_130_reg <= node_131;
-  end
-  logic signed [16-1:0] node_112_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_112_reg <= 16'd0;
-    else       node_112_reg <= node_113;
-  end
-  logic signed [16-1:0] node_111_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_111_reg <= 16'd0;
-    else       node_111_reg <= node_112;
-  end
-  logic signed [16-1:0] node_105_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_105_reg <= 16'd0;
-    else       node_105_reg <= node_106;
-  end
-  logic signed [16-1:0] node_104_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_104_reg <= 16'd0;
-    else       node_104_reg <= node_105;
   end
   logic signed [16-1:0] node_85_reg;
   always_ff @(posedge clk) begin
@@ -796,15 +446,25 @@ module hwine_fir_28 #(
     if (!rst_n) node_84_reg <= 16'd0;
     else       node_84_reg <= node_85;
   end
-  logic signed [16-1:0] node_15_reg;
+  logic signed [16-1:0] node_72_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_15_reg <= 16'd0;
-    else       node_15_reg <= node_16;
+    if (!rst_n) node_72_reg <= 16'd0;
+    else       node_72_reg <= node_73;
   end
-  logic signed [16-1:0] node_14_reg;
+  logic signed [16-1:0] node_71_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_14_reg <= 16'd0;
-    else       node_14_reg <= node_15;
+    if (!rst_n) node_71_reg <= 16'd0;
+    else       node_71_reg <= node_72;
+  end
+  logic signed [16-1:0] node_59_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_59_reg <= 16'd0;
+    else       node_59_reg <= node_60;
+  end
+  logic signed [16-1:0] node_58_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_58_reg <= 16'd0;
+    else       node_58_reg <= node_59;
   end
   logic signed [16-1:0] node_4_reg;
   always_ff @(posedge clk) begin
@@ -816,615 +476,285 @@ module hwine_fir_28 #(
     if (!rst_n) node_3_reg <= 16'd0;
     else       node_3_reg <= node_4;
   end
-  logic signed [16-1:0] node_154_reg;
+  logic signed [16-1:0] node_100_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_154_reg <= 16'd0;
-    else       node_154_reg <= node_155;
+    if (!rst_n) node_100_reg <= 16'd0;
+    else       node_100_reg <= node_101;
   end
-  logic signed [16-1:0] node_153_reg;
+  logic signed [16-1:0] node_99_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_153_reg <= 16'd0;
-    else       node_153_reg <= node_154;
+    if (!rst_n) node_99_reg <= 16'd0;
+    else       node_99_reg <= node_100;
   end
-  logic signed [16-1:0] node_168_reg;
+  logic signed [16-1:0] node_114_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_168_reg <= 16'd0;
-    else       node_168_reg <= node_169;
+    if (!rst_n) node_114_reg <= 16'd0;
+    else       node_114_reg <= node_115;
   end
-  logic signed [16-1:0] node_167_reg;
+  logic signed [16-1:0] node_113_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_167_reg <= 16'd0;
-    else       node_167_reg <= node_168;
+    if (!rst_n) node_113_reg <= 16'd0;
+    else       node_113_reg <= node_114;
   end
-  logic signed [16-1:0] node_164_reg;
+  logic signed [16-1:0] node_111_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_164_reg <= 16'd0;
-    else       node_164_reg <= node_165;
+    if (!rst_n) node_111_reg <= 16'd0;
+    else       node_111_reg <= node_112;
   end
-  logic signed [16-1:0] node_163_reg;
+  logic signed [16-1:0] node_110_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_163_reg <= 16'd0;
-    else       node_163_reg <= node_164;
+    if (!rst_n) node_110_reg <= 16'd0;
+    else       node_110_reg <= node_111;
   end
-  logic signed [16-1:0] node_178_reg;
+  logic signed [16-1:0] node_118_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_178_reg <= 16'd0;
-    else       node_178_reg <= node_179;
+    if (!rst_n) node_118_reg <= 16'd0;
+    else       node_118_reg <= node_119;
   end
-  logic signed [16-1:0] node_177_reg;
+  logic signed [16-1:0] node_117_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_177_reg <= 16'd0;
-    else       node_177_reg <= node_178;
+    if (!rst_n) node_117_reg <= 16'd0;
+    else       node_117_reg <= node_118;
   end
-  logic signed [16-1:0] node_174_reg;
+  logic signed [16-1:0] node_108_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_174_reg <= 16'd0;
-    else       node_174_reg <= node_175;
+    if (!rst_n) node_108_reg <= 16'd0;
+    else       node_108_reg <= node_109;
   end
-  logic signed [16-1:0] node_173_reg;
+  logic signed [16-1:0] node_107_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_173_reg <= 16'd0;
-    else       node_173_reg <= node_174;
+    if (!rst_n) node_107_reg <= 16'd0;
+    else       node_107_reg <= node_108;
   end
-  logic signed [16-1:0] node_181_reg;
+  logic signed [16-1:0] node_130_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_181_reg <= 16'd0;
-    else       node_181_reg <= node_182;
+    if (!rst_n) node_130_reg <= 16'd0;
+    else       node_130_reg <= node_131;
   end
-  logic signed [16-1:0] node_180_reg;
+  logic signed [16-1:0] node_129_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_180_reg <= 16'd0;
-    else       node_180_reg <= node_181;
+    if (!rst_n) node_129_reg <= 16'd0;
+    else       node_129_reg <= node_130;
   end
-  logic signed [16-1:0] node_171_reg;
+  logic signed [16-1:0] node_127_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_171_reg <= 16'd0;
-    else       node_171_reg <= node_172;
+    if (!rst_n) node_127_reg <= 16'd0;
+    else       node_127_reg <= node_128;
   end
-  logic signed [16-1:0] node_170_reg;
+  logic signed [16-1:0] node_126_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_170_reg <= 16'd0;
-    else       node_170_reg <= node_171;
+    if (!rst_n) node_126_reg <= 16'd0;
+    else       node_126_reg <= node_127;
   end
-  logic signed [16-1:0] node_161_reg;
+  logic signed [16-1:0] node_134_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_161_reg <= 16'd0;
-    else       node_161_reg <= node_162;
+    if (!rst_n) node_134_reg <= 16'd0;
+    else       node_134_reg <= node_135;
+  end
+  logic signed [16-1:0] node_133_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_133_reg <= 16'd0;
+    else       node_133_reg <= node_134;
+  end
+  logic signed [16-1:0] node_124_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_124_reg <= 16'd0;
+    else       node_124_reg <= node_125;
+  end
+  logic signed [16-1:0] node_123_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_123_reg <= 16'd0;
+    else       node_123_reg <= node_124;
+  end
+  logic signed [16-1:0] node_140_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_140_reg <= 16'd0;
+    else       node_140_reg <= node_141;
+  end
+  logic signed [16-1:0] node_139_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_139_reg <= 16'd0;
+    else       node_139_reg <= node_140;
+  end
+  logic signed [16-1:0] node_147_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_147_reg <= 16'd0;
+    else       node_147_reg <= node_148;
+  end
+  logic signed [16-1:0] node_146_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_146_reg <= 16'd0;
+    else       node_146_reg <= node_147;
+  end
+  logic signed [16-1:0] node_144_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_144_reg <= 16'd0;
+    else       node_144_reg <= node_145;
+  end
+  logic signed [16-1:0] node_143_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_143_reg <= 16'd0;
+    else       node_143_reg <= node_144;
+  end
+  logic signed [16-1:0] node_137_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_137_reg <= 16'd0;
+    else       node_137_reg <= node_138;
+  end
+  logic signed [16-1:0] node_136_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_136_reg <= 16'd0;
+    else       node_136_reg <= node_137;
+  end
+  logic signed [16-1:0] node_121_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_121_reg <= 16'd0;
+    else       node_121_reg <= node_122;
+  end
+  logic signed [16-1:0] node_120_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_120_reg <= 16'd0;
+    else       node_120_reg <= node_121;
+  end
+  logic signed [16-1:0] node_105_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_105_reg <= 16'd0;
+    else       node_105_reg <= node_106;
+  end
+  logic signed [16-1:0] node_104_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_104_reg <= 16'd0;
+    else       node_104_reg <= node_105;
+  end
+  logic signed [16-1:0] node_97_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_97_reg <= 16'd0;
+    else       node_97_reg <= node_98;
+  end
+  logic signed [16-1:0] node_96_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_96_reg <= 16'd0;
+    else       node_96_reg <= node_97;
+  end
+  logic signed [16-1:0] node_156_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_156_reg <= 16'd0;
+    else       node_156_reg <= node_157;
+  end
+  logic signed [16-1:0] node_155_reg;
+  always_ff @(posedge clk) begin
+    if (!rst_n) node_155_reg <= 16'd0;
+    else       node_155_reg <= node_156;
   end
   logic signed [16-1:0] node_160_reg;
   always_ff @(posedge clk) begin
     if (!rst_n) node_160_reg <= 16'd0;
     else       node_160_reg <= node_161;
   end
-  logic signed [16-1:0] node_197_reg;
+  logic signed [16-1:0] node_159_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_197_reg <= 16'd0;
-    else       node_197_reg <= node_198;
+    if (!rst_n) node_159_reg <= 16'd0;
+    else       node_159_reg <= node_160;
   end
-  logic signed [16-1:0] node_196_reg;
+  logic signed [16-1:0] node_153_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_196_reg <= 16'd0;
-    else       node_196_reg <= node_197;
+    if (!rst_n) node_153_reg <= 16'd0;
+    else       node_153_reg <= node_154;
   end
-  logic signed [16-1:0] node_200_reg;
+  logic signed [16-1:0] node_152_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_200_reg <= 16'd0;
-    else       node_200_reg <= node_201;
+    if (!rst_n) node_152_reg <= 16'd0;
+    else       node_152_reg <= node_153;
   end
-  logic signed [16-1:0] node_199_reg;
+  logic signed [16-1:0] node_172_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_199_reg <= 16'd0;
-    else       node_199_reg <= node_200;
+    if (!rst_n) node_172_reg <= 16'd0;
+    else       node_172_reg <= node_173;
   end
-  logic signed [16-1:0] node_194_reg;
+  logic signed [16-1:0] node_171_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_194_reg <= 16'd0;
-    else       node_194_reg <= node_195;
+    if (!rst_n) node_171_reg <= 16'd0;
+    else       node_171_reg <= node_172;
   end
-  logic signed [16-1:0] node_193_reg;
+  logic signed [16-1:0] node_176_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_193_reg <= 16'd0;
-    else       node_193_reg <= node_194;
+    if (!rst_n) node_176_reg <= 16'd0;
+    else       node_176_reg <= node_177;
   end
-  logic signed [16-1:0] node_207_reg;
+  logic signed [16-1:0] node_175_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_207_reg <= 16'd0;
-    else       node_207_reg <= node_208;
+    if (!rst_n) node_175_reg <= 16'd0;
+    else       node_175_reg <= node_176;
   end
-  logic signed [16-1:0] node_206_reg;
+  logic signed [16-1:0] node_169_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_206_reg <= 16'd0;
-    else       node_206_reg <= node_207;
+    if (!rst_n) node_169_reg <= 16'd0;
+    else       node_169_reg <= node_170;
   end
-  logic signed [16-1:0] node_203_reg;
+  logic signed [16-1:0] node_168_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_203_reg <= 16'd0;
-    else       node_203_reg <= node_204;
+    if (!rst_n) node_168_reg <= 16'd0;
+    else       node_168_reg <= node_169;
   end
-  logic signed [16-1:0] node_202_reg;
+  logic signed [16-1:0] node_182_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_202_reg <= 16'd0;
-    else       node_202_reg <= node_203;
+    if (!rst_n) node_182_reg <= 16'd0;
+    else       node_182_reg <= node_183;
   end
-  logic signed [16-1:0] node_191_reg;
+  logic signed [16-1:0] node_181_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_191_reg <= 16'd0;
-    else       node_191_reg <= node_192;
+    if (!rst_n) node_181_reg <= 16'd0;
+    else       node_181_reg <= node_182;
   end
-  logic signed [16-1:0] node_190_reg;
+  logic signed [16-1:0] node_179_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_190_reg <= 16'd0;
-    else       node_190_reg <= node_191;
+    if (!rst_n) node_179_reg <= 16'd0;
+    else       node_179_reg <= node_180;
   end
-  logic signed [16-1:0] node_187_reg;
+  logic signed [16-1:0] node_178_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_187_reg <= 16'd0;
-    else       node_187_reg <= node_188;
+    if (!rst_n) node_178_reg <= 16'd0;
+    else       node_178_reg <= node_179;
   end
-  logic signed [16-1:0] node_186_reg;
+  logic signed [16-1:0] node_166_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_186_reg <= 16'd0;
-    else       node_186_reg <= node_187;
+    if (!rst_n) node_166_reg <= 16'd0;
+    else       node_166_reg <= node_167;
   end
-  logic signed [16-1:0] node_220_reg;
+  logic signed [16-1:0] node_165_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_220_reg <= 16'd0;
-    else       node_220_reg <= node_221;
+    if (!rst_n) node_165_reg <= 16'd0;
+    else       node_165_reg <= node_166;
   end
-  logic signed [16-1:0] node_219_reg;
+  logic signed [16-1:0] node_163_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_219_reg <= 16'd0;
-    else       node_219_reg <= node_220;
+    if (!rst_n) node_163_reg <= 16'd0;
+    else       node_163_reg <= node_164;
   end
-  logic signed [16-1:0] node_216_reg;
+  logic signed [16-1:0] node_162_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_216_reg <= 16'd0;
-    else       node_216_reg <= node_217;
-  end
-  logic signed [16-1:0] node_215_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_215_reg <= 16'd0;
-    else       node_215_reg <= node_216;
-  end
-  logic signed [16-1:0] node_223_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_223_reg <= 16'd0;
-    else       node_223_reg <= node_224;
-  end
-  logic signed [16-1:0] node_222_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_222_reg <= 16'd0;
-    else       node_222_reg <= node_223;
-  end
-  logic signed [16-1:0] node_213_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_213_reg <= 16'd0;
-    else       node_213_reg <= node_214;
-  end
-  logic signed [16-1:0] node_212_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_212_reg <= 16'd0;
-    else       node_212_reg <= node_213;
-  end
-  logic signed [16-1:0] node_230_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_230_reg <= 16'd0;
-    else       node_230_reg <= node_231;
-  end
-  logic signed [16-1:0] node_229_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_229_reg <= 16'd0;
-    else       node_229_reg <= node_230;
-  end
-  logic signed [16-1:0] node_226_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_226_reg <= 16'd0;
-    else       node_226_reg <= node_227;
-  end
-  logic signed [16-1:0] node_225_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_225_reg <= 16'd0;
-    else       node_225_reg <= node_226;
-  end
-  logic signed [16-1:0] node_210_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_210_reg <= 16'd0;
-    else       node_210_reg <= node_211;
-  end
-  logic signed [16-1:0] node_209_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_209_reg <= 16'd0;
-    else       node_209_reg <= node_210;
-  end
-  logic signed [16-1:0] node_184_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_184_reg <= 16'd0;
-    else       node_184_reg <= node_185;
-  end
-  logic signed [16-1:0] node_183_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_183_reg <= 16'd0;
-    else       node_183_reg <= node_184;
-  end
-  logic signed [16-1:0] node_158_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_158_reg <= 16'd0;
-    else       node_158_reg <= node_159;
-  end
-  logic signed [16-1:0] node_157_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_157_reg <= 16'd0;
-    else       node_157_reg <= node_158;
-  end
-  logic signed [16-1:0] node_151_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_151_reg <= 16'd0;
-    else       node_151_reg <= node_152;
+    if (!rst_n) node_162_reg <= 16'd0;
+    else       node_162_reg <= node_163;
   end
   logic signed [16-1:0] node_150_reg;
   always_ff @(posedge clk) begin
     if (!rst_n) node_150_reg <= 16'd0;
     else       node_150_reg <= node_151;
   end
-  logic signed [16-1:0] node_245_reg;
+  logic signed [16-1:0] node_149_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_245_reg <= 16'd0;
-    else       node_245_reg <= node_246;
+    if (!rst_n) node_149_reg <= 16'd0;
+    else       node_149_reg <= node_150;
   end
-  logic signed [16-1:0] node_244_reg;
+  logic signed [16-1:0] node_94_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_244_reg <= 16'd0;
-    else       node_244_reg <= node_245;
+    if (!rst_n) node_94_reg <= 16'd0;
+    else       node_94_reg <= node_95;
   end
-  logic signed [16-1:0] node_252_reg;
+  logic signed [16-1:0] node_93_reg;
   always_ff @(posedge clk) begin
-    if (!rst_n) node_252_reg <= 16'd0;
-    else       node_252_reg <= node_253;
-  end
-  logic signed [16-1:0] node_251_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_251_reg <= 16'd0;
-    else       node_251_reg <= node_252;
-  end
-  logic signed [16-1:0] node_256_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_256_reg <= 16'd0;
-    else       node_256_reg <= node_257;
-  end
-  logic signed [16-1:0] node_255_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_255_reg <= 16'd0;
-    else       node_255_reg <= node_256;
-  end
-  logic signed [16-1:0] node_249_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_249_reg <= 16'd0;
-    else       node_249_reg <= node_250;
-  end
-  logic signed [16-1:0] node_248_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_248_reg <= 16'd0;
-    else       node_248_reg <= node_249;
-  end
-  logic signed [16-1:0] node_242_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_242_reg <= 16'd0;
-    else       node_242_reg <= node_243;
-  end
-  logic signed [16-1:0] node_241_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_241_reg <= 16'd0;
-    else       node_241_reg <= node_242;
-  end
-  logic signed [16-1:0] node_262_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_262_reg <= 16'd0;
-    else       node_262_reg <= node_263;
-  end
-  logic signed [16-1:0] node_261_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_261_reg <= 16'd0;
-    else       node_261_reg <= node_262;
-  end
-  logic signed [16-1:0] node_269_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_269_reg <= 16'd0;
-    else       node_269_reg <= node_270;
-  end
-  logic signed [16-1:0] node_268_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_268_reg <= 16'd0;
-    else       node_268_reg <= node_269;
-  end
-  logic signed [16-1:0] node_272_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_272_reg <= 16'd0;
-    else       node_272_reg <= node_273;
-  end
-  logic signed [16-1:0] node_271_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_271_reg <= 16'd0;
-    else       node_271_reg <= node_272;
-  end
-  logic signed [16-1:0] node_266_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_266_reg <= 16'd0;
-    else       node_266_reg <= node_267;
-  end
-  logic signed [16-1:0] node_265_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_265_reg <= 16'd0;
-    else       node_265_reg <= node_266;
-  end
-  logic signed [16-1:0] node_259_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_259_reg <= 16'd0;
-    else       node_259_reg <= node_260;
-  end
-  logic signed [16-1:0] node_258_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_258_reg <= 16'd0;
-    else       node_258_reg <= node_259;
-  end
-  logic signed [16-1:0] node_239_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_239_reg <= 16'd0;
-    else       node_239_reg <= node_240;
-  end
-  logic signed [16-1:0] node_238_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_238_reg <= 16'd0;
-    else       node_238_reg <= node_239;
-  end
-  logic signed [16-1:0] node_278_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_278_reg <= 16'd0;
-    else       node_278_reg <= node_279;
-  end
-  logic signed [16-1:0] node_277_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_277_reg <= 16'd0;
-    else       node_277_reg <= node_278;
-  end
-  logic signed [16-1:0] node_288_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_288_reg <= 16'd0;
-    else       node_288_reg <= node_289;
-  end
-  logic signed [16-1:0] node_287_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_287_reg <= 16'd0;
-    else       node_287_reg <= node_288;
-  end
-  logic signed [16-1:0] node_292_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_292_reg <= 16'd0;
-    else       node_292_reg <= node_293;
-  end
-  logic signed [16-1:0] node_291_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_291_reg <= 16'd0;
-    else       node_291_reg <= node_292;
-  end
-  logic signed [16-1:0] node_285_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_285_reg <= 16'd0;
-    else       node_285_reg <= node_286;
-  end
-  logic signed [16-1:0] node_284_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_284_reg <= 16'd0;
-    else       node_284_reg <= node_285;
-  end
-  logic signed [16-1:0] node_295_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_295_reg <= 16'd0;
-    else       node_295_reg <= node_296;
-  end
-  logic signed [16-1:0] node_294_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_294_reg <= 16'd0;
-    else       node_294_reg <= node_295;
-  end
-  logic signed [16-1:0] node_282_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_282_reg <= 16'd0;
-    else       node_282_reg <= node_283;
-  end
-  logic signed [16-1:0] node_281_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_281_reg <= 16'd0;
-    else       node_281_reg <= node_282;
-  end
-  logic signed [16-1:0] node_275_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_275_reg <= 16'd0;
-    else       node_275_reg <= node_276;
-  end
-  logic signed [16-1:0] node_274_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_274_reg <= 16'd0;
-    else       node_274_reg <= node_275;
-  end
-  logic signed [16-1:0] node_236_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_236_reg <= 16'd0;
-    else       node_236_reg <= node_237;
-  end
-  logic signed [16-1:0] node_235_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_235_reg <= 16'd0;
-    else       node_235_reg <= node_236;
-  end
-  logic signed [16-1:0] node_309_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_309_reg <= 16'd0;
-    else       node_309_reg <= node_310;
-  end
-  logic signed [16-1:0] node_308_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_308_reg <= 16'd0;
-    else       node_308_reg <= node_309;
-  end
-  logic signed [16-1:0] node_305_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_305_reg <= 16'd0;
-    else       node_305_reg <= node_306;
-  end
-  logic signed [16-1:0] node_304_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_304_reg <= 16'd0;
-    else       node_304_reg <= node_305;
-  end
-  logic signed [16-1:0] node_319_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_319_reg <= 16'd0;
-    else       node_319_reg <= node_320;
-  end
-  logic signed [16-1:0] node_318_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_318_reg <= 16'd0;
-    else       node_318_reg <= node_319;
-  end
-  logic signed [16-1:0] node_315_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_315_reg <= 16'd0;
-    else       node_315_reg <= node_316;
-  end
-  logic signed [16-1:0] node_314_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_314_reg <= 16'd0;
-    else       node_314_reg <= node_315;
-  end
-  logic signed [16-1:0] node_322_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_322_reg <= 16'd0;
-    else       node_322_reg <= node_323;
-  end
-  logic signed [16-1:0] node_321_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_321_reg <= 16'd0;
-    else       node_321_reg <= node_322;
-  end
-  logic signed [16-1:0] node_312_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_312_reg <= 16'd0;
-    else       node_312_reg <= node_313;
-  end
-  logic signed [16-1:0] node_311_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_311_reg <= 16'd0;
-    else       node_311_reg <= node_312;
-  end
-  logic signed [16-1:0] node_302_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_302_reg <= 16'd0;
-    else       node_302_reg <= node_303;
-  end
-  logic signed [16-1:0] node_301_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_301_reg <= 16'd0;
-    else       node_301_reg <= node_302;
-  end
-  logic signed [16-1:0] node_335_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_335_reg <= 16'd0;
-    else       node_335_reg <= node_336;
-  end
-  logic signed [16-1:0] node_334_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_334_reg <= 16'd0;
-    else       node_334_reg <= node_335;
-  end
-  logic signed [16-1:0] node_338_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_338_reg <= 16'd0;
-    else       node_338_reg <= node_339;
-  end
-  logic signed [16-1:0] node_337_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_337_reg <= 16'd0;
-    else       node_337_reg <= node_338;
-  end
-  logic signed [16-1:0] node_332_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_332_reg <= 16'd0;
-    else       node_332_reg <= node_333;
-  end
-  logic signed [16-1:0] node_331_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_331_reg <= 16'd0;
-    else       node_331_reg <= node_332;
-  end
-  logic signed [16-1:0] node_328_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_328_reg <= 16'd0;
-    else       node_328_reg <= node_329;
-  end
-  logic signed [16-1:0] node_327_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_327_reg <= 16'd0;
-    else       node_327_reg <= node_328;
-  end
-  logic signed [16-1:0] node_345_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_345_reg <= 16'd0;
-    else       node_345_reg <= node_346;
-  end
-  logic signed [16-1:0] node_344_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_344_reg <= 16'd0;
-    else       node_344_reg <= node_345;
-  end
-  logic signed [16-1:0] node_341_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_341_reg <= 16'd0;
-    else       node_341_reg <= node_342;
-  end
-  logic signed [16-1:0] node_340_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_340_reg <= 16'd0;
-    else       node_340_reg <= node_341;
-  end
-  logic signed [16-1:0] node_325_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_325_reg <= 16'd0;
-    else       node_325_reg <= node_326;
-  end
-  logic signed [16-1:0] node_324_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_324_reg <= 16'd0;
-    else       node_324_reg <= node_325;
-  end
-  logic signed [16-1:0] node_299_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_299_reg <= 16'd0;
-    else       node_299_reg <= node_300;
-  end
-  logic signed [16-1:0] node_298_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_298_reg <= 16'd0;
-    else       node_298_reg <= node_299;
-  end
-  logic signed [16-1:0] node_233_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_233_reg <= 16'd0;
-    else       node_233_reg <= node_234;
-  end
-  logic signed [16-1:0] node_232_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_232_reg <= 16'd0;
-    else       node_232_reg <= node_233;
-  end
-  logic signed [16-1:0] node_148_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_148_reg <= 16'd0;
-    else       node_148_reg <= node_149;
-  end
-  logic signed [16-1:0] node_147_reg;
-  always_ff @(posedge clk) begin
-    if (!rst_n) node_147_reg <= 16'd0;
-    else       node_147_reg <= node_148;
+    if (!rst_n) node_93_reg <= 16'd0;
+    else       node_93_reg <= node_94;
   end
   logic signed [16-1:0] node_1_reg;
   always_ff @(posedge clk) begin
@@ -1433,351 +763,188 @@ module hwine_fir_28 #(
   end
 
   // -- Combinational logic --
-  assign node_9 = a0;
-  assign node_13 = 16'd1;
-  assign node_12 = node_9 << node_13;  // shift left
-  assign node_11 = node_11_reg;
-  assign node_10 = node_10_reg;
-  assign node_8 = node_9 + node_10;  // LUT adder
-  assign node_7 = node_7_reg;
-  assign node_6 = node_6_reg;
-  assign node_23 = a1;
-  assign node_29 = node_23 << node_13;  // shift left
-  assign node_28 = node_28_reg;
-  assign node_27 = node_27_reg;
-  assign node_33 = 16'd2;
-  assign node_32 = node_23 << node_33;  // shift left
-  assign node_31 = node_31_reg;
-  assign node_30 = node_30_reg;
-  assign node_26 = node_27 + node_30;  // LUT adder
-  assign node_25 = node_25_reg;
-  assign node_24 = node_24_reg;
-  assign node_22 = node_23 + node_24;  // LUT adder
+  assign node_18 = 16'd0;
+  assign node_19 = a0;
+  assign node_17 = node_18 - node_19;  // subtract
+  assign node_16 = node_16_reg;
+  assign node_15 = node_15_reg;
+  assign node_23 = 16'd2;
+  assign node_22 = node_19 << node_23;  // shift left
   assign node_21 = node_21_reg;
   assign node_20 = node_20_reg;
-  assign node_46 = a2;
-  assign node_49 = node_46 << node_33;  // shift left
-  assign node_48 = node_48_reg;
-  assign node_47 = node_47_reg;
-  assign node_45 = node_46 + node_47;  // LUT adder
-  assign node_44 = node_44_reg;
-  assign node_43 = node_43_reg;
-  assign node_53 = 16'd3;
-  assign node_52 = node_46 << node_53;  // shift left
-  assign node_51 = node_51_reg;
-  assign node_50 = node_50_reg;
-  assign node_42 = node_43 + node_50;  // LUT adder
-  assign node_41 = node_41_reg;
-  assign node_40 = node_40_reg;
-  assign node_57 = a3;
-  assign node_60 = node_57 << node_33;  // shift left
-  assign node_59 = node_59_reg;
-  assign node_58 = node_58_reg;
-  assign node_56 = node_57 + node_58;  // LUT adder
-  assign node_55 = node_55_reg;
-  assign node_54 = node_54_reg;
-  assign node_39 = node_40 + node_54;  // LUT adder
-  assign node_38 = node_38_reg;
-  assign node_37 = node_37_reg;
-  assign node_67 = a4;
-  assign node_73 = node_67 << node_13;  // shift left
-  assign node_72 = node_72_reg;
-  assign node_71 = node_71_reg;
-  assign node_76 = node_67 << node_53;  // shift left
-  assign node_75 = node_75_reg;
-  assign node_74 = node_74_reg;
-  assign node_70 = node_71 + node_74;  // LUT adder
-  assign node_69 = node_69_reg;
-  assign node_68 = node_68_reg;
-  assign node_66 = node_67 + node_68;  // LUT adder
-  assign node_65 = node_65_reg;
-  assign node_64 = node_64_reg;
-  assign node_80 = a5;
-  assign node_83 = node_80 << node_53;  // shift left
-  assign node_82 = node_82_reg;
-  assign node_81 = node_81_reg;
-  assign node_79 = node_80 + node_81;  // LUT adder
-  assign node_78 = node_78_reg;
-  assign node_77 = node_77_reg;
-  assign node_63 = node_64 + node_77;  // LUT adder
-  assign node_62 = node_62_reg;
-  assign node_61 = node_61_reg;
-  assign node_36 = node_37 + node_61;  // LUT adder
+  assign node_14 = node_15 + node_20;  // LUT adder
+  assign node_13 = node_13_reg;
+  assign node_12 = node_12_reg;
+  assign node_33 = a1;
+  assign node_32 = node_18 - node_33;  // subtract
+  assign node_31 = node_31_reg;
+  assign node_30 = node_30_reg;
+  assign node_37 = 16'd3;
+  assign node_36 = node_33 << node_37;  // shift left
   assign node_35 = node_35_reg;
   assign node_34 = node_34_reg;
-  assign node_19 = node_20 + node_34;  // LUT adder
-  assign node_18 = node_18_reg;
-  assign node_17 = node_17_reg;
-  assign node_93 = a6;
-  assign node_92 = node_93 << node_13;  // shift left
+  assign node_29 = node_30 + node_34;  // LUT adder
+  assign node_28 = node_28_reg;
+  assign node_27 = node_27_reg;
+  assign node_46 = node_18 << node_23;  // shift left
+  assign node_45 = node_45_reg;
+  assign node_44 = node_44_reg;
+  assign node_43 = node_18 - node_44;  // subtract
+  assign node_42 = node_42_reg;
+  assign node_41 = node_41_reg;
+  assign node_53 = 16'd4;
+  assign node_52 = node_18 << node_53;  // shift left
+  assign node_51 = node_51_reg;
+  assign node_50 = node_50_reg;
+  assign node_49 = node_50 + 0;  // LUT adder
+  assign node_48 = node_48_reg;
+  assign node_47 = node_47_reg;
+  assign node_40 = node_41 + node_47;  // LUT adder
+  assign node_39 = node_39_reg;
+  assign node_38 = node_38_reg;
+  assign node_26 = node_27 + node_38;  // LUT adder
+  assign node_25 = node_25_reg;
+  assign node_24 = node_24_reg;
+  assign node_11 = node_12 + node_24;  // LUT adder
+  assign node_10 = node_10_reg;
+  assign node_9 = node_9_reg;
+  assign node_57 = a11;
+  assign node_56 = node_57 << node_37;  // shift left
+  assign node_55 = node_55_reg;
+  assign node_54 = node_54_reg;
+  assign node_8 = node_9 + node_54;  // LUT adder
+  assign node_7 = node_7_reg;
+  assign node_6 = node_6_reg;
+  assign node_67 = a12;
+  assign node_66 = node_18 - node_67;  // subtract
+  assign node_65 = node_65_reg;
+  assign node_64 = node_64_reg;
+  assign node_70 = node_67 << node_23;  // shift left
+  assign node_69 = node_69_reg;
+  assign node_68 = node_68_reg;
+  assign node_63 = node_64 + node_68;  // LUT adder
+  assign node_62 = node_62_reg;
+  assign node_61 = node_61_reg;
+  assign node_80 = a13;
+  assign node_79 = node_18 - node_80;  // subtract
+  assign node_78 = node_78_reg;
+  assign node_77 = node_77_reg;
+  assign node_83 = node_80 << node_37;  // shift left
+  assign node_82 = node_82_reg;
+  assign node_81 = node_81_reg;
+  assign node_76 = node_77 + node_81;  // LUT adder
+  assign node_75 = node_75_reg;
+  assign node_74 = node_74_reg;
+  assign node_92 = 0 + 0;  // LUT adder
   assign node_91 = node_91_reg;
   assign node_90 = node_90_reg;
-  assign node_100 = a7;
-  assign node_99 = node_100 << node_13;  // shift left
-  assign node_98 = node_98_reg;
-  assign node_97 = node_97_reg;
-  assign node_103 = node_100 << node_33;  // shift left
-  assign node_102 = node_102_reg;
-  assign node_101 = node_101_reg;
-  assign node_96 = node_97 + node_101;  // LUT adder
-  assign node_95 = node_95_reg;
-  assign node_94 = node_94_reg;
-  assign node_89 = node_90 + node_94;  // LUT adder
+  assign node_89 = node_90 + node_91;  // LUT adder
   assign node_88 = node_88_reg;
   assign node_87 = node_87_reg;
-  assign node_110 = a8;
-  assign node_109 = node_110 << node_13;  // shift left
-  assign node_108 = node_108_reg;
-  assign node_107 = node_107_reg;
-  assign node_119 = node_110 << node_33;  // shift left
-  assign node_118 = node_118_reg;
-  assign node_117 = node_117_reg;
-  assign node_125 = node_110 << node_53;  // shift left
-  assign node_124 = node_124_reg;
-  assign node_123 = node_123_reg;
-  assign node_129 = a9;
-  assign node_128 = node_129 << node_33;  // shift left
-  assign node_127 = node_127_reg;
-  assign node_126 = node_126_reg;
-  assign node_122 = node_123 + node_126;  // LUT adder
-  assign node_121 = node_121_reg;
-  assign node_120 = node_120_reg;
-  assign node_116 = node_117 + node_120;  // LUT adder
-  assign node_115 = node_115_reg;
-  assign node_114 = node_114_reg;
-  assign node_139 = a10;
-  assign node_138 = node_139 << node_13;  // shift left
-  assign node_137 = node_137_reg;
-  assign node_136 = node_136_reg;
-  assign node_142 = node_139 << node_53;  // shift left
-  assign node_141 = node_141_reg;
-  assign node_140 = node_140_reg;
-  assign node_135 = node_136 + node_140;  // LUT adder
-  assign node_134 = node_134_reg;
-  assign node_133 = node_133_reg;
-  assign node_146 = a11;
-  assign node_145 = node_146 << node_53;  // shift left
-  assign node_144 = node_144_reg;
-  assign node_143 = node_143_reg;
-  assign node_132 = node_133 + node_143;  // LUT adder
-  assign node_131 = node_131_reg;
-  assign node_130 = node_130_reg;
-  assign node_113 = node_114 + node_130;  // LUT adder
-  assign node_112 = node_112_reg;
-  assign node_111 = node_111_reg;
-  assign node_106 = node_107 + node_111;  // LUT adder
-  assign node_105 = node_105_reg;
-  assign node_104 = node_104_reg;
-  assign node_86 = node_87 + node_104;  // LUT adder
+  assign node_86 = node_87 + 0;  // LUT adder
   assign node_85 = node_85_reg;
   assign node_84 = node_84_reg;
-  assign node_16 = node_17 + node_84;  // LUT adder
-  assign node_15 = node_15_reg;
-  assign node_14 = node_14_reg;
-  assign node_5 = node_6 + node_14;  // LUT adder
+  assign node_73 = node_74 + node_84;  // LUT adder
+  assign node_72 = node_72_reg;
+  assign node_71 = node_71_reg;
+  assign node_60 = node_61 + node_71;  // LUT adder
+  assign node_59 = node_59_reg;
+  assign node_58 = node_58_reg;
+  assign node_5 = node_6 + node_58;  // LUT adder
   assign node_4 = node_4_reg;
   assign node_3 = node_3_reg;
-  assign node_156 = 16'd0;
-  assign node_155 = node_156 << node_13;  // shift left
-  assign node_154 = node_154_reg;
-  assign node_153 = node_153_reg;
-  assign node_166 = a12;
-  assign node_169 = node_166 << node_13;  // shift left
-  assign node_168 = node_168_reg;
-  assign node_167 = node_167_reg;
-  assign node_165 = node_166 + node_167;  // LUT adder
-  assign node_164 = node_164_reg;
-  assign node_163 = node_163_reg;
-  assign node_176 = a13;
-  assign node_179 = node_176 << node_13;  // shift left
-  assign node_178 = node_178_reg;
-  assign node_177 = node_177_reg;
-  assign node_175 = node_176 + node_177;  // LUT adder
-  assign node_174 = node_174_reg;
-  assign node_173 = node_173_reg;
-  assign node_182 = node_176 << node_33;  // shift left
-  assign node_181 = node_181_reg;
-  assign node_180 = node_180_reg;
-  assign node_172 = node_173 + node_180;  // LUT adder
-  assign node_171 = node_171_reg;
-  assign node_170 = node_170_reg;
-  assign node_162 = node_163 + node_170;  // LUT adder
-  assign node_161 = node_161_reg;
-  assign node_160 = node_160_reg;
-  assign node_189 = a14;
-  assign node_198 = node_189 << node_33;  // shift left
-  assign node_197 = node_197_reg;
-  assign node_196 = node_196_reg;
-  assign node_201 = node_189 << node_53;  // shift left
-  assign node_200 = node_200_reg;
-  assign node_199 = node_199_reg;
-  assign node_195 = node_196 + node_199;  // LUT adder
-  assign node_194 = node_194_reg;
-  assign node_193 = node_193_reg;
-  assign node_205 = a15;
-  assign node_208 = node_205 << node_33;  // shift left
-  assign node_207 = node_207_reg;
-  assign node_206 = node_206_reg;
-  assign node_204 = node_205 + node_206;  // LUT adder
-  assign node_203 = node_203_reg;
-  assign node_202 = node_202_reg;
-  assign node_192 = node_193 + node_202;  // LUT adder
-  assign node_191 = node_191_reg;
-  assign node_190 = node_190_reg;
-  assign node_188 = node_189 + node_190;  // LUT adder
-  assign node_187 = node_187_reg;
-  assign node_186 = node_186_reg;
-  assign node_218 = a16;
-  assign node_221 = node_218 << node_13;  // shift left
-  assign node_220 = node_220_reg;
-  assign node_219 = node_219_reg;
-  assign node_217 = node_218 + node_219;  // LUT adder
-  assign node_216 = node_216_reg;
-  assign node_215 = node_215_reg;
-  assign node_224 = node_218 << node_53;  // shift left
-  assign node_223 = node_223_reg;
-  assign node_222 = node_222_reg;
-  assign node_214 = node_215 + node_222;  // LUT adder
-  assign node_213 = node_213_reg;
-  assign node_212 = node_212_reg;
-  assign node_228 = a17;
-  assign node_231 = node_228 << node_53;  // shift left
-  assign node_230 = node_230_reg;
-  assign node_229 = node_229_reg;
-  assign node_227 = node_228 + node_229;  // LUT adder
-  assign node_226 = node_226_reg;
-  assign node_225 = node_225_reg;
-  assign node_211 = node_212 + node_225;  // LUT adder
-  assign node_210 = node_210_reg;
-  assign node_209 = node_209_reg;
-  assign node_185 = node_186 + node_209;  // LUT adder
-  assign node_184 = node_184_reg;
-  assign node_183 = node_183_reg;
-  assign node_159 = node_160 + node_183;  // LUT adder
-  assign node_158 = node_158_reg;
-  assign node_157 = node_157_reg;
-  assign node_152 = node_153 + node_157;  // LUT adder
-  assign node_151 = node_151_reg;
-  assign node_150 = node_150_reg;
-  assign node_247 = a18;
-  assign node_246 = node_247 << node_13;  // shift left
-  assign node_245 = node_245_reg;
-  assign node_244 = node_244_reg;
-  assign node_254 = a19;
-  assign node_253 = node_254 << node_13;  // shift left
-  assign node_252 = node_252_reg;
-  assign node_251 = node_251_reg;
-  assign node_257 = node_254 << node_33;  // shift left
-  assign node_256 = node_256_reg;
-  assign node_255 = node_255_reg;
-  assign node_250 = node_251 + node_255;  // LUT adder
-  assign node_249 = node_249_reg;
-  assign node_248 = node_248_reg;
-  assign node_243 = node_244 + node_248;  // LUT adder
-  assign node_242 = node_242_reg;
-  assign node_241 = node_241_reg;
-  assign node_264 = a20;
-  assign node_263 = node_264 << node_13;  // shift left
-  assign node_262 = node_262_reg;
-  assign node_261 = node_261_reg;
-  assign node_270 = node_264 << node_33;  // shift left
-  assign node_269 = node_269_reg;
-  assign node_268 = node_268_reg;
-  assign node_273 = node_264 << node_53;  // shift left
-  assign node_272 = node_272_reg;
-  assign node_271 = node_271_reg;
-  assign node_267 = node_268 + node_271;  // LUT adder
-  assign node_266 = node_266_reg;
-  assign node_265 = node_265_reg;
-  assign node_260 = node_261 + node_265;  // LUT adder
-  assign node_259 = node_259_reg;
-  assign node_258 = node_258_reg;
-  assign node_240 = node_241 + node_258;  // LUT adder
-  assign node_239 = node_239_reg;
-  assign node_238 = node_238_reg;
-  assign node_280 = a21;
-  assign node_279 = node_280 << node_33;  // shift left
-  assign node_278 = node_278_reg;
-  assign node_277 = node_277_reg;
-  assign node_290 = a22;
-  assign node_289 = node_290 << node_13;  // shift left
-  assign node_288 = node_288_reg;
-  assign node_287 = node_287_reg;
-  assign node_293 = node_290 << node_53;  // shift left
-  assign node_292 = node_292_reg;
-  assign node_291 = node_291_reg;
-  assign node_286 = node_287 + node_291;  // LUT adder
-  assign node_285 = node_285_reg;
-  assign node_284 = node_284_reg;
-  assign node_297 = a23;
-  assign node_296 = node_297 << node_53;  // shift left
-  assign node_295 = node_295_reg;
-  assign node_294 = node_294_reg;
-  assign node_283 = node_284 + node_294;  // LUT adder
-  assign node_282 = node_282_reg;
-  assign node_281 = node_281_reg;
-  assign node_276 = node_277 + node_281;  // LUT adder
-  assign node_275 = node_275_reg;
-  assign node_274 = node_274_reg;
-  assign node_237 = node_238 + node_274;  // LUT adder
-  assign node_236 = node_236_reg;
-  assign node_235 = node_235_reg;
-  assign node_307 = a24;
-  assign node_310 = node_307 << node_13;  // shift left
-  assign node_309 = node_309_reg;
-  assign node_308 = node_308_reg;
-  assign node_306 = node_307 + node_308;  // LUT adder
-  assign node_305 = node_305_reg;
-  assign node_304 = node_304_reg;
-  assign node_317 = a25;
-  assign node_320 = node_317 << node_13;  // shift left
-  assign node_319 = node_319_reg;
-  assign node_318 = node_318_reg;
-  assign node_316 = node_317 + node_318;  // LUT adder
-  assign node_315 = node_315_reg;
-  assign node_314 = node_314_reg;
-  assign node_323 = node_317 << node_33;  // shift left
-  assign node_322 = node_322_reg;
-  assign node_321 = node_321_reg;
-  assign node_313 = node_314 + node_321;  // LUT adder
-  assign node_312 = node_312_reg;
-  assign node_311 = node_311_reg;
-  assign node_303 = node_304 + node_311;  // LUT adder
-  assign node_302 = node_302_reg;
-  assign node_301 = node_301_reg;
-  assign node_330 = a26;
-  assign node_336 = node_330 << node_33;  // shift left
-  assign node_335 = node_335_reg;
-  assign node_334 = node_334_reg;
-  assign node_339 = node_330 << node_53;  // shift left
-  assign node_338 = node_338_reg;
-  assign node_337 = node_337_reg;
-  assign node_333 = node_334 + node_337;  // LUT adder
-  assign node_332 = node_332_reg;
-  assign node_331 = node_331_reg;
-  assign node_329 = node_330 + node_331;  // LUT adder
-  assign node_328 = node_328_reg;
-  assign node_327 = node_327_reg;
-  assign node_343 = a27;
-  assign node_346 = node_343 << node_33;  // shift left
-  assign node_345 = node_345_reg;
-  assign node_344 = node_344_reg;
-  assign node_342 = node_343 + node_344;  // LUT adder
-  assign node_341 = node_341_reg;
-  assign node_340 = node_340_reg;
-  assign node_326 = node_327 + node_340;  // LUT adder
-  assign node_325 = node_325_reg;
-  assign node_324 = node_324_reg;
-  assign node_300 = node_301 + node_324;  // LUT adder
-  assign node_299 = node_299_reg;
-  assign node_298 = node_298_reg;
-  assign node_234 = node_235 + node_298;  // LUT adder
-  assign node_233 = node_233_reg;
-  assign node_232 = node_232_reg;
-  assign node_149 = node_150 + node_232;  // LUT adder
-  assign node_148 = node_148_reg;
+  assign node_102 = a18;
+  assign node_103 = 16'd1;
+  assign node_101 = node_102 << node_103;  // shift left
+  assign node_100 = node_100_reg;
+  assign node_99 = node_99_reg;
+  assign node_116 = a19;
+  assign node_115 = node_116 << node_103;  // shift left
+  assign node_114 = node_114_reg;
+  assign node_113 = node_113_reg;
+  assign node_112 = node_18 - node_113;  // subtract
+  assign node_111 = node_111_reg;
+  assign node_110 = node_110_reg;
+  assign node_119 = node_116 << node_37;  // shift left
+  assign node_118 = node_118_reg;
+  assign node_117 = node_117_reg;
+  assign node_109 = node_110 + node_117;  // LUT adder
+  assign node_108 = node_108_reg;
+  assign node_107 = node_107_reg;
+  assign node_132 = a20;
+  assign node_131 = node_132 << node_103;  // shift left
+  assign node_130 = node_130_reg;
+  assign node_129 = node_129_reg;
+  assign node_128 = node_18 - node_129;  // subtract
+  assign node_127 = node_127_reg;
+  assign node_126 = node_126_reg;
+  assign node_135 = node_132 << node_53;  // shift left
+  assign node_134 = node_134_reg;
+  assign node_133 = node_133_reg;
+  assign node_125 = node_126 + node_133;  // LUT adder
+  assign node_124 = node_124_reg;
+  assign node_123 = node_123_reg;
+  assign node_142 = a21;
+  assign node_141 = node_142 << node_23;  // shift left
+  assign node_140 = node_140_reg;
+  assign node_139 = node_139_reg;
+  assign node_148 = node_18 + 0;  // LUT adder
   assign node_147 = node_147_reg;
-  assign node_2 = node_3 + node_147;  // LUT adder
+  assign node_146 = node_146_reg;
+  assign node_145 = node_18 + node_146;  // LUT adder
+  assign node_144 = node_144_reg;
+  assign node_143 = node_143_reg;
+  assign node_138 = node_139 + node_143;  // LUT adder
+  assign node_137 = node_137_reg;
+  assign node_136 = node_136_reg;
+  assign node_122 = node_123 + node_136;  // LUT adder
+  assign node_121 = node_121_reg;
+  assign node_120 = node_120_reg;
+  assign node_106 = node_107 + node_120;  // LUT adder
+  assign node_105 = node_105_reg;
+  assign node_104 = node_104_reg;
+  assign node_98 = node_99 + node_104;  // LUT adder
+  assign node_97 = node_97_reg;
+  assign node_96 = node_96_reg;
+  assign node_158 = a24;
+  assign node_157 = node_18 - node_158;  // subtract
+  assign node_156 = node_156_reg;
+  assign node_155 = node_155_reg;
+  assign node_161 = node_158 << node_23;  // shift left
+  assign node_160 = node_160_reg;
+  assign node_159 = node_159_reg;
+  assign node_154 = node_155 + node_159;  // LUT adder
+  assign node_153 = node_153_reg;
+  assign node_152 = node_152_reg;
+  assign node_174 = a25;
+  assign node_173 = node_18 - node_174;  // subtract
+  assign node_172 = node_172_reg;
+  assign node_171 = node_171_reg;
+  assign node_177 = node_174 << node_37;  // shift left
+  assign node_176 = node_176_reg;
+  assign node_175 = node_175_reg;
+  assign node_170 = node_171 + node_175;  // LUT adder
+  assign node_169 = node_169_reg;
+  assign node_168 = node_168_reg;
+  assign node_183 = node_88 + 0;  // LUT adder
+  assign node_182 = node_182_reg;
+  assign node_181 = node_181_reg;
+  assign node_180 = node_88 + node_181;  // LUT adder
+  assign node_179 = node_179_reg;
+  assign node_178 = node_178_reg;
+  assign node_167 = node_168 + node_178;  // LUT adder
+  assign node_166 = node_166_reg;
+  assign node_165 = node_165_reg;
+  assign node_164 = node_165 + node_143;  // LUT adder
+  assign node_163 = node_163_reg;
+  assign node_162 = node_162_reg;
+  assign node_151 = node_152 + node_162;  // LUT adder
+  assign node_150 = node_150_reg;
+  assign node_149 = node_149_reg;
+  assign node_95 = node_96 + node_149;  // LUT adder
+  assign node_94 = node_94_reg;
+  assign node_93 = node_93_reg;
+  assign node_2 = node_3 + node_93;  // LUT adder
   assign node_1 = node_1_reg;
 
   assign result = node_1;

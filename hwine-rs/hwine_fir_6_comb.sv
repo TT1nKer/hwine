@@ -7,10 +7,6 @@ module hwine_comb_fir_6 #(
 ) (
   input logic signed [16-1:0] a0,
   input logic signed [16-1:0] a1,
-  input logic signed [16-1:0] a2,
-  input logic signed [16-1:0] a3,
-  input logic signed [16-1:0] a4,
-  input logic signed [16-1:0] a5,
   output logic signed [16-1:0] result
 );
 
@@ -23,23 +19,8 @@ module hwine_comb_fir_6 #(
   logic signed [16-1:0] node_15;
   logic signed [16-1:0] node_16;
   logic signed [16-1:0] node_17;
-  logic signed [16-1:0] node_18;
-  logic signed [16-1:0] node_19;
   logic signed [16-1:0] node_2;
-  logic signed [16-1:0] node_20;
-  logic signed [16-1:0] node_21;
-  logic signed [16-1:0] node_22;
-  logic signed [16-1:0] node_23;
-  logic signed [16-1:0] node_24;
-  logic signed [16-1:0] node_25;
-  logic signed [16-1:0] node_26;
-  logic signed [16-1:0] node_27;
-  logic signed [16-1:0] node_28;
-  logic signed [16-1:0] node_29;
   logic signed [16-1:0] node_3;
-  logic signed [16-1:0] node_30;
-  logic signed [16-1:0] node_31;
-  logic signed [16-1:0] node_32;
   logic signed [16-1:0] node_4;
   logic signed [16-1:0] node_5;
   logic signed [16-1:0] node_6;
@@ -48,38 +29,23 @@ module hwine_comb_fir_6 #(
   logic signed [16-1:0] node_9;
 
   // -- Combinational logic --
-  assign node_4 = a0;
-  assign node_6 = 16'd1;
-  assign node_5 = node_4 << node_6;  // shift left
-  assign node_3 = node_4 + node_5;  // LUT adder
-  assign node_10 = a1;
-  assign node_11 = node_10 << node_6;  // shift left
-  assign node_9 = node_10 + node_11;  // LUT adder
-  assign node_13 = 16'd2;
-  assign node_12 = node_10 << node_13;  // shift left
-  assign node_8 = node_9 + node_12;  // LUT adder
-  assign node_16 = a2;
-  assign node_17 = node_16 << node_13;  // shift left
-  assign node_15 = node_16 + node_17;  // LUT adder
-  assign node_19 = 16'd3;
-  assign node_18 = node_16 << node_19;  // shift left
-  assign node_14 = node_15 + node_18;  // LUT adder
-  assign node_7 = node_8 + node_14;  // LUT adder
-  assign node_2 = node_3 + node_7;  // LUT adder
-  assign node_22 = a3;
-  assign node_23 = node_22 << node_13;  // shift left
-  assign node_21 = node_22 + node_23;  // LUT adder
-  assign node_27 = a4;
-  assign node_28 = node_27 << node_6;  // shift left
-  assign node_26 = node_27 + node_28;  // LUT adder
-  assign node_29 = node_27 << node_19;  // shift left
-  assign node_25 = node_26 + node_29;  // LUT adder
-  assign node_31 = a5;
-  assign node_32 = node_31 << node_19;  // shift left
-  assign node_30 = node_31 + node_32;  // LUT adder
-  assign node_24 = node_25 + node_30;  // LUT adder
-  assign node_20 = node_21 + node_24;  // LUT adder
-  assign node_1 = node_2 + node_20;  // LUT adder
+  assign node_5 = 16'd0;
+  assign node_6 = a0;
+  assign node_4 = node_5 - node_6;  // subtract
+  assign node_8 = 16'd2;
+  assign node_7 = node_6 << node_8;  // shift left
+  assign node_3 = node_4 + node_7;  // LUT adder
+  assign node_11 = a1;
+  assign node_10 = node_5 - node_11;  // subtract
+  assign node_13 = 16'd3;
+  assign node_12 = node_11 << node_13;  // shift left
+  assign node_9 = node_10 + node_12;  // LUT adder
+  assign node_2 = node_3 + node_9;  // LUT adder
+  assign node_16 = node_16 + node_16;  // LUT adder
+  assign node_15 = node_16 + node_15;  // LUT adder
+  assign node_17 = node_5 + node_17;  // LUT adder
+  assign node_14 = node_15 + node_17;  // LUT adder
+  assign node_1 = node_2 + node_14;  // LUT adder
 
   assign result = node_1;
 

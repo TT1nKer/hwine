@@ -1,4 +1,5 @@
 use hwine_rs::egraph::EGraph;
+use hwine_rs::ir::DataType;
 use hwine_rs::ir::{AtomOp, ENode};
 use hwine_rs::rtl::{generate_fine_pipelined_rtl, generate_rtl};
 use std::fs;
@@ -11,11 +12,11 @@ fn main() {
     for (i, &k) in coeffs.iter().enumerate() {
         let a = eg.add(ENode::leaf(AtomOp::Var(i * 2)));
         let c = eg.add(ENode::leaf(AtomOp::Const(k)));
-        let mul = eg.add(ENode::new(AtomOp::Mul, vec![a, c]));
+        let mul = eg.add(ENode::new(AtomOp::Mul, vec![a, c], DataType::default()));
         terms.push(mul);
     }
     let mut chain = terms[0];
-    for i in 1..terms.len() { chain = eg.add(ENode::new(AtomOp::Add, vec![chain, terms[i]])); }
+    for i in 1..terms.len() { chain = eg.add(ENode::new(AtomOp::Add, vec![chain, terms[i]], DataType::default())); }
     eg.saturate_with_config(30, 5000, 15, 10, false);
     
     let rtl = generate_fine_pipelined_rtl(&eg, chain, "hwine_fine_fir6", 16);
@@ -28,7 +29,7 @@ fn main() {
     let mut vs = Vec::new();
     for i in 0..6 { vs.push(eg_add.add(ENode::leaf(AtomOp::Var(i)))); }
     let mut c = vs[0];
-    for i in 1..6 { c = eg_add.add(ENode::new(AtomOp::Add, vec![c, vs[i]])); }
+    for i in 1..6 { c = eg_add.add(ENode::new(AtomOp::Add, vec![c, vs[i]], DataType::default())); }
     eg_add.saturate_with_config(30, 5000, 15, 10, false);
     let rtl_add = generate_fine_pipelined_rtl(&eg_add, c, "hwine_fine_add6", 16);
     fs::write("hwine_fine_add6.sv", &rtl_add).unwrap();

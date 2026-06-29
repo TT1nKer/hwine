@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 use crate::egraph::EGraph;
+use crate::ir::DataType;
 use crate::ir::{AtomOp, ENode};
+use crate::cost::ExtractMode;
 
 /// SystemVerilog RTL generator from e-graph extraction
 pub struct RtlGen {
@@ -64,7 +66,7 @@ impl RtlGen {
         }
         visited.insert(cid, true);
 
-        let (best_node, _) = eg.extract_optimal(cid);
+        let (best_node, _) = eg.extract_optimal(cid, ExtractMode::MinDelay);
         let result = self.emit_enode(eg, &best_node, cid, visited);
         if is_root {
             self.root_wire = result.clone();
@@ -95,7 +97,8 @@ impl RtlGen {
             }
         }
 
-        let dw = self.data_width;
+        let dw = node.dtype.width as usize;
+        let _signed = if node.dtype.signed { "signed " } else { "" };
         match node.op {
             AtomOp::Var(idx) => {
                 let name = self.name_map.get(&cid)
@@ -301,32 +304,39 @@ fn generate_pipelined_rtl_level(eg: &EGraph, target_cid: u32, module_name: &str,
         cid: u32,
         pipe_eg: &mut EGraph,
         visited: &mut std::collections::HashMap<u32, u32>,
+        in_progress: &mut std::collections::HashSet<u32>,
         level: usize,
     ) -> u32 {
         if let Some(&pc) = visited.get(&cid) {
             return pc;
         }
-        let (node, _) = eg.extract_optimal(cid);
+        let (node, _) = eg.extract_optimal(cid, ExtractMode::MinDelay);
         if node.children.is_empty() {
             let pc = pipe_eg.add(node.clone());
             visited.insert(cid, pc);
             return pc;
         }
+        // Mark as in-progress before recursing into children
+        in_progress.insert(cid);
         let mut wrapped: Vec<u32> = Vec::with_capacity(node.children.len());
         for &c in node.children.iter() {
-            let pid = walk_tree(eg, c, pipe_eg, visited, level);
-            let (child_node, _) = eg.extract_optimal(c);
+            if in_progress.contains(&c) {
+                continue; // cycle detected, skip this child
+            }
+            let pid = walk_tree(eg, c, pipe_eg, visited, in_progress, level);
+            let (child_node, _) = eg.extract_optimal(c, ExtractMode::MinDelay);
             if child_node.children.is_empty() {
                 wrapped.push(pid);
             } else {
-                wrapped.push(pipe_eg.add(ENode::new(AtomOp::Pipe, vec![pid])));
+                wrapped.push(pipe_eg.add(ENode::new(AtomOp::Pipe, vec![pid], DataType::default())));
             }
         }
-        let pc = pipe_eg.add(ENode::new(node.op, wrapped));
+        in_progress.remove(&cid);
+        let pc = pipe_eg.add(ENode::new(node.op, wrapped, node.dtype));
         visited.insert(cid, pc);
         // Fine-grained: also register the output of this node (if not root)
         if level >= 1 {
-            pipe_eg.add(ENode::new(AtomOp::Pipe, vec![pc]))
+            pipe_eg.add(ENode::new(AtomOp::Pipe, vec![pc], DataType::default()))
         } else {
             pc
         }
@@ -334,7 +344,8 @@ fn generate_pipelined_rtl_level(eg: &EGraph, target_cid: u32, module_name: &str,
 
     let mut pipe_eg = EGraph::new();
     let mut visited = std::collections::HashMap::new();
-    let piped_cid = walk_tree(eg, target_cid, &mut pipe_eg, &mut visited, level);
+    let mut in_progress = std::collections::HashSet::new();
+    let piped_cid = walk_tree(eg, target_cid, &mut pipe_eg, &mut visited, &mut in_progress, level);
     let mut rtl_gen = RtlGen::new(module_name, data_width);
     let mut v2 = std::collections::HashMap::new();
     rtl_gen.emit_node(&pipe_eg, piped_cid, true, &mut v2);

@@ -1,5 +1,7 @@
 use hwine_rs::egraph::EGraph;
+use hwine_rs::ir::DataType;
 use hwine_rs::ir::{AtomOp, ENode};
+use hwine_rs::cost::ExtractMode;
 use hwine_rs::rtl::generate_rtl;
 use std::time::Instant;
 use std::fs;
@@ -56,7 +58,7 @@ fn build_add_chain(eg: &mut EGraph, n: usize) -> u32 {
     let mut vs = Vec::with_capacity(n);
     for i in 0..n { vs.push(eg.add(ENode::leaf(AtomOp::Var(i)))); }
     let mut c = vs[0];
-    for i in 1..n { c = eg.add(ENode::new(AtomOp::Add, vec![c, vs[i]])); }
+    for i in 1..n { c = eg.add(ENode::new(AtomOp::Add, vec![c, vs[i]], DataType::default())); }
     c
 }
 
@@ -69,20 +71,20 @@ fn build_mac_chain(eg: &mut EGraph, n: usize, full: bool) -> u32 {
     }
     if full {
         let z = eg.add(ENode::leaf(AtomOp::Zero));
-        let ai = eg.add(ENode::new(AtomOp::AccInit, vec![z]));
+        let ai = eg.add(ENode::new(AtomOp::AccInit, vec![z], DataType::default()));
         let mut acc = ai; let mut mc = ai;
         for i in 0..n {
-            let m = eg.add(ENode::new(AtomOp::Mul, vec![ws[i], ag[i]]));
-            acc = eg.add(ENode::new(AtomOp::AccStep, vec![acc, m]));
-            mc = eg.add(ENode::new(AtomOp::Mac, vec![ws[i], ag[i], mc]));
+            let m = eg.add(ENode::new(AtomOp::Mul, vec![ws[i], ag[i]], DataType::default()));
+            acc = eg.add(ENode::new(AtomOp::AccStep, vec![acc, m], DataType::default()));
+            mc = eg.add(ENode::new(AtomOp::Mac, vec![ws[i], ag[i], mc], DataType::default()));
         }
         eg.union(acc, mc);
         eg.canon(acc)
     } else {
         let mut muls = Vec::with_capacity(n);
-        for i in 0..n { muls.push(eg.add(ENode::new(AtomOp::Mul, vec![ws[i], ag[i]]))); }
+        for i in 0..n { muls.push(eg.add(ENode::new(AtomOp::Mul, vec![ws[i], ag[i]], DataType::default()))); }
         let mut c = muls[0];
-        for i in 1..n { c = eg.add(ENode::new(AtomOp::Add, vec![c, muls[i]])); }
+        for i in 1..n { c = eg.add(ENode::new(AtomOp::Add, vec![c, muls[i]], DataType::default())); }
         c
     }
 }
@@ -95,7 +97,7 @@ fn saturate(eg: &mut EGraph, cfg: &Config) -> usize {
 
 fn tree_depth(node: &ENode, eg: &EGraph) -> usize {
     if node.children.is_empty() { return 0; }
-    1 + node.children.iter().map(|&c| tree_depth(&eg.extract_optimal(c).0, eg)).max().unwrap_or(0)
+    1 + node.children.iter().map(|&c| tree_depth(&eg.extract_optimal(c, ExtractMode::MinDelay).0, eg)).max().unwrap_or(0)
 }
 
 fn add_delay(n: usize) -> f64 { (n.saturating_sub(1)) as f64 * 0.8 }
@@ -120,7 +122,7 @@ fn bench(args: &[String]) {
 
     let iters = saturate(&mut eg, &cfg);
     let dt = t0.elapsed();
-    let (best, _) = eg.extract_optimal(cid);
+    let (best, _) = eg.extract_optimal(cid, ExtractMode::MinDelay);
     let td = tree_depth(&best, &eg);
     let sp = ser_ns / (td as f64 * 0.8).max(0.01);
 
@@ -142,7 +144,7 @@ fn rtl_gen(args: &[String]) {
     let iters = saturate(&mut eg, &cfg);
     println!("Saturated: {iters}it {}cls {:.3}s", eg.n_classes(), t0.elapsed().as_secs_f64());
 
-    let (best, _) = eg.extract_optimal(cid);
+    let (best, _) = eg.extract_optimal(cid, ExtractMode::MinDelay);
     println!("Tree depth: {} levels", tree_depth(&best, &eg));
 
     let rtl = generate_rtl(&eg, cid, &format!("mac_tile_{n}"), 8);
@@ -162,7 +164,7 @@ fn synth(args: &[String]) {
     let mut eg_s = EGraph::new();
     let cid_s = if mode == "mac" { build_mac_chain(&mut eg_s, n, false) } else { build_add_chain(&mut eg_s, n) };
     let rtl_s = generate_rtl(&eg_s, cid_s, &format!("serial_{mode}_{n}"), 8);
-    let (best_s, _) = eg_s.extract_optimal(cid_s);
+    let (best_s, _) = eg_s.extract_optimal(cid_s, ExtractMode::MinDelay);
     let sd = tree_depth(&best_s, &eg_s);
 
     // Tree (with saturation)
@@ -170,7 +172,7 @@ fn synth(args: &[String]) {
     let cid_t = if mode == "mac" { build_mac_chain(&mut eg_t, n, false) } else { build_add_chain(&mut eg_t, n) };
     saturate(&mut eg_t, &cfg);
     let rtl_t = generate_rtl(&eg_t, cid_t, &format!("tree_{mode}_{n}"), 8);
-    let (best_t, _) = eg_t.extract_optimal(cid_t);
+    let (best_t, _) = eg_t.extract_optimal(cid_t, ExtractMode::MinDelay);
     let td = tree_depth(&best_t, &eg_t);
 
     // Write files
@@ -195,12 +197,12 @@ fn scan(args: &[String]) {
     let mut eg = EGraph::new();
     let mut vs = Vec::with_capacity(n);
     for i in 0..n { vs.push(eg.add(ENode::leaf(AtomOp::Var(i)))); }
-    let mut chain = eg.add(ENode::new(AtomOp::Scan, vec![vs[0], vs[1]]));
-    for i in 2..n { chain = eg.add(ENode::new(AtomOp::Scan, vec![chain, vs[i]])); }
+    let mut chain = eg.add(ENode::new(AtomOp::Scan, vec![vs[0], vs[1]], DataType::default()));
+    for i in 2..n { chain = eg.add(ENode::new(AtomOp::Scan, vec![chain, vs[i]], DataType::default())); }
     let t0 = Instant::now();
     let iters = eg.saturate(50, 30000);
     let dt = t0.elapsed();
-    let (best, _) = eg.extract_optimal(chain);
+    let (best, _) = eg.extract_optimal(chain, ExtractMode::MinDelay);
     let sd = n - 1;
     let td = tree_depth(&best, &eg);
     let sp = sd as f64 / td.max(1) as f64;
@@ -226,7 +228,7 @@ fn compare(args: &[String]) {
         let t0 = Instant::now();
         let _iters = saturate(&mut eg, cfg);
         let dt = t0.elapsed();
-        let (best, _) = eg.extract_optimal(cid);
+        let (best, _) = eg.extract_optimal(cid, ExtractMode::MinDelay);
         let td = tree_depth(&best, &eg);
         let sp = add_delay(n) / (td as f64 * 0.8).max(0.01);
         println!("  {name:<20} {:8.3} {:>6} {:>8} {:>6} {:>7.1}x",
@@ -252,7 +254,7 @@ fn softmax(args: &[String]) {
     for i in 1..n {
         // Concat or reduce operation on the vector
     }
-    let softmax_node = eg.add(ENode::new(AtomOp::Softmax, vec![vec_repr]));
+    let softmax_node = eg.add(ENode::new(AtomOp::Softmax, vec![vec_repr], DataType::default()));
 
     let t0 = Instant::now();
     let iters = saturate(&mut eg, &cfg);
@@ -266,7 +268,7 @@ fn softmax(args: &[String]) {
     for node in cls.nodes.iter().take(10) {
         let op_name = format!("{:?}", node.op);
         let d = 1 + node.children.iter()
-            .map(|&c| tree_depth_rec(&eg.extract_optimal(c).0, &eg)).max().unwrap_or(0);
+            .map(|&c| tree_depth_rec(&eg.extract_optimal(c, ExtractMode::MinDelay).0, &eg)).max().unwrap_or(0);
         println!("    depth={:2}  {:?}", d, node.op);
     }
 }
@@ -274,7 +276,7 @@ fn softmax(args: &[String]) {
 fn tree_depth_rec(node: &ENode, eg: &EGraph) -> usize {
     if node.children.is_empty() { return 0; }
     1 + node.children.iter()
-        .map(|&c| tree_depth_rec(&eg.extract_optimal(c).0, eg))
+        .map(|&c| tree_depth_rec(&eg.extract_optimal(c, ExtractMode::MinDelay).0, eg))
         .max().unwrap_or(0)
 }
 

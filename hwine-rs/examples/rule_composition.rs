@@ -1,4 +1,6 @@
 use hwine_rs::egraph::EGraph;
+use hwine_rs::cost::ExtractMode;
+use hwine_rs::ir::DataType;
 use hwine_rs::ir::{AtomOp, ENode};
 use std::time::Instant;
 
@@ -6,7 +8,7 @@ fn main() {
     let n = 8;
     let mut eg = EGraph::new();
     let z = eg.add(ENode::leaf(AtomOp::Zero));
-    let ai = eg.add(ENode::new(AtomOp::AccInit, vec![z]));
+    let ai = eg.add(ENode::new(AtomOp::AccInit, vec![z], DataType::default()));
     let mut acc = ai;
     let mut mc = ai;
 
@@ -18,9 +20,9 @@ fn main() {
     }
 
     for i in 0..n {
-        let m = eg.add(ENode::new(AtomOp::Mul, vec![ws[i], ag[i]]));
-        acc = eg.add(ENode::new(AtomOp::AccStep, vec![acc, m]));
-        mc = eg.add(ENode::new(AtomOp::Mac, vec![ws[i], ag[i], mc]));
+        let m = eg.add(ENode::new(AtomOp::Mul, vec![ws[i], ag[i]], DataType::default()));
+        acc = eg.add(ENode::new(AtomOp::AccStep, vec![acc, m], DataType::default()));
+        mc = eg.add(ENode::new(AtomOp::Mac, vec![ws[i], ag[i], mc], DataType::default()));
     }
     eg.union(acc, mc);
     let cid = eg.canon(acc);

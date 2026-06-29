@@ -1,5 +1,7 @@
 // Standard FIR filter benchmark — comparable to ROVER's FIR benchmark
 use hwine_rs::egraph::EGraph;
+use hwine_rs::cost::ExtractMode;
+use hwine_rs::ir::DataType;
 use hwine_rs::ir::{AtomOp, ENode};
 use std::time::Instant;
 use std::fs;
@@ -19,11 +21,11 @@ fn main() {
     }
     let mut muls = Vec::with_capacity(n);
     for i in 0..n {
-        muls.push(eg.add(ENode::new(AtomOp::Mul, vec![hs[i], xs[i]])));
+        muls.push(eg.add(ENode::new(AtomOp::Mul, vec![hs[i], xs[i]], DataType::default())));
     }
     let mut chain = muls[0];
     for i in 1..n {
-        chain = eg.add(ENode::new(AtomOp::Add, vec![chain, muls[i]]));
+        chain = eg.add(ENode::new(AtomOp::Add, vec![chain, muls[i]], DataType::default()));
     }
 
     let ser_depth = n + (n-1); // MUL chain + ADD chain
@@ -32,10 +34,10 @@ fn main() {
     let iters = eg.saturate_with_config(50, 20000, 15, 10, false);
     let dt = t0.elapsed();
 
-    let (best, _) = eg.extract_optimal(chain);
+    let (best, _) = eg.extract_optimal(chain, ExtractMode::MinDelay);
     fn depth(n: &ENode, eg: &EGraph) -> usize {
         if n.children.is_empty() { 0 }
-        else { 1 + n.children.iter().map(|&c| depth(&eg.extract_optimal(c).0, eg)).max().unwrap_or(0) }
+        else { 1 + n.children.iter().map(|&c| depth(&eg.extract_optimal(c, ExtractMode::MinDelay).0, eg)).max().unwrap_or(0) }
     }
     let td = depth(&best, &eg);
     

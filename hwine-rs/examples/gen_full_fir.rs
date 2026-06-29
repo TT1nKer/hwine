@@ -1,4 +1,5 @@
 use hwine_rs::egraph::EGraph;
+use hwine_rs::ir::DataType;
 use hwine_rs::ir::{AtomOp, ENode};
 use hwine_rs::rtl::{generate_rtl, generate_pipelined_rtl};
 use std::fs;
@@ -10,13 +11,13 @@ fn build_fir_eg(n_taps: usize) -> (EGraph, u32, EGraph, u32) {
     for i in 0..n_taps {
         let a = eg.add(ENode::leaf(AtomOp::Var(i * 2)));
         let w = eg.add(ENode::leaf(AtomOp::Var(i * 2 + 1)));
-        let mul = eg.add(ENode::new(AtomOp::Mul, vec![a, w]));
+        let mul = eg.add(ENode::new(AtomOp::Mul, vec![a, w], DataType::default()));
         mul_results.push(mul);
     }
     // Serial sum chain (for serial baseline)
     let mut chain = mul_results[0];
     for i in 1..n_taps {
-        chain = eg.add(ENode::new(AtomOp::Add, vec![chain, mul_results[i]]));
+        chain = eg.add(ENode::new(AtomOp::Add, vec![chain, mul_results[i]], DataType::default()));
     }
     
     // Tree sum (saturate for tree discovery)
@@ -25,12 +26,12 @@ fn build_fir_eg(n_taps: usize) -> (EGraph, u32, EGraph, u32) {
     for i in 0..n_taps {
         let a = eg_tree.add(ENode::leaf(AtomOp::Var(i * 2)));
         let w = eg_tree.add(ENode::leaf(AtomOp::Var(i * 2 + 1)));
-        let mul = eg_tree.add(ENode::new(AtomOp::Mul, vec![a, w]));
+        let mul = eg_tree.add(ENode::new(AtomOp::Mul, vec![a, w], DataType::default()));
         mul_results_t.push(mul);
     }
     let mut chain_t = mul_results_t[0];
     for i in 1..n_taps {
-        chain_t = eg_tree.add(ENode::new(AtomOp::Add, vec![chain_t, mul_results_t[i]]));
+        chain_t = eg_tree.add(ENode::new(AtomOp::Add, vec![chain_t, mul_results_t[i]], DataType::default()));
     }
     eg_tree.saturate_with_config(30, 10000, 20, 15, false);
     

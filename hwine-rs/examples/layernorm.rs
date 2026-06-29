@@ -1,4 +1,6 @@
 use hwine_rs::egraph::EGraph;
+use hwine_rs::cost::ExtractMode;
+use hwine_rs::ir::DataType;
 use hwine_rs::ir::{AtomOp, ENode};
 use std::time::Instant;
 
@@ -21,29 +23,29 @@ fn main() {
 
         // Tree 1: sum(x)
         let mut sum1 = xs[0];
-        for i in 1..n { sum1 = eg_naive.add(ENode::new(AtomOp::Add, vec![sum1, xs[i]])); }
+        for i in 1..n { sum1 = eg_naive.add(ENode::new(AtomOp::Add, vec![sum1, xs[i]], DataType::default())); }
 
         // Tree 2: sum((x-mean)²) — separate tree, after mean is known
         // Simplified: sum of squares as separate reduction
         let mut sqs = Vec::with_capacity(n);
         for i in 0..n {
-            let sq = eg_naive.add(ENode::new(AtomOp::Mul, vec![xs[i], xs[i]]));
+            let sq = eg_naive.add(ENode::new(AtomOp::Mul, vec![xs[i], xs[i]], DataType::default()));
             sqs.push(sq);
         }
         let mut sum2 = sqs[0];
-        for i in 1..n { sum2 = eg_naive.add(ENode::new(AtomOp::Add, vec![sum2, sqs[i]])); }
+        for i in 1..n { sum2 = eg_naive.add(ENode::new(AtomOp::Add, vec![sum2, sqs[i]], DataType::default())); }
 
         eg_naive.saturate_with_config(50, 20000, 15, 10, false);
 
         fn depth(n: &ENode, eg: &EGraph) -> usize {
             if n.children.is_empty() { return 0; }
             1 + n.children.iter()
-                .map(|&c| depth(&eg.extract_optimal(c).0, eg))
+                .map(|&c| depth(&eg.extract_optimal(c, ExtractMode::MinDelay).0, eg))
                 .max().unwrap_or(0)
         }
 
-        let (best_s1, _) = eg_naive.extract_optimal(sum1);
-        let (best_s2, _) = eg_naive.extract_optimal(sum2);
+        let (best_s1, _) = eg_naive.extract_optimal(sum1, ExtractMode::MinDelay);
+        let (best_s2, _) = eg_naive.extract_optimal(sum2, ExtractMode::MinDelay);
         let naive_1 = depth(&best_s1, &eg_naive);
         let naive_2 = depth(&best_s2, &eg_naive);
         let naive_total = naive_1 + naive_2 + 3; // + MUL squares + DIV + SQRT
@@ -66,14 +68,14 @@ fn main() {
         
         // Model: build ONE ADD tree for sum, and derive var algebraically
         let mut sum_chain = xs_f[0];
-        for i in 1..n { sum_chain = eg_fused.add(ENode::new(AtomOp::Add, vec![sum_chain, xs_f[i]])); }
+        for i in 1..n { sum_chain = eg_fused.add(ENode::new(AtomOp::Add, vec![sum_chain, xs_f[i]], DataType::default())); }
         
         // The fused insight: the square terms can reuse the same tree intermediates
         // For now, we model this by omitting the second tree entirely
         // (the e-graph would need a FusedPair operator to capture this properly)
 
         eg_fused.saturate_with_config(50, 20000, 15, 10, false);
-        let (best_f, _) = eg_fused.extract_optimal(sum_chain);
+        let (best_f, _) = eg_fused.extract_optimal(sum_chain, ExtractMode::MinDelay);
         let fused_depth = depth(&best_f, &eg_fused);
         let fused_total = fused_depth + 4; // SUM tree + MUL squares + DIV + SQRT (but only 1 tree)
 

@@ -1,4 +1,5 @@
 use hwine_rs::egraph::EGraph;
+use hwine_rs::ir::DataType;
 use hwine_rs::ir::{AtomOp, ENode};
 use hwine_rs::rtl::{generate_rtl, generate_pipelined_rtl};
 use std::fs;
@@ -10,11 +11,11 @@ fn main() {
     for (i, &k) in coeffs.iter().enumerate() {
         let a = eg.add(ENode::leaf(AtomOp::Var(i * 2)));
         let c = eg.add(ENode::leaf(AtomOp::Const(k)));
-        let mul = eg.add(ENode::new(AtomOp::Mul, vec![a, c]));
+        let mul = eg.add(ENode::new(AtomOp::Mul, vec![a, c], DataType::default()));
         terms.push(mul);
     }
     let mut chain = terms[0];
-    for i in 1..terms.len() { chain = eg.add(ENode::new(AtomOp::Add, vec![chain, terms[i]])); }
+    for i in 1..terms.len() { chain = eg.add(ENode::new(AtomOp::Add, vec![chain, terms[i]], DataType::default())); }
     
     eg.saturate_with_config(30, 5000, 15, 10, false);
     

@@ -1,4 +1,6 @@
 use hwine_rs::egraph::EGraph;
+use hwine_rs::cost::ExtractMode;
+use hwine_rs::ir::DataType;
 use hwine_rs::ir::{AtomOp, ENode};
 use hwine_rs::rtl::generate_rtl;
 use std::fs;
@@ -16,7 +18,7 @@ fn main() {
         let mut vs_s = Vec::with_capacity(n);
         for i in 0..n { vs_s.push(eg_s.add(ENode::leaf(AtomOp::Var(i)))); }
         let mut c_s = vs_s[0];
-        for i in 1..n { c_s = eg_s.add(ENode::new(AtomOp::Add, vec![c_s, vs_s[i]])); }
+        for i in 1..n { c_s = eg_s.add(ENode::new(AtomOp::Add, vec![c_s, vs_s[i]], DataType::default())); }
         let rtl_s = generate_rtl(&eg_s, c_s, "serial_add_tree", 16);
         fs::write(format!("bench_serial_{n}.sv"), &rtl_s).unwrap();
 
@@ -24,15 +26,15 @@ fn main() {
         let mut vs_t = Vec::with_capacity(n);
         for i in 0..n { vs_t.push(eg_t.add(ENode::leaf(AtomOp::Var(i)))); }
         let mut c_t = vs_t[0];
-        for i in 1..n { c_t = eg_t.add(ENode::new(AtomOp::Add, vec![c_t, vs_t[i]])); }
+        for i in 1..n { c_t = eg_t.add(ENode::new(AtomOp::Add, vec![c_t, vs_t[i]], DataType::default())); }
         eg_t.saturate_with_config(30, 5000, 15, 10, false);
         let rtl_t = generate_rtl(&eg_t, c_t, "tree_add_tree", 16);
         fs::write(format!("bench_tree_{n}.sv"), &rtl_t).unwrap();
 
-        let (best_s, _) = eg_s.extract_optimal(c_s);
-        let (best_t, _) = eg_t.extract_optimal(c_t);
+        let (best_s, _) = eg_s.extract_optimal(c_s, ExtractMode::MinDelay);
+        let (best_t, _) = eg_t.extract_optimal(c_t, ExtractMode::MinDelay);
         fn d(n: &ENode, eg: &EGraph) -> usize {
-            if n.children.is_empty() {0} else {1+n.children.iter().map(|&c|d(&eg.extract_optimal(c).0,eg)).max().unwrap_or(0)}
+            if n.children.is_empty() {0} else {1+n.children.iter().map(|&c|d(&eg.extract_optimal(c, ExtractMode::MinDelay).0,eg)).max().unwrap_or(0)}
         }
         let ser_lv = n - 1;
         let tree_lv = d(&best_t, &eg_t);

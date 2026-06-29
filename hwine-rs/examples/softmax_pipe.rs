@@ -1,4 +1,6 @@
 use hwine_rs::egraph::EGraph;
+use hwine_rs::cost::ExtractMode;
+use hwine_rs::ir::DataType;
 use hwine_rs::ir::{AtomOp, ENode};
 use std::time::Instant;
 
@@ -18,35 +20,35 @@ fn main() {
 
         // MAX tree
         let mut max_chain = vs[0];
-        for i in 1..n { max_chain = eg.add(ENode::new(AtomOp::ReduceMax, vec![max_chain, vs[i]])); }
+        for i in 1..n { max_chain = eg.add(ENode::new(AtomOp::ReduceMax, vec![max_chain, vs[i]], DataType::default())); }
 
         // Shifted: SUB with MAX
         let mut shifted = Vec::with_capacity(n);
-        for i in 0..n { shifted.push(eg.add(ENode::new(AtomOp::Sub, vec![vs[i], max_chain]))); }
+        for i in 0..n { shifted.push(eg.add(ENode::new(AtomOp::Sub, vec![vs[i], max_chain], DataType::default()))); }
 
         // EXP
         let mut exp_vals = Vec::with_capacity(n);
-        for i in 0..n { exp_vals.push(eg.add(ENode::new(AtomOp::Exp, vec![shifted[i]]))); }
+        for i in 0..n { exp_vals.push(eg.add(ENode::new(AtomOp::Exp, vec![shifted[i]], DataType::default()))); }
 
         // SUM tree
         let mut sum_chain = exp_vals[0];
-        for i in 1..n { sum_chain = eg.add(ENode::new(AtomOp::ReduceAdd, vec![sum_chain, exp_vals[i]])); }
+        for i in 1..n { sum_chain = eg.add(ENode::new(AtomOp::ReduceAdd, vec![sum_chain, exp_vals[i]], DataType::default())); }
 
         // Normalize
-        let inv = eg.add(ENode::new(AtomOp::Div, vec![one, sum_chain]));
-        for i in 0..n { eg.add(ENode::new(AtomOp::Mul, vec![exp_vals[i], inv])); }
+        let inv = eg.add(ENode::new(AtomOp::Div, vec![one, sum_chain], DataType::default()));
+        for i in 0..n { eg.add(ENode::new(AtomOp::Mul, vec![exp_vals[i], inv], DataType::default())); }
 
         eg.saturate_with_config(50, 30000, 15, 10, false);
 
         fn depth(n: &ENode, eg: &EGraph) -> usize {
             if n.children.is_empty() { return 0; }
             1 + n.children.iter()
-                .map(|&c| depth(&eg.extract_optimal(c).0, eg))
+                .map(|&c| depth(&eg.extract_optimal(c, ExtractMode::MinDelay).0, eg))
                 .max().unwrap_or(0)
         }
 
-        let (best_m, _) = eg.extract_optimal(max_chain);
-        let (best_s, _) = eg.extract_optimal(sum_chain);
+        let (best_m, _) = eg.extract_optimal(max_chain, ExtractMode::MinDelay);
+        let (best_s, _) = eg.extract_optimal(sum_chain, ExtractMode::MinDelay);
         let md = depth(&best_m, &eg);
         let sd = depth(&best_s, &eg);
 

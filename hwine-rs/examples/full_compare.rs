@@ -1,10 +1,12 @@
 use hwine_rs::egraph::EGraph;
+use hwine_rs::cost::ExtractMode;
+use hwine_rs::ir::DataType;
 use hwine_rs::ir::{AtomOp, ENode};
 use std::time::Instant;
 
 fn tree_depth(n: &ENode, eg: &EGraph) -> usize {
     if n.children.is_empty() { 0 }
-    else { 1 + n.children.iter().map(|&c| tree_depth(&eg.extract_optimal(c).0, eg)).max().unwrap_or(0) }
+    else { 1 + n.children.iter().map(|&c| tree_depth(&eg.extract_optimal(c, ExtractMode::MinDelay).0, eg)).max().unwrap_or(0) }
 }
 
 fn bench(name: &str, n: usize, op: AtomOp) {
@@ -17,7 +19,7 @@ fn bench(name: &str, n: usize, op: AtomOp) {
     let t0 = Instant::now();
     let iters = eg.saturate_with_config(30, 5000, 15, 10, false);
     let dt = t0.elapsed();
-    let (best, _) = eg.extract_optimal(chain);
+    let (best, _) = eg.extract_optimal(chain, ExtractMode::MinDelay);
     let td = tree_depth(&best, &eg);
     println!("  {:<20} N={:<4} ser={:>3}lv  tree={:>3}lv  {:.1}x  {}it {}cls  {:.3}s",
         name, n, ser_lv, td, ser_lv as f64 / td.max(1) as f64, iters, eg.n_classes(), dt.as_secs_f64());

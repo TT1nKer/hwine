@@ -1,6 +1,7 @@
 use std::collections::{HashMap, HashSet};
 use fxhash::FxBuildHasher;
-use crate::ir::{AtomOp, ENode};
+use crate::ir::{AtomOp, ENode, DataType, OverflowMode};
+use crate::cost::{FpgaStats, ExtractMode};
 
 type FxHashSet<T> = HashSet<T, FxBuildHasher>;
 type FxHashMap<K, V> = HashMap<K, V, FxBuildHasher>;
@@ -164,7 +165,7 @@ impl EGraph {
                     .map(|n| {
                         let ch: Vec<u32> =
                             n.children.iter().map(|&c| self.canon(c)).collect();
-                        ENode::new(n.op, ch)
+                        ENode::new(n.op, ch, n.dtype)
                     })
                     .collect();
                 to_fix.push((p_cid, nodes));
@@ -266,19 +267,23 @@ impl EGraph {
         let inner_nodes: Vec<ENode> = inner_class.nodes.iter().take(scan_limit).cloned().collect();
         for inner in inner_nodes {
             if inner.op != node.op || inner.children.len() != 2 { continue; }
+            // Type compatibility: only reassociate if overflow mode allows it
+            if node.dtype.overflow == OverflowMode::Sat && inner.dtype.overflow == OverflowMode::Sat {
+                continue; // Saturating arithmetic is NOT associative
+            }
 
             if side == 0 {
                 // OP(OP(a,b), c) → OP(a, OP(b,c))
                 let a = inner.children[0]; let b = inner.children[1]; let c = node.children[1];
-                let bc = self.add(ENode::new(node.op, vec![b, c]));
-                let new_node = ENode::new(node.op, vec![a, bc]);
+                let bc = self.add(ENode::new(node.op, vec![b, c], node.dtype));
+                let new_node = ENode::new(node.op, vec![a, bc], node.dtype);
                 let new_cid = self.add(new_node);
                 if new_cid != cid { self.union(new_cid, cid); }
             } else {
                 // OP(a, OP(b,c)) → OP(OP(a,b), c)
                 let a = node.children[0]; let b = inner.children[0]; let c = inner.children[1];
-                let ab = self.add(ENode::new(node.op, vec![a, b]));
-                let new_node = ENode::new(node.op, vec![ab, c]);
+                let ab = self.add(ENode::new(node.op, vec![a, b], node.dtype));
+                let new_node = ENode::new(node.op, vec![ab, c], node.dtype);
                 let new_cid = self.add(new_node);
                 if new_cid != cid { self.union(new_cid, cid); }
             }
@@ -298,8 +303,8 @@ impl EGraph {
             for node in nodes {
                 if !matches!(node.op, AtomOp::Mac | AtomOp::Madd) || node.children.len() < 3 { continue; }
                 let x = node.children[0]; let y = node.children[1]; let z = node.children[2];
-                let mul = self.add(ENode::new(AtomOp::Mul, vec![x, y]));
-                let add = self.add(ENode::new(AtomOp::Add, vec![mul, z]));
+                let mul = self.add(ENode::new(AtomOp::Mul, vec![x, y], DataType::default()));
+                let add = self.add(ENode::new(AtomOp::Add, vec![mul, z], DataType::default()));
                 self.union(add, cid);
                 break;
             }
@@ -324,7 +329,7 @@ impl EGraph {
                 for mul_node in mul_class.nodes.iter().take(5) {
                     if mul_node.op == AtomOp::Mul && mul_node.children.len() == 2 {
                         let w = mul_node.children[0]; let a = mul_node.children[1]; let acc = node.children[1];
-                        let mac = self.add(ENode::new(AtomOp::Mac, vec![w, a, acc]));
+                        let mac = self.add(ENode::new(AtomOp::Mac, vec![w, a, acc], DataType::default()));
                         self.union(mac, cid);
                         break;
                     }
@@ -353,8 +358,8 @@ impl EGraph {
                 for inner in prev_class.nodes.iter().take(scan_limit) {
                     if inner.op != AtomOp::AccStep || inner.children.len() != 2 { continue; }
                     let init = inner.children[0]; let v1 = inner.children[1]; let v2 = node.children[1];
-                    let add = self.add(ENode::new(AtomOp::Add, vec![v1, v2]));
-                    let new_node = ENode::new(AtomOp::AccStep, vec![init, add]);
+                    let add = self.add(ENode::new(AtomOp::Add, vec![v1, v2], DataType::default()));
+                    let new_node = ENode::new(AtomOp::AccStep, vec![init, add], DataType::default());
                     let new_cid = self.add(new_node);
                     if new_cid != cid { self.union(new_cid, cid); }
                     break;
@@ -456,7 +461,7 @@ impl EGraph {
             let shift = k.trailing_zeros();
             if shift > 0 {
                 let c = self.add(ENode::leaf(AtomOp::Const(shift as i64)));
-                return Some(self.add(ENode::new(AtomOp::Shl, vec![base, c])));
+                return Some(self.add(ENode::new(AtomOp::Shl, vec![base, c], DataType::default())));
             }
         }
 
@@ -467,11 +472,11 @@ impl EGraph {
         let mut acc = self.add(ENode::leaf(AtomOp::Zero));
         for (sign, e) in &terms {
             let ce = self.add(ENode::leaf(AtomOp::Const(*e as i64)));
-            let term = self.add(ENode::new(AtomOp::Shl, vec![base, ce]));
+            let term = self.add(ENode::new(AtomOp::Shl, vec![base, ce], DataType::default()));
             acc = if *sign >= 0 {
-                self.add(ENode::new(AtomOp::Add, vec![acc, term]))
+                self.add(ENode::new(AtomOp::Add, vec![acc, term], DataType::default()))
             } else {
-                self.add(ENode::new(AtomOp::Sub, vec![acc, term]))
+                self.add(ENode::new(AtomOp::Sub, vec![acc, term], DataType::default()))
             };
         }
         Some(acc)
@@ -501,61 +506,148 @@ impl EGraph {
         }
     }
 
-    // ─── Extraction ─────────────────────────────────────
+    // ─── Multi-Objective Extraction ─────────────────────────────────────
 
-    pub fn extract_optimal(&self, cid: u32) -> (ENode, f64) {
-        self.extract_dp(cid, &mut FxHashMap::default())
+    /// Extract optimal node with full FPGA resource stats.
+    /// mode: MinDelay, MinLut{max_delay}, MinDsp{max_delay}, MinFf{max_delay}, Weighted{...}, Pareto
+    pub fn extract_optimal(&self, cid: u32, mode: ExtractMode) -> (ENode, FpgaStats) {
+        self._extract_dp(cid, &mut FxHashMap::default(), &mut FxHashSet::default(), mode)
     }
 
-    pub fn extract_shallowest(&self, cid: u32) -> (ENode, usize) {
-        self.extract_depth_dp(cid, &mut FxHashMap::default())
+    /// Pareto-frontier extraction: returns all non-dominated (node, stats) pairs
+    pub fn extract_pareto(&self, cid: u32) -> Vec<(ENode, FpgaStats)> {
+        self._extract_pareto(cid, &mut FxHashMap::default(), &mut FxHashSet::default())
     }
 
-    fn extract_dp(&self, cid: u32, memo: &mut FxHashMap<u32, (ENode, f64)>) -> (ENode, f64) {
-        self._extract_dp(cid, memo, &mut FxHashSet::default())
+    /// Sharing-aware cost: extracts the DP-optimal tree structure, then recomputes
+    /// costs with deduplication of shared e-classes. This fixes double-counting when
+    /// the same subtree appears in multiple branches (e.g., ac and bd in complex multiply).
+    pub fn extract_shared_aware(&self, cid: u32, mode: ExtractMode) -> (ENode, FpgaStats) {
+        let (node, _raw_stats) = self.extract_optimal(cid, mode);
+        let mut shared = FxHashSet::default();
+        let stats = self.compute_deduped_stats(cid, &node, &mut shared);
+        (node, stats)
     }
 
-    fn _extract_dp(&self, cid: u32, memo: &mut FxHashMap<u32, (ENode, f64)>, visiting: &mut FxHashSet<u32>) -> (ENode, f64) {
+    /// Recursively compute resource stats while deduplicating encountered e-classes.
+    /// After first encounter, each e-class's own resources are counted; subsequent
+    /// encounters only count wiring overhead (marginal cost).
+    fn compute_deduped_stats(&self, cid: u32, node: &ENode, shared: &mut FxHashSet<u32>) -> FpgaStats {
+        let canonical = self.canon(cid);
+        let already_seen = !shared.insert(canonical);
+
+        // For already-seen subtrees: charge nothing (wiring is ~free on FPGA)
+        if already_seen {
+            return FpgaStats::empty();
+        }
+
+        // Compute child stats recursively
+        let child_stats: Vec<FpgaStats> = node.children.iter()
+            .zip(0..)
+            .map(|(&ch_cid, _)| {
+                let (child_node, _) = self.extract_optimal(ch_cid, ExtractMode::MinDelay);
+                self.compute_deduped_stats(ch_cid, &child_node, shared)
+            })
+            .collect();
+
+        FpgaStats::for_node(node.op, &child_stats, &node.dtype)
+    }
+
+    /// Core DP extraction with FpgaStats resource accounting
+    fn _extract_dp(
+        &self, cid: u32,
+        memo: &mut FxHashMap<u32, (ENode, FpgaStats)>,
+        visiting: &mut FxHashSet<u32>,
+        mode: ExtractMode,
+    ) -> (ENode, FpgaStats) {
         let cid = self.canon(cid);
         if let Some(result) = memo.get(&cid) {
             return result.clone();
         }
         if !visiting.insert(cid) {
-            // Cycle detected: return dummy to break recursion
-            return (ENode::leaf(AtomOp::Zero), f64::INFINITY);
+            return (ENode::leaf(AtomOp::Zero), FpgaStats::empty());
         }
 
         let class = match &self.classes[cid as usize] {
             Some(c) => c,
             None => {
-                memo.insert(cid, (ENode::leaf(AtomOp::Zero), 0.0));
+                let empty = FpgaStats::empty();
+                memo.insert(cid, (ENode::leaf(AtomOp::Zero), empty.clone()));
                 visiting.remove(&cid);
-                return (ENode::leaf(AtomOp::Zero), 0.0);
+                return (ENode::leaf(AtomOp::Zero), empty);
             }
         };
 
         let mut best_node = ENode::leaf(AtomOp::Zero);
+        let mut best_stats = FpgaStats::empty();
         let mut best_cost = f64::INFINITY;
 
         for node in class.nodes.iter() {
-            let mut child_costs: Vec<f64> = Vec::with_capacity(node.children.len());
+            let mut child_stats: Vec<FpgaStats> = Vec::with_capacity(node.children.len());
             for &ch in node.children.iter() {
-                child_costs.push(self._extract_dp(ch, memo, visiting).1);
+                child_stats.push(self._extract_dp(ch, memo, visiting, mode).1);
             }
-            let delay = node_op_delay(node.op);
-            let max_child_delay = child_costs.iter().cloned().fold(0.0_f64, f64::max);
-            if max_child_delay.is_infinite() { continue; } // skip cyclic paths
-            let cost = delay + max_child_delay;
+            let stats = FpgaStats::for_node(node.op, &child_stats, &node.dtype);
+            let cost = stats.scalar_cost(mode);
 
             if cost < best_cost {
                 best_cost = cost;
+                best_stats = stats;
                 best_node = node.clone();
             }
         }
 
         visiting.remove(&cid);
-        memo.insert(cid, (best_node.clone(), best_cost));
-        (best_node, best_cost)
+        memo.insert(cid, (best_node.clone(), best_stats.clone()));
+        (best_node, best_stats)
+    }
+
+    /// Pareto extraction: enumerates all nodes in each class, computes stats with
+    /// optimal children, then filters to non-dominated alternatives.
+    fn _extract_pareto(
+        &self, cid: u32,
+        memo: &mut FxHashMap<u32, Vec<(ENode, FpgaStats)>>,
+        visiting: &mut FxHashSet<u32>,
+    ) -> Vec<(ENode, FpgaStats)> {
+        let cid = self.canon(cid);
+        if let Some(cached) = memo.get(&cid) {
+            return cached.clone();
+        }
+        if !visiting.insert(cid) {
+            return vec![(ENode::leaf(AtomOp::Zero), FpgaStats::empty())];
+        }
+
+        let class = match &self.classes[cid as usize] {
+            Some(c) => c,
+            None => {
+                let e = vec![(ENode::leaf(AtomOp::Zero), FpgaStats::empty())];
+                memo.insert(cid, e.clone());
+                visiting.remove(&cid);
+                return e;
+            }
+        };
+
+        let mut candidates = Vec::new();
+
+        for node in class.nodes.iter().take(16) {
+            // Compute optimal stats for each child (using MinDelay mode for child selection)
+            let mut child_stats = Vec::new();
+            for &ch in node.children.iter() {
+                let (_, stats) = self._extract_dp(ch, &mut FxHashMap::default(), &mut FxHashSet::default(), ExtractMode::MinDelay);
+                child_stats.push(stats);
+            }
+            let stats = FpgaStats::for_node(node.op, &child_stats, &node.dtype);
+            candidates.push((node.clone(), stats));
+        }
+
+        let filtered = FpgaStats::pareto_filter(candidates);
+        visiting.remove(&cid);
+        memo.insert(cid, filtered.clone());
+        filtered
+    }
+
+    pub fn extract_shallowest(&self, cid: u32) -> (ENode, usize) {
+        self.extract_depth_dp(cid, &mut FxHashMap::default())
     }
 
     fn extract_depth_dp(&self, cid: u32, memo: &mut FxHashMap<u32, (ENode, usize)>) -> (ENode, usize) {
@@ -613,12 +705,12 @@ impl EGraph {
             for node in nodes {
                 if node.op != AtomOp::Softmax || node.children.len() != 1 { continue; }
                 let vec_cid = node.children[0];
-                let mx = self.add(ENode::new(AtomOp::ReduceMax, vec![vec_cid, vec_cid]));
-                let shifted = self.add(ENode::new(AtomOp::Sub, vec![vec_cid, mx]));
-                let expd = self.add(ENode::new(AtomOp::Exp, vec![shifted]));
-                let sm = self.add(ENode::new(AtomOp::ReduceAdd, vec![expd, expd]));
-                let inv = self.add(ENode::new(AtomOp::Div, vec![one_id, sm]));
-                let result = self.add(ENode::new(AtomOp::Mul, vec![expd, inv]));
+                let mx = self.add(ENode::new(AtomOp::ReduceMax, vec![vec_cid, vec_cid], DataType::default()));
+                let shifted = self.add(ENode::new(AtomOp::Sub, vec![vec_cid, mx], DataType::default()));
+                let expd = self.add(ENode::new(AtomOp::Exp, vec![shifted], DataType::default()));
+                let sm = self.add(ENode::new(AtomOp::ReduceAdd, vec![expd, expd], DataType::default()));
+                let inv = self.add(ENode::new(AtomOp::Div, vec![one_id, sm], DataType::default()));
+                let result = self.add(ENode::new(AtomOp::Mul, vec![expd, inv], DataType::default()));
                 self.union(result, cid);
                 break;
             }
@@ -645,9 +737,9 @@ impl EGraph {
                                 let a = add_n.children[0];
                                 let b = add_n.children[1];
                                 let c = node.children[1 - side];
-                                let ac = self.add(ENode::new(AtomOp::Mul, vec![a, c]));
-                                let bc = self.add(ENode::new(AtomOp::Mul, vec![b, c]));
-                                let add = self.add(ENode::new(AtomOp::Add, vec![ac, bc]));
+                                let ac = self.add(ENode::new(AtomOp::Mul, vec![a, c], DataType::default()));
+                                let bc = self.add(ENode::new(AtomOp::Mul, vec![b, c], DataType::default()));
+                                let add = self.add(ENode::new(AtomOp::Add, vec![ac, bc], DataType::default()));
                                 self.union(add, cid);
                                 break;
                             }
@@ -663,40 +755,38 @@ impl EGraph {
     }
 }
 
-fn node_cost(op: AtomOp) -> f64 {
-    match op {
-        AtomOp::Add => 1.0,
-        AtomOp::Mul | AtomOp::Mac | AtomOp::DspMul | AtomOp::DspMac => 5.0,
-        AtomOp::Pipe => 0.1,
-        _ => 1.0,
-    }
-}
-
-fn node_op_delay(op: AtomOp) -> f64 {
-    match op {
-        AtomOp::Add | AtomOp::Sub => 0.8,
-        AtomOp::Shl | AtomOp::Shr => 0.5,
-        AtomOp::Mul | AtomOp::Mac | AtomOp::DspMul | AtomOp::DspMac => 2.5,
-        AtomOp::Pipe => 0.3,
-        _ => 0.5,
-    }
-}
-
-/// Decompose a positive integer into sum of powers-of-2 terms.
-/// Returns (sign, exponent) pairs. Uses canonical signed digit (CSD)
-/// for minimal non-zero count (at most one non-zero per 2 bits).
+/// Decompose a positive integer into minimal signed powers-of-2 terms
+/// using Canonical Signed Digit (CSD) representation.
+/// Returns (sign, exponent) pairs. CSD guarantees at most one non-zero
+/// among any two consecutive bits, minimizing the number of shift-add terms.
+/// Example: 7 → [(1,3), (-1,0)] = 8 - 1 (2 terms, vs 4+2+1 = 3 terms).
 fn decompose_to_pow2(mut k: i64) -> Vec<(i32, u32)> {
     if k <= 0 { return vec![]; }
-    // Simple binary decomposition: extract each 1-bit
-    // e.g., 13 (1101b) → [(1,0),(1,2),(1,3)] → a + a<<2 + a<<3
+    if k == 1 { return vec![(1, 0)]; }
+    if k > 0 && (k & (k - 1)) == 0 {
+        return vec![(1, k.trailing_zeros())]; // single power of 2
+    }
+
     let mut terms = Vec::new();
     let mut bit: u32 = 0;
+
     while k > 0 {
         if k & 1 != 0 {
-            terms.push((1, bit));
+            // Check for consecutive 1s: pattern ...011... can be ...100... - ...001...
+            if (k & 3) == 3 {
+                // Two consecutive 1s: use subtraction
+                terms.push((-1, bit));
+                k = (k + 1) >> 1; // propagate borrow
+            } else {
+                terms.push((1, bit));
+                k >>= 1;
+            }
+        } else {
+            k >>= 1;
         }
-        k >>= 1;
         bit += 1;
     }
+    // Sort by exponent ascending for stable add-tree construction
+    terms.sort_by_key(|(_, e)| *e);
     terms
 }

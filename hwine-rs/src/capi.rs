@@ -3,7 +3,9 @@ use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 
 use crate::egraph::EGraph;
+use crate::ir::DataType;
 use crate::ir::{AtomOp, ENode};
+use crate::cost::ExtractMode;
 
 /// Result of a hwine optimization pass
 #[repr(C)]
@@ -36,7 +38,7 @@ pub unsafe extern "C" fn hwine_optimize_add_chain(
     }
     let mut chain = vars[0];
     for i in 1..n {
-        chain = eg.add(ENode::new(AtomOp::Add, vec![chain, vars[i]]));
+        chain = eg.add(ENode::new(AtomOp::Add, vec![chain, vars[i]], DataType::default()));
     }
 
     let nl = if loose { 30 } else { 10 };
@@ -46,7 +48,7 @@ pub unsafe extern "C" fn hwine_optimize_add_chain(
     let _iters = eg.saturate_with_config(50, 30000, nl, sl, bidir);
     let dt = t0.elapsed();
 
-    let (best, _) = eg.extract_optimal(chain);
+    let (best, _) = eg.extract_optimal(chain, ExtractMode::MinDelay);
     let tree_depth = depth_of(&best, &eg);
     let serial_depth = n - 1; // chain depth
 
@@ -94,6 +96,7 @@ pub unsafe extern "C" fn hwine_optimize_graph(
             node_to_cid[p] = eg.add(ENode::new(
                 AtomOp::Add,
                 vec![node_to_cid[p], node_to_cid[c]],
+                DataType::default(),
             ));
             root = node_to_cid[p];
         }
@@ -103,7 +106,7 @@ pub unsafe extern "C" fn hwine_optimize_graph(
     let _iters = eg.saturate_with_config(50, 30000, 10, 8, false);
     let dt = t0.elapsed();
 
-    let (best, _) = eg.extract_optimal(root);
+    let (best, _) = eg.extract_optimal(root, ExtractMode::MinDelay);
     let tree_depth = depth_of(&best, &eg);
 
     unsafe {
@@ -123,7 +126,7 @@ fn depth_of(node: &ENode, eg: &EGraph) -> usize {
     }
     1 + node.children
         .iter()
-        .map(|&c| depth_of(&eg.extract_optimal(c).0, eg))
+        .map(|&c| depth_of(&eg.extract_optimal(c, ExtractMode::MinDelay).0, eg))
         .max()
         .unwrap_or(0)
 }
