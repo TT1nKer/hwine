@@ -27,6 +27,9 @@ pub fn lut_cost(op: AtomOp, dtype: &DataType) -> f64 {
         AtomOp::Const(_) | AtomOp::Var(_) | AtomOp::StrLit | AtomOp::Zero | AtomOp::One => 0.0,
         AtomOp::AccInit | AtomOp::AccStep => 1.0,
         AtomOp::AccRead | AtomOp::AccReset => 0.0,
+        AtomOp::StreamRead => 0.0,
+        AtomOp::StreamWrite => 0.0,
+        AtomOp::StreamFifo => 2.0, // FIFO buffer costs FF + RAM
     };
     // Width scaling for arithmetic ops only
     if op.is_arithmetic() { base * width_scale(dtype) } else { base }
@@ -50,6 +53,7 @@ pub fn ff_cost(op: AtomOp, dtype: &DataType) -> f64 {
         AtomOp::Delay => bits,
         AtomOp::AccStep => bits * 2.0,
         AtomOp::Buffer => bits * 2.0,
+        AtomOp::StreamFifo => bits * 4.0, // FIFO: depth * width
         _ => 0.0,
     }
 }
@@ -75,6 +79,7 @@ pub fn delay_ns(op: AtomOp, dtype: &DataType) -> f64 {
         AtomOp::Const(_) | AtomOp::Var(_) | AtomOp::StrLit | AtomOp::Zero | AtomOp::One => 0.0,
         AtomOp::AccInit | AtomOp::AccStep => 1.0,
         AtomOp::AccRead | AtomOp::AccReset => 0.3,
+        AtomOp::StreamRead | AtomOp::StreamWrite | AtomOp::StreamFifo => 1.0,
     };
     // Width scaling: wider ops have longer carry chains
     if op == AtomOp::Add || op == AtomOp::Sub || op == AtomOp::ReduceAdd {

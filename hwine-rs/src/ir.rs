@@ -123,6 +123,11 @@ pub enum AtomOp {
     AccStep,
     AccRead,
     AccReset,
+
+    // Streaming / FIFO (for pipeline kernels)
+    StreamRead,   // read from input stream
+    StreamWrite,  // write to output stream
+    StreamFifo,   // FIFO buffer with depth
 }
 
 impl fmt::Display for AtomOp {
@@ -163,6 +168,9 @@ impl AtomOp {
             Self::AccStep => 2,
             Self::AccRead => 1,
             Self::AccReset => 1,
+            Self::StreamRead => 0,
+            Self::StreamWrite => 1,
+            Self::StreamFifo => 2,
         }
     }
 
@@ -181,7 +189,7 @@ impl AtomOp {
     pub fn is_arithmetic(&self) -> bool {
         matches!(self,
             Self::Add | Self::Sub | Self::Mul | Self::Mac | Self::Madd |
-            Self::DspMul | Self::DspMac | Self::Shl | Self::Shr |
+            Self::DspMul | Self::DspMac | Self::DspPreAdd | Self::Shl | Self::Shr |
             Self::ReduceAdd | Self::ReduceMax | Self::ReduceMin |
             Self::Sat | Self::Round | Self::Div | Self::Exp |
             Self::Quant | Self::Dequant | Self::DequantW

@@ -206,6 +206,23 @@ impl RtlGen {
                 self.assign_lines.push(format!("  assign {w} = {a} >> {b};  // shift right"));
             }
 
+            AtomOp::StreamRead => {
+                self.ports.push((format!("stream_in_{}", self.wire_counter), "input".into(), dw));
+                self.assign_lines.push(format!("  assign {w} = stream_in;  // stream read"));
+            }
+
+            AtomOp::StreamWrite => {
+                let a = child_wire(self, eg, node, 0, visited);
+                self.ports.push((format!("stream_out_{}", self.wire_counter), "output".into(), dw));
+                self.assign_lines.push(format!("  assign stream_out = {a};  // stream write"));
+            }
+
+            AtomOp::StreamFifo => {
+                let a = child_wire(self, eg, node, 0, visited);
+                self.ff_lines.push(format!("  fifo_{w} <= {a};  // FIFO buffer"));
+                self.assign_lines.push(format!("  assign {w} = fifo_{w};"));
+            }
+
             _ => {
                 if node.children.len() >= 1 {
                     let a = child_wire(self, eg, node, 0, visited);
