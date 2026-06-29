@@ -224,6 +224,7 @@ impl EGraph {
         self.rule_acc_flatten(&to_process, node_limit, scan_limit);
         self.rule_softmax_fold(&to_process, node_limit);
         self.rule_distributive(&to_process, node_limit);
+        self.rule_dsp_preadd(&to_process, node_limit);
     }
 
     fn apply_rules(&mut self, worklist: &[u32]) {
@@ -752,6 +753,38 @@ impl EGraph {
 
     pub fn n_classes(&self) -> usize {
         self.classes.iter().filter(|c| c.is_some()).count()
+    }
+
+    /// DSP48 pre-adder: Mul(Add(a,b), c) → DspPreAdd(a, b, c)
+    /// Uses a single DSP48E1 slice with pre-adder, saving LUTs.
+    fn rule_dsp_preadd(&mut self, worklist: &[u32], _node_limit: usize) {
+        for &cid in worklist {
+            let cid = self.canon_mut(cid);
+            let class = match &self.classes[cid as usize] {
+                Some(c) => c, None => continue,
+            };
+            if class.nodes.len() > 15 { continue; }
+            let nodes: Vec<ENode> = class.nodes.iter().take(8).cloned().collect();
+            for node in nodes {
+                if node.op != AtomOp::Mul || node.children.len() != 2 { continue; }
+                // MUL(ADD(a,b), c) → DSP_PREADD(a, b, c)
+                for side in 0..2 {
+                    let add_cid = self.canon(node.children[side]);
+                    if let Some(add_cls) = &self.classes[add_cid as usize] {
+                        for add_n in add_cls.nodes.iter().take(5) {
+                            if add_n.op == AtomOp::Add && add_n.children.len() == 2 {
+                                let a = add_n.children[0];
+                                let b = add_n.children[1];
+                                let c = node.children[1 - side];
+                                let preadd = self.add(ENode::new(AtomOp::DspPreAdd, vec![a, b, c], node.dtype));
+                                self.union(preadd, cid);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

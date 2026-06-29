@@ -10,7 +10,7 @@ fn width_scale(dtype: &DataType) -> f64 {
 pub fn lut_cost(op: AtomOp, dtype: &DataType) -> f64 {
     let base = match op {
         AtomOp::Add => 0.5,
-        AtomOp::Mul | AtomOp::Mac | AtomOp::DspMul | AtomOp::DspMac | AtomOp::Madd => 0.0, // DSP
+        AtomOp::Mul | AtomOp::Mac | AtomOp::DspMul | AtomOp::DspMac | AtomOp::DspPreAdd | AtomOp::Madd => 0.0, // DSP
         AtomOp::Shl | AtomOp::Shr | AtomOp::Pack | AtomOp::Unpack | AtomOp::Concat
         | AtomOp::Slice | AtomOp::Extract | AtomOp::Broadcast => 0.0, // wiring
         AtomOp::Sat | AtomOp::Round => 1.0,
@@ -34,7 +34,7 @@ pub fn lut_cost(op: AtomOp, dtype: &DataType) -> f64 {
 
 pub fn dsp_cost(op: AtomOp, dtype: &DataType) -> f64 {
     let base = match op {
-        AtomOp::Mul | AtomOp::Mac | AtomOp::Madd | AtomOp::DspMul | AtomOp::DspMac => {
+        AtomOp::Mul | AtomOp::Mac | AtomOp::Madd | AtomOp::DspMul | AtomOp::DspMac | AtomOp::DspPreAdd => {
             // Wide multipliers may use multiple DSP slices
             if dtype.width > 25 { ((dtype.width as f64 / 25.0).ceil()) } else { 1.0 }
         }
@@ -58,7 +58,7 @@ pub fn ff_cost(op: AtomOp, dtype: &DataType) -> f64 {
 pub fn delay_ns(op: AtomOp, dtype: &DataType) -> f64 {
     let base = match op {
         AtomOp::Add => 0.8,
-        AtomOp::Mul | AtomOp::Mac | AtomOp::Madd | AtomOp::DspMul | AtomOp::DspMac => 2.5,
+        AtomOp::Mul | AtomOp::Mac | AtomOp::Madd | AtomOp::DspMul | AtomOp::DspMac | AtomOp::DspPreAdd => 2.5,
         AtomOp::Shl | AtomOp::Shr | AtomOp::Pack | AtomOp::Unpack | AtomOp::Concat
         | AtomOp::Slice | AtomOp::Extract => 0.3,
         AtomOp::Sat | AtomOp::Round => 0.8,

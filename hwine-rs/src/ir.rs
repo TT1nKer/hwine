@@ -98,6 +98,7 @@ pub enum AtomOp {
     // FPGA DSP
     DspMul,
     DspMac,
+    DspPreAdd,  // DSP48 pre-adder: (a ± b) × c in 1 slice
 
     // Quantization
     Quant,
@@ -138,7 +139,7 @@ impl AtomOp {
     pub fn arity(&self) -> usize {
         match self {
             Self::Mul | Self::Add | Self::DspMul => 2,
-            Self::Mac | Self::Madd | Self::DspMac => 3,
+            Self::Mac | Self::Madd | Self::DspMac | Self::DspPreAdd => 3,
             Self::Shl | Self::Shr => 2,
             Self::Sat => 3,
             Self::Round => 2,

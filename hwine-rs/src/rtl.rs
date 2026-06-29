@@ -133,6 +133,13 @@ impl RtlGen {
                 self.assign_lines.push(format!("  assign {w} = {a} + {b};  // LUT adder"));
             }
 
+            AtomOp::DspPreAdd => {
+                let a = child_wire(self, eg, node, 0, visited);
+                let b = child_wire(self, eg, node, 1, visited);
+                let c = child_wire(self, eg, node, 2, visited);
+                self.assign_lines.push(format!("  assign {w} = ({a} + {b}) * {c};  // DSP48 pre-adder"));
+            }
+
             AtomOp::Mul | AtomOp::DspMul => {
                 let a = child_wire(self, eg, node, 0, visited);
                 let b = child_wire(self, eg, node, 1, visited);
