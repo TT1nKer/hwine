@@ -1,0 +1,16 @@
+[package]
+name = "hwine-rs"
+version = "0.1.0"
+edition = "2024"
+description = "hwine e-graph engine for hardware structural discovery"
+
+[dependencies]
+fxhash = "0.2"
+
+[lib]
+name = "hwine_rs"
+crate-type = ["lib", "cdylib", "staticlib"]
+
+[[bin]]
+name = "hwine"
+path = "src/main.rs"

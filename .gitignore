@@ -1,0 +1,60 @@
+# Rust
+hwine-rs/target/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# macOS
+.DS_Store
+__MACOSX/
+._*
+
+# IDE
+.vscode/
+.idea/
+
+# Kilo session state
+.kilo/
+CLAUDE.handoff.md
+
+# Windows path artifacts
+C:*/
+
+# Vivado junk
+*.jou
+*.log
+*.str
+.Xil/
+*.backup.*
+
+# Yosys build artifacts
+*.dSYM/
+*.so
+
+# SSH keys / tokens
+*.pem
+*.token
+*.key
+
+# Secret / personal config
+pc
+parentspc
+test_parents.py
+
+# Build artifacts
+*.vcd
+*.vvp
+*.dot
+*.o
+*.d
+
+# Compiled binaries (except in tools/)
+hwine
+!tools/hwine
+
+# Misc
+*.zip
+build/
+paper/main.pdf
