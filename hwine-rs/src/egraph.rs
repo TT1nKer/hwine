@@ -383,8 +383,8 @@ impl EGraph {
             for node in nodes {
                 if !matches!(node.op, AtomOp::Mac | AtomOp::Madd) || node.children.len() < 3 { continue; }
                 let x = node.children[0]; let y = node.children[1]; let z = node.children[2];
-                let mul = self.add(ENode::new(AtomOp::Mul, vec![x, y], DataType::default()));
-                let add = self.add(ENode::new(AtomOp::Add, vec![mul, z], DataType::default()));
+                let mul = self.add(ENode::new(AtomOp::Mul, vec![x, y], node.dtype));
+                let add = self.add(ENode::new(AtomOp::Add, vec![mul, z], node.dtype));
                 self.union(add, cid);
                 break;
             }
@@ -409,7 +409,7 @@ impl EGraph {
                 for mul_node in mul_class.nodes.iter().take(5) {
                     if mul_node.op == AtomOp::Mul && mul_node.children.len() == 2 {
                         let w = mul_node.children[0]; let a = mul_node.children[1]; let acc = node.children[1];
-                        let mac = self.add(ENode::new(AtomOp::Mac, vec![w, a, acc], DataType::default()));
+                        let mac = self.add(ENode::new(AtomOp::Mac, vec![w, a, acc], node.dtype));
                         self.union(mac, cid);
                         break;
                     }
@@ -438,8 +438,8 @@ impl EGraph {
                 for inner in prev_class.nodes.iter().take(scan_limit) {
                     if inner.op != AtomOp::AccStep || inner.children.len() != 2 { continue; }
                     let init = inner.children[0]; let v1 = inner.children[1]; let v2 = node.children[1];
-                    let add = self.add(ENode::new(AtomOp::Add, vec![v1, v2], DataType::default()));
-                    let new_node = ENode::new(AtomOp::AccStep, vec![init, add], DataType::default());
+                    let add = self.add(ENode::new(AtomOp::Add, vec![v1, v2], node.dtype));
+                    let new_node = ENode::new(AtomOp::AccStep, vec![init, add], node.dtype);
                     let new_cid = self.add(new_node);
                     if new_cid != cid { self.union(new_cid, cid); }
                     break;
@@ -521,7 +521,7 @@ impl EGraph {
                     if k.abs() <= 1 { continue; } // skip 0, ±1 (no decomposition needed)
 
                     // Build shift-add tree for k
-                    let tree = self.build_shift_add_tree(var_cid, k);
+                    let tree = self.build_shift_add_tree(var_cid, k, node.dtype);
                     if let Some(tree_cid) = tree {
                         if tree_cid != cid { self.union(tree_cid, cid); }
                     }
@@ -532,7 +532,7 @@ impl EGraph {
     }
 
     /// Build a shift-add tree: k * a → sum of (a << e) terms
-    fn build_shift_add_tree(&mut self, base: u32, k: i64) -> Option<u32> {
+    fn build_shift_add_tree(&mut self, base: u32, k: i64, dtype: DataType) -> Option<u32> {
         if k == 0 { return Some(self.add(ENode::leaf(AtomOp::Zero))); }
         if k == 1 { return Some(base); }
 
@@ -541,7 +541,7 @@ impl EGraph {
             let shift = k.trailing_zeros();
             if shift > 0 {
                 let c = self.add(ENode::leaf(AtomOp::Const(shift as i64)));
-                return Some(self.add(ENode::new(AtomOp::Shl, vec![base, c], DataType::default())));
+                return Some(self.add(ENode::new(AtomOp::Shl, vec![base, c], dtype)));
             }
         }
 
@@ -552,11 +552,11 @@ impl EGraph {
         let mut acc = self.add(ENode::leaf(AtomOp::Zero));
         for (sign, e) in &terms {
             let ce = self.add(ENode::leaf(AtomOp::Const(*e as i64)));
-            let term = self.add(ENode::new(AtomOp::Shl, vec![base, ce], DataType::default()));
+            let term = self.add(ENode::new(AtomOp::Shl, vec![base, ce], dtype));
             acc = if *sign >= 0 {
-                self.add(ENode::new(AtomOp::Add, vec![acc, term], DataType::default()))
+                self.add(ENode::new(AtomOp::Add, vec![acc, term], dtype))
             } else {
-                self.add(ENode::new(AtomOp::Sub, vec![acc, term], DataType::default()))
+                self.add(ENode::new(AtomOp::Sub, vec![acc, term], dtype))
             };
         }
         Some(acc)
@@ -882,9 +882,9 @@ impl EGraph {
                                 let a = add_n.children[0];
                                 let b = add_n.children[1];
                                 let c = node.children[1 - side];
-                                let ac = self.add(ENode::new(AtomOp::Mul, vec![a, c], DataType::default()));
-                                let bc = self.add(ENode::new(AtomOp::Mul, vec![b, c], DataType::default()));
-                                let add = self.add(ENode::new(AtomOp::Add, vec![ac, bc], DataType::default()));
+                                let ac = self.add(ENode::new(AtomOp::Mul, vec![a, c], node.dtype));
+                                let bc = self.add(ENode::new(AtomOp::Mul, vec![b, c], node.dtype));
+                                let add = self.add(ENode::new(AtomOp::Add, vec![ac, bc], node.dtype));
                                 self.union(add, cid);
                                 break;
                             }

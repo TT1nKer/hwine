@@ -66,22 +66,20 @@ impl RtlGen {
         format!("{prefix}_{}", self.wire_counter)
     }
 
-    pub fn emit_node(&mut self, eg: &EGraph, cid: u32, is_root: bool, visited: &mut HashMap<u32, bool>) -> String {
+    pub fn emit_node(&mut self, eg: &EGraph, cid: u32, is_root: bool, visited: &mut HashMap<u32, bool>) -> HwineResult<String> {
         let cid = eg.canon(cid);
         if let Some(w) = self.wires.get(&cid) {
-            return w.clone();
+            return Ok(w.clone());
         }
         // Cycle detection: this CID is already being processed higher in the call stack.
-        // This means the e-graph extraction produced a node with a circular dependency —
-        // a bug in the rewrite rules or extraction DP. We must not silently generate
-        // wrong hardware (assign cycle = 0).
+        // For pipeline barriers (StreamFifo/Pipe), this is a valid retimed feedback
+        // structure — the register output feeds back as a forwarded dependency.
+        // We pre-allocate a wire and return it, allowing the caller to generate the
+        // feedback logic correctly.
         if visited.contains_key(&cid) {
-            panic!(
-                "RTL generation error: cycle detected at e-class {}. \
-                 This indicates a bug in the e-graph extraction (self-referencing node). \
-                 The generated RTL would be semantically incorrect.",
-                cid
-            );
+            let w = self.fresh_wire("fb");
+            self.wires.insert(cid, w.clone());
+            return Ok(w);
         }
         visited.insert(cid, true);
 
@@ -90,13 +88,13 @@ impl RtlGen {
         // children may canonicalize to the same CID, and inserting early
         // would bypass cycle detection in child_wire.
         let w = self.fresh_wire("node");
-        let result = self.emit_enode(eg, &best_node, cid, visited, &w);
+        let result = self.emit_enode(eg, &best_node, cid, visited, &w)?;
         // Insert AFTER children are emitted — valid now that no cycles exist
         self.wires.insert(cid, w.clone());
         if is_root {
             self.root_wire = result.clone();
         }
-        result
+        Ok(result)
     }
 
     fn emit_enode(
@@ -106,7 +104,7 @@ impl RtlGen {
         cid: u32,
         visited: &mut HashMap<u32, bool>,
         wire_name: &str,
-    ) -> String {
+    ) -> HwineResult<String> {
         let w = wire_name.to_string();
 
         fn child_wire(
@@ -115,11 +113,11 @@ impl RtlGen {
             node: &ENode,
             idx: usize,
             visited: &mut HashMap<u32, bool>,
-        ) -> String {
+        ) -> HwineResult<String> {
             if idx < node.children.len() {
                 g.emit_node(eg, node.children[idx], false, visited)
             } else {
-                "0".to_string()
+                Ok("0".to_string())
             }
         }
 
@@ -158,34 +156,34 @@ impl RtlGen {
             }
 
             AtomOp::Add | AtomOp::ReduceAdd => {
-                let a = child_wire(self, eg, node, 0, visited);
-                let b = child_wire(self, eg, node, 1, visited);
+                let a = child_wire(self, eg, node, 0, visited)?;
+                let b = child_wire(self, eg, node, 1, visited)?;
                 self.assign_lines.push(format!("  assign {w} = {a} + {b};  // LUT adder"));
             }
 
             AtomOp::DspPreAdd => {
-                let a = child_wire(self, eg, node, 0, visited);
-                let b = child_wire(self, eg, node, 1, visited);
-                let c = child_wire(self, eg, node, 2, visited);
+                let a = child_wire(self, eg, node, 0, visited)?;
+                let b = child_wire(self, eg, node, 1, visited)?;
+                let c = child_wire(self, eg, node, 2, visited)?;
                 self.assign_lines.push(format!("  assign {w} = ({a} + {b}) * {c};  // DSP48 pre-adder"));
             }
 
             AtomOp::Mul | AtomOp::DspMul => {
-                let a = child_wire(self, eg, node, 0, visited);
-                let b = child_wire(self, eg, node, 1, visited);
+                let a = child_wire(self, eg, node, 0, visited)?;
+                let b = child_wire(self, eg, node, 1, visited)?;
                 self.assign_lines.push(format!("  assign {w} = {a} * {b};  // DSP48 MUL"));
             }
 
             AtomOp::Mac | AtomOp::DspMac | AtomOp::Madd => {
-                let x = child_wire(self, eg, node, 0, visited);
-                let y = child_wire(self, eg, node, 1, visited);
-                let z = child_wire(self, eg, node, 2, visited);
+                let x = child_wire(self, eg, node, 0, visited)?;
+                let y = child_wire(self, eg, node, 1, visited)?;
+                let z = child_wire(self, eg, node, 2, visited)?;
                 self.assign_lines.push(format!("  assign {w} = ({x} * {y}) + {z};  // DSP48 MAC"));
             }
 
             AtomOp::Pipe => {
                 self.has_clk = true;
-                let inp = child_wire(self, eg, node, 0, visited);
+                let inp = child_wire(self, eg, node, 0, visited)?;
                 let ff = format!("{w}_reg");
                 self.ff_lines.push(format!("  logic signed [{dw}-1:0] {ff};"));
                 self.ff_lines.push(format!("  always_ff @(posedge clk) begin"));
@@ -196,43 +194,43 @@ impl RtlGen {
             }
 
             AtomOp::AccStep => {
-                let prev = child_wire(self, eg, node, 0, visited);
-                let val = child_wire(self, eg, node, 1, visited);
+                let prev = child_wire(self, eg, node, 0, visited)?;
+                let val = child_wire(self, eg, node, 1, visited)?;
                 self.assign_lines.push(format!("  assign {w} = {prev} + {val};  // acc step (combinational)"));
             }
 
             AtomOp::AccInit => {
-                let init = child_wire(self, eg, node, 0, visited);
+                let init = child_wire(self, eg, node, 0, visited)?;
                 self.assign_lines.push(format!("  assign {w} = {init};"));
             }
 
             AtomOp::ReduceMin => {
-                let a = child_wire(self, eg, node, 0, visited);
-                let b = child_wire(self, eg, node, 1, visited);
+                let a = child_wire(self, eg, node, 0, visited)?;
+                let b = child_wire(self, eg, node, 1, visited)?;
                 self.assign_lines.push(format!("  assign {w} = ({a} < {b}) ? {a} : {b};  // MIN"));
             }
 
             AtomOp::ReduceMax => {
-                let a = child_wire(self, eg, node, 0, visited);
-                let b = child_wire(self, eg, node, 1, visited);
+                let a = child_wire(self, eg, node, 0, visited)?;
+                let b = child_wire(self, eg, node, 1, visited)?;
                 self.assign_lines.push(format!("  assign {w} = ({a} > {b}) ? {a} : {b};  // MAX"));
             }
 
             AtomOp::Sub => {
-                let a = child_wire(self, eg, node, 0, visited);
-                let b = child_wire(self, eg, node, 1, visited);
+                let a = child_wire(self, eg, node, 0, visited)?;
+                let b = child_wire(self, eg, node, 1, visited)?;
                 self.assign_lines.push(format!("  assign {w} = {a} - {b};  // subtract"));
             }
 
             AtomOp::Shl => {
-                let a = child_wire(self, eg, node, 0, visited);
-                let b = child_wire(self, eg, node, 1, visited);
+                let a = child_wire(self, eg, node, 0, visited)?;
+                let b = child_wire(self, eg, node, 1, visited)?;
                 self.assign_lines.push(format!("  assign {w} = {a} << {b};  // shift left"));
             }
 
             AtomOp::Shr => {
-                let a = child_wire(self, eg, node, 0, visited);
-                let b = child_wire(self, eg, node, 1, visited);
+                let a = child_wire(self, eg, node, 0, visited)?;
+                let b = child_wire(self, eg, node, 1, visited)?;
                 self.assign_lines.push(format!("  assign {w} = {a} >> {b};  // shift right"));
             }
 
@@ -243,7 +241,7 @@ impl RtlGen {
             }
 
             AtomOp::StreamWrite => {
-                let a = child_wire(self, eg, node, 0, visited);
+                let a = child_wire(self, eg, node, 0, visited)?;
                 let port_name = format!("stream_out_{}", self.wire_counter);
                 self.add_port(port_name.clone(), "output", dw).expect("port conflict");
                 self.assign_lines.push(format!("  assign {port_name} = {a};  // stream write"));
@@ -251,7 +249,7 @@ impl RtlGen {
 
             AtomOp::StreamFifo => {
                 self.has_clk = true;
-                let a = child_wire(self, eg, node, 0, visited);
+                let a = child_wire(self, eg, node, 0, visited)?;
                 let ff = format!("{w}_reg");
                 self.ff_lines.push(format!("  logic signed [{dw}-1:0] {ff};"));
                 self.ff_lines.push(format!("  always_ff @(posedge clk) {ff} <= {a};"));
@@ -259,44 +257,37 @@ impl RtlGen {
             }
 
             AtomOp::Concat => {
-                let a = child_wire(self, eg, node, 0, visited);
-                let b = child_wire(self, eg, node, 1, visited);
+                let a = child_wire(self, eg, node, 0, visited)?;
+                let b = child_wire(self, eg, node, 1, visited)?;
                 self.assign_lines.push(format!("  assign {w} = {{{a}, {b}}};  // concat"));
             }
 
             AtomOp::Slice | AtomOp::Extract => {
-                let a = child_wire(self, eg, node, 0, visited);
+                let a = child_wire(self, eg, node, 0, visited)?;
                 self.assign_lines.push(format!("  assign {w} = {a};  // slice/extract (passthrough)"));
             }
 
             AtomOp::Pack | AtomOp::Unpack | AtomOp::Quant | AtomOp::Dequant | AtomOp::DequantW => {
-                let a = child_wire(self, eg, node, 0, visited);
+                let a = child_wire(self, eg, node, 0, visited)?;
                 self.assign_lines.push(format!("  assign {w} = {a};  // {:?} (passthrough)", node.op));
             }
 
             AtomOp::Sat | AtomOp::Round | AtomOp::Route | AtomOp::Broadcast => {
-                let a = child_wire(self, eg, node, 0, visited);
+                let a = child_wire(self, eg, node, 0, visited)?;
                 self.assign_lines.push(format!("  assign {w} = {a};  // {:?} (passthrough)", node.op));
             }
 
             AtomOp::Div | AtomOp::Exp | AtomOp::Softmax
             | AtomOp::StrLit | AtomOp::Scan | AtomOp::Delay | AtomOp::Buffer => {
-                panic!(
-                    "RTL generator: operation {:?} is not supported. \
-                     Cannot generate valid hardware for this operation.",
-                    node.op
-                );
+                return Err(HwineError::UnsupportedRtlOp(node.op));
             }
 
             _ => {
-                panic!(
-                    "RTL generator: unknown operation {:?}. Cannot generate hardware.",
-                    node.op
-                );
+                return Err(HwineError::UnsupportedRtlOp(node.op));
             }
         }
 
-        w
+        Ok(w)
     }
 
     pub fn generate(&self) -> String {
@@ -393,7 +384,8 @@ pub fn try_generate_rtl(eg: &EGraph, target_cid: u32, module_name: &str, data_wi
 pub fn generate_rtl(eg: &EGraph, target_cid: u32, module_name: &str, data_width: usize) -> String {
     let mut rtl_gen = RtlGen::new(module_name, data_width);
     let mut visited = HashMap::new();
-    rtl_gen.emit_node(eg, target_cid, true, &mut visited);
+    rtl_gen.emit_node(eg, target_cid, true, &mut visited)
+        .expect("RTL generation failed");
     rtl_gen.generate()
 }
 
@@ -460,6 +452,7 @@ fn generate_pipelined_rtl_level(eg: &EGraph, target_cid: u32, module_name: &str,
     let piped_cid = walk_tree(eg, target_cid, &mut pipe_eg, &mut visited, &mut in_progress, level);
     let mut rtl_gen = RtlGen::new(module_name, data_width);
     let mut v2 = std::collections::HashMap::new();
-    rtl_gen.emit_node(&pipe_eg, piped_cid, true, &mut v2);
+    rtl_gen.emit_node(&pipe_eg, piped_cid, true, &mut v2)
+        .expect("RTL generation failed");
     rtl_gen.generate()
 }

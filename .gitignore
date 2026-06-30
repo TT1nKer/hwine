@@ -52,8 +52,30 @@ test_parents.py
 
 # Generated RTL (produced by benchmarks)
 hwine-rs/bm_*.sv
+hwine-rs/bench_*.sv
+hwine-rs/rtl_*.sv
+hwine-rs/serial_*.sv
+hwine-rs/tree_*.sv
+hwine-rs/full_fir_*.sv
+hwine-rs/hwine_fir_*.sv
+hwine-rs/hwine_*.sv
+hwine-rs/fir*.sv
+hwine-rs/cmul*.sv
+hwine-rs/mac_tile_*.sv
+hwine-rs/mac_*.sv
+hwine-rs/tb_mac_*.sv
+hwine-rs/tb_mac_*.vvp
+hwine-rs/paper_*.sv
+hwine-rs/synth_*.tcl
+benchmarks/hwine_fir6_optimized.sv
+out/hwine_*
 
-# Compiled binaries (except in tools/)
+# Generated RTL (root directory)
+serial_add_*.sv
+tree_add_*.sv
+serial_mac_*.sv
+tree_mac_*.sv
+serial_mac_*.vcd
 hwine
 !tools/hwine
 

@@ -103,5 +103,5 @@ Repo compiles with stable Rust 1.70+.
 
 - Vivado synthesis requires Windows + Xilinx license (not automated in CI)
 - Vivado HLS baseline requires Vivado HLS installation
-- 5 of 37 IR atom operations are passthrough stubs (Slice, Extract, Quant, etc.) — see paper §RTL Generation
+- Several IR atom operations are passthrough stubs (Slice, Extract, Quant, Dequant, Sat, Round, Route, Broadcast) — see paper §RTL Generation
 - DCT8 RTL-level SAT proof exceeds Yosys timeout; uses e-graph algebraic proof

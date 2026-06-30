@@ -1,92 +1,122 @@
-# hwine Architecture
+# hwine-rs Architecture
 
-## Crate Overview
+## Crate Structure
 
 ```
 hwine-rs/
 ├── src/
-│   ├── ir.rs        # AtomOp enum + ENode struct + DataType (37 operations)
-│   ├── egraph.rs    # E-graph engine (union-find, hashcons, 10 rewrite rules, extraction)
-│   ├── cost.rs      # FpgaStats + ExtractMode (multi-objective cost model)
-│   ├── rtl.rs       # SystemVerilog RTL generator (RtlGen)
-│   ├── capi.rs      # C FFI for Yosys/CIRCT integration
-│   ├── error.rs     # HwineError enum + HwineResult type alias
-│   ├── util.rs      # Shared utilities (extracted_tree_depth)
-│   ├── builders.rs  # Graph construction helpers (build_vars, build_add_chain, etc.)
-│   └── tcl.rs       # Vivado TCL auto-generation
+│   ├── lib.rs        # Public API exports
+│   ├── main.rs       # CLI binary (bench, rtl, synth, softmax, interactive)
+│   ├── egraph.rs     # E-graph engine (add, union, extract, saturation)
+│   ├── ir.rs         # IR atom operations (AtomOp, ENode, DataType)
+│   ├── cost.rs       # FPGA-aware cost model (FpgaStats, ExtractMode)
+│   ├── rtl.rs        # SystemVerilog RTL generator
+│   ├── error.rs      # Error types (HwineError, HwineResult)
+│   ├── rewrite.rs    # Rewrite rule definitions
+│   ├── tcl.rs        # Vivado TCL script generation
+│   ├── capi.rs       # C FFI bindings
+│   ├── builders.rs   # Shared graph construction utilities
+│   ├── util.rs       # Utility functions
+│   └── tests.rs      # Unit tests
+└── examples/         # Benchmark and demo examples
 ```
 
 ## Core Pipeline
 
 ```
-IR construction → e-graph saturation → extraction → RTL generation
-     (ENode)        (EGraph::saturate)  (extract_optimal)  (RtlGen::generate)
+IR (ENode tree) → EGraph saturation → DP extraction → RTL generation
 ```
+
+1. **IR Construction**: Build an e-node tree using `ENode::new(op, children, dtype)` and add nodes via `egraph.add()`.
+2. **Saturation**: Apply rewrite rules iteratively via `saturate()` until no new equivalences are found.
+3. **Extraction**: Select the optimal node from each equivalence class using DP with cost model (`extract_optimal`, `extract_pareto`).
+4. **RTL Generation**: Walk the extracted tree and emit SystemVerilog (`generate_rtl`, `generate_pipelined_rtl`).
 
 ## E-Graph Invariants
 
-1. **Union-find canonicalization**: `canon(id)` follows parent chain to representative. All public methods canonicalize inputs.
-2. **Hashcons**: `FxHashMap<ENode, u32>` ensures identical expressions share e-classes. `add()` canonicalizes children first, then hash-cons checks.
-3. **Parent tracking**: `parents_of[child].insert(parent)` maintained on every `add()`. Used by `repair_parents()` after union.
-4. **Deleted classes**: `classes[id] = None` after union merge. `_extract_dp` returns `FpgaStats::infinite()` for deleted classes.
-5. **Changed list**: `self.changed` collects merged e-class IDs for next saturation iteration.
+- **Union-find**: Each e-class has a canonical parent via `parents[]` array. `canon()` finds the root.
+- **Hashcons**: `hashcons: HashMap<ENode, u32>` ensures each unique e-node expression exists in exactly one e-class.
+- **Canonicalization**: Before add/union, child CIDs are canonicalized via `canon_mut()`.
+- **Parent tracking**: `parents_of[cid]` tracks all parent e-classes containing nodes that reference this e-class as a child. Used for congruence closure repair after union.
+- **Class deletion**: Deleted classes are `None` (via `.take()`). Must be validated before access.
+- **Changed tracking**: `changed` vector tracks recently modified e-classes for worklist-driven rule matching.
+- **Cycle detection**: DP extraction returns infinite cost for cycles to prevent invalid zero-substitution.
 
 ## Cost Model Semantics
 
-- **FpgaStats::for_node**: computes `lut/dsp/ff/delay_ns/cycles/fmax_mhz` from operation type + children stats
-- **Pipeline barrier**: `Pipe | StreamFifo | AccInit` reset child delay to 0 (register captures upstream path)
-- **Infinite cost**: `FpgaStats::infinite()` returned for cycles/deleted classes; nodes with infinite children skipped in DP
-- **dominates**: compares lut, dsp, ff, delay_ns, AND cycles (pipeline-aware Pareto frontier)
-- **scalar_cost**: maps ExtractMode to single f64 for DP ranking; returns INFINITY on constraint violation
+`FpgaStats` is a multi-objective resource vector (LUT, DSP, FF, delay_ns, cycles, Fmax_mhz).
 
-## Rewrite Rules (10 total)
+- **Pipeline barrier**: `Pipe | StreamFifo | AccInit` resets accumulated child delay to 0 (register clk-to-q).
+- **Infinite cost for cycles**: Cycle detection in DP returns `FpgaStats::infinite()` to prevent extraction of invalid structures.
+- **Width-aware scaling**: LUT cost scales with bit width; DSP cost uses ceil(width/25) slices.
+- **Domination**: `a.dominates(b)` iff a is ≤ b in all dimensions and < b in at least one. Includes `cycles` for pipeline-aware Pareto.
 
-| Rule | Method | Always-on? | Purpose |
-|------|--------|-----------|---------|
-| Associativity | `rule_assoc` | yes | Tree balancing (one-directional for performance) |
-| MAC decompose | `rule_mac_decompose` | yes | Mac→Add(Mul) for optimization exposure |
-| MAC fuse | `rule_mac_fuse` | yes | Add(Mul)→Mac for DSP inference |
-| Add identity | `rule_add_identity` | yes | x+0→x |
-| Mul identity | `rule_mul_identity` | yes | x*1→x |
-| CSD decompose | `rule_const_mul_decompose` | yes | Mul(Var,Const)→shift-add tree |
-| Shift simplify | `rule_shift_simplify` | yes | x<<0→x, etc. |
-| Acc flatten | `rule_acc_flatten` | yes | Accumulator chain reorganization |
-| Distributive | `rule_distributive` | yes | Mul(Add(a,b),c)→Add(Mul(a,c),Mul(b,c)) |
-| DSP pre-adder | `rule_dsp_preadd` | yes | Mul(Add(a,b),c)→DspPreAdd(a,b,c) |
+## Rewrite Rules (10 rules)
 
-**Gated rules** (only via `saturate_retime()`):
-| Rule | Method | Purpose |
-|------|--------|---------|
-| Pipeline retiming | `rule_pipeline_retime` | Op→StreamFifo(Op) — creates pipeline options for streaming designs |
+| Rule | Pattern | Gate |
+|------|---------|------|
+| Associativity | `Op(a, Op(b, c))` ↔ `Op(Op(a, b), c)` | Always-on |
+| MAC fuse | `Add(Mul(w,a), b)` → `Mac(w,a,b)` | Always-on |
+| MAC decompose | `Mac(w,a,b)` → `Add(Mul(w,a), b)` | Always-on |
+| CSD constant decompose | `Mul(const, x)` → shift-add tree | Always-on |
+| Distributivity | `(a+b)*c` ↔ `a*c + b*c` | Always-on |
+| DSP pre-adder | `DspMul(DspPreAdd(a,b), c)` → `Mul(Add(a,b), c)` | Always-on |
+| Pipeline retiming | `Op(a,b)` → `StreamFifo(Op(a,b))` | Gated |
+| Add identity | `Add(x, 0)` → `x` | Always-on |
+| Mul identity | `Mul(x, 1)` → `x` | Always-on |
+| Sub identity | `Sub(x, 0)` → `x` | Always-on |
 
-**Why gated**: Pipeline retiming creates StreamFifo alternatives that change cycle latency. For combinational-only benchmarks, this produces Pareto-inferior results (lower delay but more FFs with +1 cycle).
+**Gating rationale**: Pipeline retiming is gated because infinite nesting of StreamFifo nodes would cause e-graph explosion. Always-on rules are safe (bounded growth).
 
 ## RTL Backend Contract
 
-- **Fully supported ops**: Add, Sub, Mul, Mac, Shl, Shr, DspMul, DspMac, DspPreAdd, Pipe, StreamFifo, StreamRead, StreamWrite, Concat, ReduceAdd/Min/Max, AccInit/Step/Read/Reset, Const/Var/Zero/One
-- **Passthrough stubs** (wire-through, same width): Pack, Unpack, Slice, Extract, Quant, Dequant, Sat, Round, Route, Broadcast
-- **Unsupported** (panic): Div, Exp, Softmax, Delay, Buffer, Scan, StrLit
-- **Port dedup**: Same Var e-class only produces one input port
-- **Port conflict**: Same name with different dir/width → `HwineError::PortConflict`
-- **Clock detection**: `has_clk` auto-set when Pipe/StreamFifo present; adds `clk`/`rst_n` ports
+- **Supported ops**: Add, Sub, Mul, Mac, Shl, Shr, DspMul, DspMac, DspPreAdd, Madd, ReduceAdd, ReduceMin, ReduceMax, AccInit, AccStep, AccRead, AccReset, Pipe, StreamFifo, StreamRead, StreamWrite, Concat, Const, Var, Zero, One.
+- **Passthrough stubs**: Pack, Unpack, Slice, Extract, Quant, Dequant, DequantW, Sat, Round, Route, Broadcast (emitted as wire-through).
+- **Unsupported ops**: Div, Exp, Softmax, StrLit, Scan, Delay, Buffer (return `HwineError::UnsupportedRtlOp`).
+- **Port deduplication**: Reused Var nodes share input ports via `port_map` dedup with conflict detection.
+- **Clock inference**: `has_clk` is set automatically when sequential ops (Pipe, StreamFifo) are present.
 
-## Adding a Benchmark
+## Extraction Modes
 
-1. Copy pattern from `examples/bench_real.rs`
-2. Build expression with `eg.add(ENode::new(op, vec![children], dtype))`
-3. Saturate with `eg.saturate(max_iter, max_classes)` or `eg.saturate_retime()` for pipelined
-4. Extract with `eg.extract_optimal(root, ExtractMode::MinDelay)`
-5. Generate RTL with `generate_rtl(&eg, root, module_name, width)`
+| Mode | Cost Function | Use Case |
+|------|--------------|----------|
+| `MinDelay` | `delay_ns` | Minimize critical path |
+| `MinLut{max_delay}` | LUT + delay tiebreaker | Area under timing constraint |
+| `MinDsp{max_delay}` | DSP + delay tiebreaker | DSP-aware optimization |
+| `MinFf{max_delay}` | FF + delay tiebreaker | Register minimization |
+| `Weighted{w_*}` | Linear combination | Custom tradeoffs |
+| `Pareto` | Non-dominated frontier | Design space exploration |
 
-## Adding a Rewrite Rule
+## How to Add a Benchmark
 
-1. Add method `fn rule_xxx(&mut self, worklist: &[u32], node_limit: usize)` in `egraph.rs`
-2. Pattern: iterate worklist, clone nodes, match pattern, `self.add(new_node)`, `self.union(new_cid, original_cid)`
-3. Register in `apply_rules_config()` (always-on) or `saturate_with_config_retime()` (gated)
-4. Add unit test in `tests.rs`
+1. Build an IR tree with `ENode::new()` and `eg.add()`.
+2. Call `saturate(&mut eg, &SaturateConfig)` to explore equivalences.
+3. Extract the optimal node: `eg.extract_optimal(cid, ExtractMode::MinDelay)`.
+4. Generate RTL: `generate_rtl(&eg, cid, "module_name", data_width)`.
+5. For synthesis: write TCL with `tcl::generate_synth_tcl()` and run Vivado.
 
-## Public API Stability
+## How to Add a Rewrite Rule
 
-- **Stable**: `EGraph::add`, `union`, `canon`, `extract_optimal`, `extract_pareto`, `extract_shared_aware`, `n_classes`, `union_count`, `class_nodes`; `try_add`, `try_union`, `try_extract_optimal/pareto/shared_aware`; `generate_rtl`, `try_generate_rtl`; `FpgaStats::for_node/dominates/pareto_filter/scalar_cost`
-- **Experimental**: `tcl.rs`, `builders.rs`, `saturate_retime`, `extract_pareto_with_mode`
-- **Internal**: `_extract_dp`, `_extract_pareto`, `_extract_depth_dp`, `compute_deduped_stats`, all `rule_*` methods
+1. Add a function in `egraph.rs` following the pattern: find nodes matching a pattern, construct equivalent nodes, union them.
+2. Register the rule in `saturate()` with appropriate gating (always-on or configurable).
+3. Add tests verifying the rule produces expected equivalences.
+4. Update `ARCHITECTURE.md` rule table.
+
+## Error Handling
+
+`HwineError` enum covers:
+- `InvalidClass(u32)` — e-class ID out of bounds
+- `DeletedClass(u32)` — referring to a merged/deleted e-class
+- `CycleDetected(u32)` — circular dependency in RTL generation
+- `UnsupportedRtlOp(AtomOp)` — unsupported operation in RTL
+- `PortConflict{name, ...}` — RTL port direction/width conflict
+- `InvalidInput(&str)` — general input validation failure
+- `ExtractionFailed(String)` — extraction/RTL generation failure
+
+All public APIs return `HwineResult<T>`. Internal helpers use `.expect()` for invariant violations (should never happen).
+
+## Testing
+
+- 25 unit tests in `src/tests.rs` covering associativity, CSD, MAC, DSP mapping, pipeline retiming, RTL generation, formal equivalence, and error paths.
+- Doctests on key public functions (`add`, `extract_optimal`, `dominates`, `generate_rtl`).
+- Examples serve as integration tests for real benchmarks (DCT, FFT, FIR, GEMM, Stencil).

@@ -1,7 +1,6 @@
 use crate::ir::{AtomOp, ENode, DataType};
 
 /// FPGA cost model — calibrated for Xilinx 7-series, width-aware
-
 /// Width scaling factor: cost multiplier relative to 16-bit baseline
 fn width_scale(dtype: &DataType) -> f64 {
     (dtype.width as f64 / 16.0).max(0.25)

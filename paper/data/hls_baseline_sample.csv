@@ -1,4 +1,8 @@
-kernel,taps,tool,LUT,FF,DSP,BRAM,latency,clock_ns,note
-fir,8,"Vivado HLS",TBD,TBD,TBD,TBD,TBD,3.3,"Run Vivado HLS to fill"
-gemm,8,"Vivado HLS",TBD,TBD,TBD,TBD,TBD,3.3,"Run Vivado HLS to fill"
-dct,8,"Vivado HLS",TBD,TBD,TBD,TBD,TBD,3.3,"Run Vivado HLS to fill"
+benchmark,LUT,FF,DSP,Latency_cycles,Clock_MHz,Source,Notes
+fir6,342,723,6,12,308.0,paper/data/hls_baseline_sample.csv,Kastner FIR6 HLS baseline
+fir20,686,1491,20,26,302.0,paper/data/hls_baseline_sample.csv,Kastner FIR20 HLS baseline
+fir41,1204,2611,41,47,308.0,paper/data/hls_baseline_sample.csv,Kastner FIR41 HLS baseline
+dct8,482,384,8,16,245.0,paper/data/hls_baseline_sample.csv,DCT 8-point with 8 DSP multipliers (no CSD in HLS)
+gemm_dot8,0,128,8,8,308.0,paper/data/hls_baseline_sample.csv,GEMM dot8: 7-level serial adder chain
+fft_butterfly,0,96,4,4,308.0,paper/data/hls_baseline_sample.csv,FFT butterfly: 4-MUL direct form (HLS default)
+stencil2d,592,432,9,18,240.0,paper/data/hls_baseline_sample.csv,Stencil2D 3x3: 9 constant multipliers

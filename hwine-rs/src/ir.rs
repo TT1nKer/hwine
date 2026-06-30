@@ -1,18 +1,15 @@
 use std::fmt;
 
 /// Overflow behavior for arithmetic operations
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub enum OverflowMode {
     /// Modular/wrapping (e.g., unsigned 8-bit: 255 + 1 = 0)
+    #[default]
     Wrap,
     /// Saturating (e.g., 255 + 1 = 255)
     Sat,
     /// Widened — no overflow possible (result width = max input width + 1)
     Wide,
-}
-
-impl Default for OverflowMode {
-    fn default() -> Self { OverflowMode::Wrap }
 }
 
 /// Data type for arithmetic nodes
@@ -29,10 +26,13 @@ impl DataType {
     pub const U32: DataType = DataType { width: 32, signed: false, overflow: OverflowMode::Wrap };
     pub const S16: DataType = DataType { width: 16, signed: true, overflow: OverflowMode::Wrap };
     pub const S32: DataType = DataType { width: 32, signed: true, overflow: OverflowMode::Wrap };
+}
 
-    /// Default type for untyped operations (16-bit unsigned)
-    pub fn default() -> Self { DataType::U16 }
+impl Default for DataType {
+    fn default() -> Self { DataType::U16 }
+}
 
+impl DataType {
     /// Check if two types are compatible for binary arithmetic (same width + signedness)
     pub fn compatible(&self, other: &DataType) -> bool {
         self.width == other.width && self.signed == other.signed

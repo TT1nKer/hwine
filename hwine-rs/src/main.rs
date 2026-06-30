@@ -249,8 +249,7 @@ fn softmax(args: &[String]) {
 
     // Build: SOFTMAX applied to the whole vector
     // Softmax: RTL not yet supported (requires Exp/Div ops)
-    let _vec_repr = vs[0]; // placeholder: vector represented by its first element
-    let softmax_node = eg.add(ENode::new(AtomOp::Softmax, vec![_vec_repr], DataType::default()));
+    let softmax_node = eg.add(ENode::new(AtomOp::Softmax, vec![vs[0]], DataType::default()));
 
     let t0 = Instant::now();
     let iters = saturate(&mut eg, &cfg);
@@ -262,7 +261,6 @@ fn softmax(args: &[String]) {
     println!("  {} equivalent representations found:", cls.len());
 
     for node in cls.iter().take(10) {
-        let op_name = format!("{:?}", node.op);
         let d = 1 + node.children.iter()
             .map(|&c| tree_depth_rec(&eg.extract_optimal(c, ExtractMode::MinDelay).0, &eg)).max().unwrap_or(0);
         println!("    depth={:2}  {:?}", d, node.op);
@@ -279,7 +277,7 @@ fn tree_depth_rec(node: &ENode, eg: &EGraph) -> usize {
 // --- interactive ---
 
 fn interactive() {
-    use std::io::{Write, BufRead};
+    use std::io::Write;
     println!("hwine interactive — type commands:");
     println!("  bench <N> <add|mac|full> [--bidir] [--loose]");
     println!("  synth <N> <add|mac> [--bidir] [--loose]");

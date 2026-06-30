@@ -1,0 +1,19 @@
+=== DSP PRE-ADDER VERIFICATION (Vivado 2026.1, xc7vx485t) ===
+Date: 2026-06-30
+Design: bm_dsp_preadd.sv — (a+b)*c pattern
+
+Resource Utilization:
+  LUT_raw=16
+  LUT_io=16 (all I/O passthrough LUT2)
+  LUT_arith=0
+  FF=0
+  DSP48E1=1
+  CARRY4=4
+
+Synthesis Log Evidence:
+  DSP Report: operator node_1 is absorbed into DSP node_1.
+  DSP Mapping: A*B (A=30, B=18)
+
+Result: PASS — Vivado infers 1 DSP48E1 slice with pre-adder absorbed.
+  The (a+b)*c pattern maps to the DSP A*B path with zero arithmetic LUTs.
+  This confirms hwine's DspPreAdd rule correctly targets hardware inference.
