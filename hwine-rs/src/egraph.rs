@@ -575,9 +575,32 @@ impl EGraph {
         self._extract_dp(cid, &mut FxHashMap::default(), &mut FxHashSet::default(), mode)
     }
 
-    /// Pareto-frontier extraction: returns all non-dominated (node, stats) pairs
+    /// Fallible variant: catches panics from corrupted e-graph state.
+    pub fn try_extract_optimal(&self, cid: u32, mode: ExtractMode) -> HwineResult<(ENode, FpgaStats)> {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            self.extract_optimal(cid, mode)
+        }))
+        .map_err(|_| HwineError::ExtractionFailed("extract_optimal panicked".into()))
+    }
+
+    /// Pareto-frontier extraction: returns all non-dominated (node, stats) pairs.
+    /// Children are evaluated with MinDelay mode for generality.
     pub fn extract_pareto(&self, cid: u32) -> Vec<(ENode, FpgaStats)> {
-        self._extract_pareto(cid, &mut FxHashMap::default(), &mut FxHashSet::default())
+        self._extract_pareto(cid, &mut FxHashMap::default(), &mut FxHashSet::default(), ExtractMode::MinDelay)
+    }
+
+    /// Pareto-frontier extraction with explicit child evaluation mode.
+    /// Use this when you want children ranked under the same cost objective (e.g., MinLut).
+    pub fn extract_pareto_with_mode(&self, cid: u32, child_mode: ExtractMode) -> Vec<(ENode, FpgaStats)> {
+        self._extract_pareto(cid, &mut FxHashMap::default(), &mut FxHashSet::default(), child_mode)
+    }
+
+    /// Fallible Pareto extraction.
+    pub fn try_extract_pareto(&self, cid: u32) -> HwineResult<Vec<(ENode, FpgaStats)>> {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            self.extract_pareto(cid)
+        }))
+        .map_err(|_| HwineError::ExtractionFailed("extract_pareto panicked".into()))
     }
 
     /// Sharing-aware cost: extracts the DP-optimal tree structure, then recomputes
@@ -586,28 +609,34 @@ impl EGraph {
     pub fn extract_shared_aware(&self, cid: u32, mode: ExtractMode) -> (ENode, FpgaStats) {
         let (node, _raw_stats) = self.extract_optimal(cid, mode);
         let mut shared = FxHashSet::default();
-        let stats = self.compute_deduped_stats(cid, &node, &mut shared);
+        let stats = self.compute_deduped_stats(cid, &node, &mut shared, mode);
         (node, stats)
+    }
+
+    /// Fallible shared-aware extraction.
+    pub fn try_extract_shared_aware(&self, cid: u32, mode: ExtractMode) -> HwineResult<(ENode, FpgaStats)> {
+        std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+            self.extract_shared_aware(cid, mode)
+        }))
+        .map_err(|_| HwineError::ExtractionFailed("extract_shared_aware panicked".into()))
     }
 
     /// Recursively compute resource stats while deduplicating encountered e-classes.
     /// After first encounter, each e-class's own resources are counted; subsequent
     /// encounters only count wiring overhead (marginal cost).
-    fn compute_deduped_stats(&self, cid: u32, node: &ENode, shared: &mut FxHashSet<u32>) -> FpgaStats {
+    fn compute_deduped_stats(&self, cid: u32, node: &ENode, shared: &mut FxHashSet<u32>, mode: ExtractMode) -> FpgaStats {
         let canonical = self.canon(cid);
         let already_seen = !shared.insert(canonical);
 
-        // For already-seen subtrees: charge nothing (wiring is ~free on FPGA)
         if already_seen {
             return FpgaStats::empty();
         }
 
-        // Compute child stats recursively
         let child_stats: Vec<FpgaStats> = node.children.iter()
             .zip(0..)
             .map(|(&ch_cid, _)| {
-                let (child_node, _) = self.extract_optimal(ch_cid, ExtractMode::MinDelay);
-                self.compute_deduped_stats(ch_cid, &child_node, shared)
+                let (child_node, _) = self.extract_optimal(ch_cid, mode);
+                self.compute_deduped_stats(ch_cid, &child_node, shared, mode)
             })
             .collect();
 
@@ -677,10 +706,13 @@ impl EGraph {
 
     /// Pareto extraction: enumerates all nodes in each class, computes stats with
     /// optimal children, then filters to non-dominated alternatives.
+    /// `child_mode` determines how child e-classes are evaluated (MinDelay default,
+    /// but can be MinLut/MinDsp/Weighted for domain-specific Pareto frontiers).
     fn _extract_pareto(
         &self, cid: u32,
         memo: &mut FxHashMap<u32, Vec<(ENode, FpgaStats)>>,
         visiting: &mut FxHashSet<u32>,
+        child_mode: ExtractMode,
     ) -> Vec<(ENode, FpgaStats)> {
         let cid = self.canon(cid);
         if let Some(cached) = memo.get(&cid) {
@@ -702,11 +734,14 @@ impl EGraph {
 
         let mut candidates = Vec::new();
 
+        // Shared DP memo: avoids recreating per-child FxHashMap (O(n²) → O(n))
+        let mut dp_memo: FxHashMap<u32, (ENode, FpgaStats)> = FxHashMap::default();
+        let mut dp_visiting: FxHashSet<u32> = FxHashSet::default();
+
         for node in class.nodes.iter().take(16) {
-            // Compute optimal stats for each child (using MinDelay mode for child selection)
             let mut child_stats = Vec::new();
             for &ch in node.children.iter() {
-                let (_, stats) = self._extract_dp(ch, &mut FxHashMap::default(), &mut FxHashSet::default(), ExtractMode::MinDelay);
+                let (_, stats) = self._extract_dp(ch, &mut dp_memo, &mut dp_visiting, child_mode);
                 child_stats.push(stats);
             }
             let stats = FpgaStats::for_node(node.op, &child_stats, &node.dtype);
@@ -728,6 +763,7 @@ impl EGraph {
     }
 
     fn _extract_depth_dp(&self, cid: u32, memo: &mut FxHashMap<u32, (ENode, usize)>, visiting: &mut FxHashSet<u32>) -> (ENode, usize) {
+        // Canonicalize, check memo, and detect cycles — same pattern as _extract_dp
         let cid = self.canon(cid);
         if let Some(result) = memo.get(&cid) {
             return result.clone();
@@ -739,9 +775,10 @@ impl EGraph {
         let class = match &self.classes[cid as usize] {
             Some(c) => c,
             None => {
-                memo.insert(cid, (ENode::leaf(AtomOp::Zero), 0));
+                // Deleted class: return max depth so callers skip it
+                memo.insert(cid, (ENode::leaf(AtomOp::Zero), usize::MAX));
                 visiting.remove(&cid);
-                return (ENode::leaf(AtomOp::Zero), 0);
+                return (ENode::leaf(AtomOp::Zero), usize::MAX);
             }
         };
         let mut best_node = ENode::leaf(AtomOp::Zero);
