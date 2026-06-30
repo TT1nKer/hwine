@@ -30,16 +30,6 @@ fn bench_scaling() {
 }
 
 // ====== Experiment 2: Naive balanced tree (no e-graph) ======
-fn build_balanced_adds(n: usize, start_id: &mut usize) -> ENode {
-    if n == 1 {
-        *start_id += 1;
-        return ENode::leaf(AtomOp::Var(*start_id - 1));
-    }
-    let left = build_balanced_adds(n / 2, start_id);
-    let right = build_balanced_adds(n - n / 2, start_id);
-    ENode::new(AtomOp::Add, vec![0, 1], DataType::default()) // placeholder children, will rebuild
-}
-
 fn bench_ablation() {
     println!("=== Experiment 2: Ablation — naive tree vs e-graph ===");
     println!("Taps\tNaiveFmax\tEgraphFmax\tLUT_naive\tLUT_egraph");

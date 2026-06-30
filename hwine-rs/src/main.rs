@@ -248,13 +248,9 @@ fn softmax(args: &[String]) {
     for i in 0..n { vs.push(eg.add(ENode::leaf(AtomOp::Var(i)))); }
 
     // Build: SOFTMAX applied to the whole vector
-    // Represent as: REDUCE_MAX over all elements, then element-wise operations
-    // For simplicity, model the whole vector as one SOFTMAX node
-    let vec_repr = vs[0]; // placeholder: vector represented by its first element
-    for i in 1..n {
-        // Concat or reduce operation on the vector
-    }
-    let softmax_node = eg.add(ENode::new(AtomOp::Softmax, vec![vec_repr], DataType::default()));
+    // Softmax: RTL not yet supported (requires Exp/Div ops)
+    let _vec_repr = vs[0]; // placeholder: vector represented by its first element
+    let softmax_node = eg.add(ENode::new(AtomOp::Softmax, vec![_vec_repr], DataType::default()));
 
     let t0 = Instant::now();
     let iters = saturate(&mut eg, &cfg);

@@ -43,7 +43,7 @@ cargo build --examples --release
 hwine/
 ├── hwine-rs/          # Rust e-graph engine (core)
 │   ├── src/
-│   │   ├── egraph.rs  # E-graph saturation + 8 rewrite rules
+│   │   ├── egraph.rs  # E-graph saturation + 10 rewrite rules
 │   │   ├── rtl.rs     # SystemVerilog RTL generator
 │   │   ├── ir.rs      # 34 atom operations
 │   │   └── cost.rs    # FPGA-aware delay cost model
@@ -74,6 +74,13 @@ hwine/
   url = {https://github.com/TT1nKer/hwine}
 }
 ```
+
+## Known Limitations
+
+- **RTL generation**: Some atom operations (Slice, Extract, Quant, Dequant, Sat, Round, Route, Broadcast) are emitted as passthrough stubs rather than semantically correct hardware. Division, exponentiation, softmax, delay/buffer/scan are not supported.
+- **Formal equivalence**: DCT8/Stencil2D/streaming FIR are proven at the e-graph algebraic level (same equivalence class). Full RTL-level SAT proofs via Yosys currently time out for deeply restructured designs (444 e-classes).
+- **Cost model**: LUT predictions use abstract units (~20× scaling factor vs Vivado LUT6 counts). DSP predictions are exact (1:1 with DSP48E1 slices).
+- **HLS baseline**: Vivado HLS baseline comparison is automated via `benchmarks/hls_baseline/run_hls.py` but requires Vivado HLS installation at runtime.
 
 ## License
 

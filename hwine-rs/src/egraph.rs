@@ -97,8 +97,15 @@ impl EGraph {
         cid
     }
 
-    /// Fallible variant of `add`: returns HwineError on canonicalization failure.
+    /// Fallible variant of `add`: returns HwineError on invalid input.
+    /// Validates child CIDs bounds before canonicalization (avoids panic on OOB).
     pub fn try_add(&mut self, mut node: ENode) -> HwineResult<u32> {
+        // Validate children BEFORE canonicalize (avoids OOB panic)
+        for &c in &node.children {
+            if c as usize >= self.classes.len() || self.classes[c as usize].is_none() {
+                return Err(HwineError::InvalidClass(c));
+            }
+        }
         node.children = node.children.iter().map(|&c| self.canon_mut(c)).collect();
         if node.children.iter().any(|&c| self.classes.get(c as usize).is_none()) {
             return Err(HwineError::InvalidInput("child class deleted or invalid"));
@@ -154,15 +161,15 @@ impl EGraph {
     }
 
     /// Fallible variant of `union`: validates both e-class IDs before merging.
+    /// Boundaries are checked BEFORE canonicalize to avoid OOB panic.
     pub fn try_union(&mut self, a: u32, b: u32) -> HwineResult<u32> {
+        // Validate raw IDs before canonicalize (which would panic on OOB)
+        if a as usize >= self.classes.len() { return Err(HwineError::InvalidClass(a)); }
+        if b as usize >= self.classes.len() { return Err(HwineError::InvalidClass(b)); }
         let a = self.canon_mut(a);
         let b = self.canon_mut(b);
-        if a as usize >= self.classes.len() || self.classes[a as usize].is_none() {
-            return Err(HwineError::DeletedClass(a));
-        }
-        if b as usize >= self.classes.len() || self.classes[b as usize].is_none() {
-            return Err(HwineError::DeletedClass(b));
-        }
+        if self.classes[a as usize].is_none() { return Err(HwineError::DeletedClass(a)); }
+        if self.classes[b as usize].is_none() { return Err(HwineError::DeletedClass(b)); }
         if a == b { return Ok(a); }
         Ok(self.union(a, b))
     }

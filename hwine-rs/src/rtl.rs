@@ -43,21 +43,22 @@ impl RtlGen {
     }
 
     /// Add a port with deduplication and conflict detection.
-    /// Returns true if this is a new port, false if already registered (same dir/width).
-    /// Panics on conflict (same name, different dir or width).
-    fn add_port(&mut self, name: String, dir: &str, width: usize) {
+    /// Returns Ok(()) on success.
+    /// Returns Err(PortConflict) if same-name port has different dir/width.
+    fn add_port(&mut self, name: String, dir: &str, width: usize) -> HwineResult<()> {
         if let Some((existing_dir, existing_width)) = self.port_map.get(&name) {
             if existing_dir != dir || *existing_width != width {
-                panic!(
-                    "RTL port conflict: '{}' declared as {} {}bit, \
-                     but already declared as {} {}bit",
-                    name, dir, width, existing_dir, existing_width
-                );
+                return Err(HwineError::PortConflict {
+                    name: name.clone(),
+                    declared_as: format!("{dir}_{width}b"),
+                    conflicting_as: format!("{existing_dir}_{existing_width}b"),
+                });
             }
-            return; // deduplicated — same name, dir, width
+            return Ok(()); // deduplicated — same name, dir, width
         }
         self.port_map.insert(name.clone(), (dir.to_string(), width));
         self.port_order.push(name);
+        Ok(())
     }
 
     fn fresh_wire(&mut self, prefix: &str) -> String {
@@ -136,7 +137,7 @@ impl RtlGen {
                             format!("w{}", idx / 2)
                         }
                     });
-                self.add_port(name.clone(), "input", dw);
+                self.add_port(name.clone(), "input", dw).expect("port conflict");
                 self.assign_lines.push(format!("  assign {w} = {name};"));
             }
 
@@ -237,14 +238,14 @@ impl RtlGen {
 
             AtomOp::StreamRead => {
                 let port_name = format!("stream_in_{}", self.wire_counter);
-                self.add_port(port_name.clone(), "input", dw);
+                self.add_port(port_name.clone(), "input", dw).expect("port conflict");
                 self.assign_lines.push(format!("  assign {w} = {port_name};  // stream read"));
             }
 
             AtomOp::StreamWrite => {
                 let a = child_wire(self, eg, node, 0, visited);
                 let port_name = format!("stream_out_{}", self.wire_counter);
-                self.add_port(port_name.clone(), "output", dw);
+                self.add_port(port_name.clone(), "output", dw).expect("port conflict");
                 self.assign_lines.push(format!("  assign {port_name} = {a};  // stream write"));
             }
 

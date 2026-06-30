@@ -159,16 +159,19 @@ impl FpgaStats {
         Self { lut: 1e10, dsp: 1e10, ff: 1e10, delay_ns: 1e10, cycles: 0, fmax_mhz: 0.0 }
     }
 
-    /// Returns true if `self` dominates `other` (better or equal in all dimensions, strictly better in at least one)
+    /// Returns true if `self` dominates `other` (better or equal in all dimensions, strictly better in at least one).
+    /// Includes cycle latency for pipeline-aware Pareto frontiers.
     pub fn dominates(&self, other: &FpgaStats) -> bool {
         let not_worse = self.lut <= other.lut
             && self.dsp <= other.dsp
             && self.ff <= other.ff
-            && self.delay_ns <= other.delay_ns;
+            && self.delay_ns <= other.delay_ns
+            && self.cycles <= other.cycles;
         let strictly_better = self.lut < other.lut
             || self.dsp < other.dsp
             || self.ff < other.ff
-            || self.delay_ns < other.delay_ns;
+            || self.delay_ns < other.delay_ns
+            || self.cycles < other.cycles;
         not_worse && strictly_better
     }
 
