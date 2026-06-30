@@ -29,7 +29,7 @@ pub fn lut_cost(op: AtomOp, dtype: &DataType) -> f64 {
         AtomOp::AccRead | AtomOp::AccReset => 0.0,
         AtomOp::StreamRead => 0.0,
         AtomOp::StreamWrite => 0.0,
-        AtomOp::StreamFifo => 2.0, // FIFO buffer costs FF + RAM
+        AtomOp::StreamFifo => 0.0, // pipeline register (no LUT)
     };
     // Width scaling for arithmetic ops only
     if op.is_arithmetic() { base * width_scale(dtype) } else { base }
@@ -53,7 +53,7 @@ pub fn ff_cost(op: AtomOp, dtype: &DataType) -> f64 {
         AtomOp::Delay => bits,
         AtomOp::AccStep => bits * 2.0,
         AtomOp::Buffer => bits * 2.0,
-        AtomOp::StreamFifo => bits * 4.0, // FIFO: depth * width
+        AtomOp::StreamFifo => bits,  // pipeline register: one FF per bit
         _ => 0.0,
     }
 }
@@ -79,7 +79,7 @@ pub fn delay_ns(op: AtomOp, dtype: &DataType) -> f64 {
         AtomOp::Const(_) | AtomOp::Var(_) | AtomOp::StrLit | AtomOp::Zero | AtomOp::One => 0.0,
         AtomOp::AccInit | AtomOp::AccStep => 1.0,
         AtomOp::AccRead | AtomOp::AccReset => 0.3,
-        AtomOp::StreamRead | AtomOp::StreamWrite | AtomOp::StreamFifo => 1.0,
+        AtomOp::StreamRead | AtomOp::StreamWrite | AtomOp::StreamFifo => 0.3,
     };
     // Width scaling: wider ops have longer carry chains
     if op == AtomOp::Add || op == AtomOp::Sub || op == AtomOp::ReduceAdd {
@@ -92,7 +92,7 @@ pub fn delay_ns(op: AtomOp, dtype: &DataType) -> f64 {
 /// Pipeline cycle latency
 pub fn cycle_latency(op: AtomOp) -> usize {
     match op {
-        AtomOp::Pipe | AtomOp::Delay | AtomOp::AccStep => 1,
+        AtomOp::Pipe | AtomOp::Delay | AtomOp::AccStep | AtomOp::StreamFifo => 1,
         AtomOp::Buffer => 2,
         _ => 0,
     }
@@ -134,7 +134,11 @@ impl FpgaStats {
         let max_child_delay: f64 = child_stats.iter().map(|s| s.delay_ns).fold(0.0, f64::max);
         let max_child_cycles: usize = child_stats.iter().map(|s| s.cycles).max().unwrap_or(0);
 
-        let delay = delay_ns(op, dtype) + max_child_delay;
+        // Pipeline registers reset delay: children's combinational paths are
+        // captured by the register, so output delay = register clk-to-q only.
+        let is_pipeline_barrier = matches!(op, AtomOp::Pipe | AtomOp::StreamFifo | AtomOp::AccInit);
+        let prev_delay = if is_pipeline_barrier { 0.0 } else { max_child_delay };
+        let delay = delay_ns(op, dtype) + prev_delay;
         let fmax = if delay > 0.0 { (1000.0 / delay).min(500.0) } else { 500.0 };
 
         Self {
@@ -149,6 +153,10 @@ impl FpgaStats {
 
     pub fn empty() -> Self {
         Self { lut: 0.0, dsp: 0.0, ff: 0.0, delay_ns: 0.0, cycles: 0, fmax_mhz: 500.0 }
+    }
+
+    pub fn infinite() -> Self {
+        Self { lut: 1e10, dsp: 1e10, ff: 1e10, delay_ns: 1e10, cycles: 0, fmax_mhz: 0.0 }
     }
 
     /// Returns true if `self` dominates `other` (better or equal in all dimensions, strictly better in at least one)

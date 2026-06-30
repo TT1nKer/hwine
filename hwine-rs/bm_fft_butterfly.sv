@@ -29,7 +29,7 @@ module bm_fft_butterfly #(
   assign node_8 = w1;
   assign node_6 = node_7 * node_8;  // DSP48 MUL
   assign node_2 = node_3 - node_6;  // subtract
-  assign node_1 = node_2;  // ENode { op: Concat, children: [6, 25], dtype: DataType { width: 16, signed: true, overflow: Wrap } }
+  assign node_1 = node_2;  // ENode { op: Concat, children: [6, 27], dtype: DataType { width: 16, signed: true, overflow: Wrap } }
 
   assign result = node_1;
 

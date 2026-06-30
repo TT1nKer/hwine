@@ -170,7 +170,7 @@ impl AtomOp {
             Self::AccReset => 1,
             Self::StreamRead => 0,
             Self::StreamWrite => 1,
-            Self::StreamFifo => 2,
+            Self::StreamFifo => 1,
         }
     }
 

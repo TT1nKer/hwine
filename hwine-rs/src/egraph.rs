@@ -185,6 +185,11 @@ impl EGraph {
         self.saturate_with_config(max_iter, max_classes, 10, 5, false)
     }
 
+    /// Saturate with pipeline retiming enabled (for streaming/pipelined designs)
+    pub fn saturate_retime(&mut self, max_iter: usize, max_classes: usize) -> usize {
+        self.saturate_with_config_retime(max_iter, max_classes, 10, 5, false)
+    }
+
     pub fn saturate_with_config(
         &mut self, max_iter: usize, max_classes: usize,
         node_limit: usize, scan_limit: usize, bidir: bool,
@@ -195,6 +200,25 @@ impl EGraph {
             }
             let snapshot: Vec<u32> = self.changed.drain(..).collect();
             self.apply_rules_config(&snapshot, node_limit, scan_limit, bidir);
+
+            if self.changed.is_empty() {
+                return i + 1;
+            }
+        }
+        max_iter
+    }
+
+    fn saturate_with_config_retime(
+        &mut self, max_iter: usize, max_classes: usize,
+        node_limit: usize, scan_limit: usize, bidir: bool,
+    ) -> usize {
+        for i in 0..max_iter {
+            if self.classes.iter().filter(|c| c.is_some()).count() > max_classes {
+                return i;
+            }
+            let snapshot: Vec<u32> = self.changed.drain(..).collect();
+            self.apply_rules_config(&snapshot, node_limit, scan_limit, bidir);
+            self.rule_pipeline_retime(&snapshot, node_limit);
 
             if self.changed.is_empty() {
                 return i + 1;
@@ -565,29 +589,41 @@ impl EGraph {
         if let Some(result) = memo.get(&cid) {
             return result.clone();
         }
+        // Cycle detection: this CID is already being evaluated higher in the call stack.
+        // Return infinite cost (not Zero) so the DP avoids cyclic paths.
+        // Returning Zero+empty would incorrectly substitute 0 for variables,
+        // corrupting the extracted expression.
         if !visiting.insert(cid) {
-            return (ENode::leaf(AtomOp::Zero), FpgaStats::empty());
+            return (ENode::leaf(AtomOp::Zero), FpgaStats::infinite());
         }
 
         let class = match &self.classes[cid as usize] {
             Some(c) => c,
             None => {
-                let empty = FpgaStats::empty();
-                memo.insert(cid, (ENode::leaf(AtomOp::Zero), empty.clone()));
+                let inf = FpgaStats::infinite();
+                memo.insert(cid, (ENode::leaf(AtomOp::Zero), inf.clone()));
                 visiting.remove(&cid);
-                return (ENode::leaf(AtomOp::Zero), empty);
+                return (ENode::leaf(AtomOp::Zero), inf);
             }
         };
 
         let mut best_node = ENode::leaf(AtomOp::Zero);
-        let mut best_stats = FpgaStats::empty();
+        let mut best_stats = FpgaStats::infinite();
         let mut best_cost = f64::INFINITY;
 
         for node in class.nodes.iter() {
-            let mut child_stats: Vec<FpgaStats> = Vec::with_capacity(node.children.len());
-            for &ch in node.children.iter() {
-                child_stats.push(self._extract_dp(ch, memo, visiting, mode).1);
+            // Skip nodes with self-referencing children (can happen after union merges)
+            if node.children.iter().any(|&ch| self.canon(ch) == cid) {
+                continue;
             }
+            let mut child_stats: Vec<FpgaStats> = Vec::with_capacity(node.children.len());
+            let mut has_infinite_child = false;
+            for &ch in node.children.iter() {
+                let cs = self._extract_dp(ch, memo, visiting, mode).1;
+                if cs.delay_ns >= 1e9 { has_infinite_child = true; }
+                child_stats.push(cs);
+            }
+            if has_infinite_child { continue; } // skip nodes with unreachable children
             let stats = FpgaStats::for_node(node.op, &child_stats, &node.dtype);
             let cost = stats.scalar_cost(mode);
 
@@ -615,7 +651,7 @@ impl EGraph {
             return cached.clone();
         }
         if !visiting.insert(cid) {
-            return vec![(ENode::leaf(AtomOp::Zero), FpgaStats::empty())];
+            return vec![(ENode::leaf(AtomOp::Zero), FpgaStats::infinite())];
         }
 
         let class = match &self.classes[cid as usize] {
@@ -783,6 +819,42 @@ impl EGraph {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    /// Pipeline retiming: any arithmetic operation can be optionally registered.
+    /// `Op(a, b, ...) ↔ StreamFifo(Op(a, b, ...))`
+    /// Creates a pipeline stage option at every operation point.
+    /// Multi-objective extraction then selects FIFO placement based on delay vs FF tradeoff.
+    ///
+    /// NOTE: StreamFifo is NOT unified with the original op because a register
+    /// changes timing (adds latency). The e-graph records both forms in the
+    /// same class so the extraction can choose between combinational and
+    /// pipelined implementations.
+    fn rule_pipeline_retime(&mut self, worklist: &[u32], _node_limit: usize) {
+        for &cid in worklist {
+            let cid = self.canon_mut(cid);
+            let class = match &self.classes[cid as usize] {
+                Some(c) => c, None => continue,
+            };
+            if class.nodes.len() > 20 { continue; }
+            let nodes: Vec<ENode> = class.nodes.iter().take(5).cloned().collect();
+            for node in nodes {
+                // Only apply to arithmetic ops that aren't already pipeline ops
+                if !node.op.is_arithmetic() { continue; }
+                if matches!(node.op, AtomOp::StreamFifo | AtomOp::Pipe) { continue; }
+                if node.children.is_empty() { continue; }
+
+                // Create child e-class: re-use existing node via hash-cons
+                // StreamFifo delays by 1 cycle → NOT unioned (timing differs)
+                let inner = self.add(node.clone());
+                let fifo = self.add(ENode::new(
+                    AtomOp::StreamFifo,
+                    vec![inner],
+                    node.dtype,
+                ));
+                self.union(fifo, cid);
             }
         }
     }

@@ -58,6 +58,7 @@ impl RtlGen {
         if let Some(w) = self.wires.get(&cid) {
             return w.clone();
         }
+        // Cycle detection: this CID is already being processed higher in the call stack
         if visited.contains_key(&cid) {
             let w = self.fresh_wire("cycle");
             self.wires.insert(cid, w.clone());
@@ -67,7 +68,13 @@ impl RtlGen {
         visited.insert(cid, true);
 
         let (best_node, _) = eg.extract_optimal(cid, ExtractMode::MinDelay);
-        let result = self.emit_enode(eg, &best_node, cid, visited);
+        // Pre-allocate wire name but DON'T insert into self.wires yet —
+        // children may canonicalize to the same CID, and inserting early
+        // would bypass cycle detection in child_wire.
+        let w = self.fresh_wire("node");
+        let result = self.emit_enode(eg, &best_node, cid, visited, &w);
+        // Insert AFTER children are emitted — valid now that no cycles exist
+        self.wires.insert(cid, w.clone());
         if is_root {
             self.root_wire = result.clone();
         }
@@ -80,8 +87,9 @@ impl RtlGen {
         node: &ENode,
         cid: u32,
         visited: &mut HashMap<u32, bool>,
+        wire_name: &str,
     ) -> String {
-        let w = self.wire_for_cid(cid, "node");
+        let w = wire_name.to_string();
 
         fn child_wire(
             g: &mut RtlGen,
@@ -218,9 +226,12 @@ impl RtlGen {
             }
 
             AtomOp::StreamFifo => {
+                self.has_clk = true;
                 let a = child_wire(self, eg, node, 0, visited);
-                self.ff_lines.push(format!("  fifo_{w} <= {a};  // FIFO buffer"));
-                self.assign_lines.push(format!("  assign {w} = fifo_{w};"));
+                let ff = format!("{w}_reg");
+                self.ff_lines.push(format!("  logic signed [{dw}-1:0] {ff};"));
+                self.ff_lines.push(format!("  always_ff @(posedge clk) {ff} <= {a};"));
+                self.assign_lines.push(format!("  assign {w} = {ff};"));
             }
 
             _ => {
