@@ -50,6 +50,9 @@ test_parents.py
 *.o
 *.d
 
+# Generated RTL (produced by benchmarks)
+hwine-rs/bm_*.sv
+
 # Compiled binaries (except in tools/)
 hwine
 !tools/hwine

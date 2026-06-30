@@ -228,6 +228,13 @@ impl EGraph {
     }
 
     fn apply_rules_config(&mut self, worklist: &[u32], node_limit: usize, scan_limit: usize, bidir: bool) {
+        // Rule gating rationale:
+        // - DSP pre-adder and distributive are always enabled: they map algebra to
+        //   FPGA primitives without changing cycle-level semantics.
+        // - Pipeline retiming (rule_pipeline_retime) is gated behind saturate_retime():
+        //   it creates StreamFifo alternatives that trade off delay-cycle latency,
+        //   which can produce Pareto-inferior results for combinational-only benchmarks.
+        //   Users explicitly opt into retiming via saturate_retime() for pipelined designs.
         let mut to_process: FxHashSet<u32> = FxHashSet::default();
         for &cid in worklist {
             let cid = self.canon(cid);
@@ -249,10 +256,6 @@ impl EGraph {
         self.rule_softmax_fold(&to_process, node_limit);
         self.rule_distributive(&to_process, node_limit);
         self.rule_dsp_preadd(&to_process, node_limit);
-    }
-
-    fn apply_rules(&mut self, worklist: &[u32]) {
-        self.apply_rules_config(worklist, 10, 5, false)
     }
 
     // ─── Rewrite Rules ─────────────────────────────────

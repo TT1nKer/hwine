@@ -14,6 +14,13 @@ use hwine_rs::ir::{AtomOp, ENode, DataType};
 use hwine_rs::cost::ExtractMode;
 use hwine_rs::rtl::generate_rtl;
 use std::process::Command;
+use std::path::PathBuf;
+
+fn yosys_path() -> PathBuf {
+    std::env::var("YOSYS_PATH")
+        .map(PathBuf::from)
+        .unwrap_or_else(|_| PathBuf::from("/opt/homebrew/bin/yosys"))
+}
 
 fn run_yosys_equiv(baseline: &str, optimized: &str, baseline_mod: &str, optimized_mod: &str) -> bool {
     let ys_script = format!(r#"
@@ -24,11 +31,13 @@ prep -top equiv
 equiv_induct -seq 0 equiv
 equiv_status -assert equiv
 "#);
-    std::fs::write("/tmp/hwine_equiv.ys", &ys_script).unwrap();
-    let output = Command::new("/opt/homebrew/bin/yosys")
-        .args(["-Q", "-s", "/tmp/hwine_equiv.ys"])
+    let tmp_script = std::env::temp_dir().join("hwine_equiv.ys");
+    std::fs::write(&tmp_script, &ys_script).unwrap();
+    let output = Command::new(yosys_path())
+        .args(["-Q", "-s"])
+        .arg(&tmp_script)
         .output()
-        .expect("yosys not found");
+        .expect("yosys not found — set YOSYS_PATH or install yosys");
     let stderr = String::from_utf8_lossy(&output.stderr);
     let stdout = String::from_utf8_lossy(&output.stdout);
     let combined = format!("{}{}", stdout, stderr);
