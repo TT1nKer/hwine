@@ -39,9 +39,9 @@ fn main() {
     let iters = eg.saturate_with_config(50, 20000, 20, 12, false);
     let dt = t0.elapsed();
 
-    let cls = eg.classes[eg.canon(cid) as usize].as_ref().unwrap();
+    let cls = eg.class_nodes(cid).unwrap();
     println!("E-graph saturated: {iters} iterations, {} classes, {:.3}s", eg.n_classes(), dt.as_secs_f64());
-    println!("Final e-class: {} equivalent structures found.\n", cls.nodes.len());
+    println!("Final e-class: {} equivalent structures found.\n", cls.len());
 
     // Categorize structures
     let mut categories: std::collections::HashMap<String, Vec<String>> = std::collections::HashMap::new();
@@ -77,7 +77,7 @@ fn main() {
         }
     }
 
-    for node in cls.nodes.iter() {
+    for node in cls.iter() {
         let s = fmt_subtree(node, &eg, 0);
         let cat = if s.contains("MAC") && s.contains("MUL") { "MAC+MUL cross" }
             else if s.contains("MAC") { "MAC chain" }

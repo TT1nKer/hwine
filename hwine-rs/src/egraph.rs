@@ -2,6 +2,7 @@ use std::collections::{HashMap, HashSet};
 use fxhash::FxBuildHasher;
 use crate::ir::{AtomOp, ENode, DataType, OverflowMode};
 use crate::cost::{FpgaStats, ExtractMode};
+use crate::error::{HwineError, HwineResult};
 
 type FxHashSet<T> = HashSet<T, FxBuildHasher>;
 type FxHashMap<K, V> = HashMap<K, V, FxBuildHasher>;
@@ -14,12 +15,12 @@ pub struct EClass {
 
 /// E-graph engine for meta-operation rewriting
 pub struct EGraph {
-    pub classes: Vec<Option<EClass>>,   // index = e-class ID, None = deleted
-    parents: Vec<u32>,                  // union-find parent array
-    pub hashcons: FxHashMap<ENode, u32>,
-    pub changed: Vec<u32>,             // worklist
-    parents_of: Vec<FxHashSet<u32>>,    // child → parent tracking
-    pub union_count: u64,
+    pub(crate) classes: Vec<Option<EClass>>, // index = e-class ID, None = deleted
+    parents: Vec<u32>,                       // union-find parent array
+    pub(crate) hashcons: FxHashMap<ENode, u32>,
+    pub(crate) changed: Vec<u32>,            // worklist
+    parents_of: Vec<FxHashSet<u32>>,         // child → parent tracking
+    union_count: u64,
     next_id: u32,
 }
 
@@ -96,6 +97,24 @@ impl EGraph {
         cid
     }
 
+    /// Fallible variant of `add`: returns HwineError on canonicalization failure.
+    pub fn try_add(&mut self, mut node: ENode) -> HwineResult<u32> {
+        node.children = node.children.iter().map(|&c| self.canon_mut(c)).collect();
+        if node.children.iter().any(|&c| self.classes.get(c as usize).is_none()) {
+            return Err(HwineError::InvalidInput("child class deleted or invalid"));
+        }
+        if let Some(&existing) = self.hashcons.get(&node) {
+            return Ok(self.canon_mut(existing));
+        }
+        let cid = self.alloc_class();
+        self.classes[cid as usize].as_mut().unwrap().nodes.push(node.clone());
+        self.hashcons.insert(node.clone(), cid);
+        for &child in node.children.iter() {
+            self.parents_of[child as usize].insert(cid);
+        }
+        Ok(cid)
+    }
+
     /// Add a leaf node (no children)
     pub fn add_leaf(&mut self, op: AtomOp) -> u32 {
         self.add(ENode::leaf(op))
@@ -132,6 +151,20 @@ impl EGraph {
         self.repair_parents(a);
 
         a
+    }
+
+    /// Fallible variant of `union`: validates both e-class IDs before merging.
+    pub fn try_union(&mut self, a: u32, b: u32) -> HwineResult<u32> {
+        let a = self.canon_mut(a);
+        let b = self.canon_mut(b);
+        if a as usize >= self.classes.len() || self.classes[a as usize].is_none() {
+            return Err(HwineError::DeletedClass(a));
+        }
+        if b as usize >= self.classes.len() || self.classes[b as usize].is_none() {
+            return Err(HwineError::DeletedClass(b));
+        }
+        if a == b { return Ok(a); }
+        Ok(self.union(a, b))
     }
 
     fn repair_parents(&mut self, cid: u32) {
@@ -792,6 +825,15 @@ impl EGraph {
 
     pub fn n_classes(&self) -> usize {
         self.classes.iter().filter(|c| c.is_some()).count()
+    }
+
+    pub fn union_count(&self) -> u64 {
+        self.union_count
+    }
+
+    pub fn class_nodes(&self, cid: u32) -> Option<&[ENode]> {
+        let cid = self.canon(cid);
+        self.classes[cid as usize].as_ref().map(|c| c.nodes.as_slice())
     }
 
     /// DSP48 pre-adder: Mul(Add(a,b), c) → DspPreAdd(a, b, c)

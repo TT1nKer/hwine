@@ -51,7 +51,7 @@ fn main() {
         let total_lv = md + sd + 3; // MAX tree + ADD tree + SUB + EXP + DIV
 
         let ncls = eg.n_classes();
-        let nuns = eg.union_count;
+        let nuns = eg.union_count();
         let secs = dt.as_secs_f64();
         let max_sp = ser_lv as f64 / md.max(1) as f64;
         let sum_sp = ser_lv as f64 / sd.max(1) as f64;

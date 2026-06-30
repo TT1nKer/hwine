@@ -2,35 +2,39 @@
 
 **hardware is not enough** — and neither is hwine.
 
-A declarative, training-free FPGA hardware optimization engine using e-graph equality saturation. One associativity rewrite rule discovers optimal datapath structures competitive with expert hand-optimized designs.
+A declarative, training-free FPGA hardware optimization engine using e-graph equality saturation. **10 algebraic rewrite rules** discover optimal datapath structures competitive with expert hand-optimized designs. Verified via Vivado 2026.1 synthesis and Yosys formal equivalence.
 
 ## Key Results
 
 On the UCSD Kastner FIR benchmark suite (Xilinx 7-series, Vivado 2026.1):
 
-- **Identical Fmax (308 MHz)** to Kastner's hand-optimized designs at all 10 sizes
-- **Fewer LUTs on 6/10 sizes** — e.g., 0.64× at 41-tap (1299 vs. 2041), 0.70× at 152-tap
-- **Constant 226 MHz Fmax** for pure adder trees from 20–152 taps (2.6× over serial)
-- **10 ms saturation** for 512-input trees
-- **Zero errors, zero critical warnings** across all designs
-
-Compared to existing approaches:
-- **1 rule** vs. ROVER's 187 hand-written rules
-- **Zero training** vs. PrefixRL's 32,000 GPU-hours
-- **Open source** (Rust + SystemVerilog)
+- **Identical Fmax (308 MHz)** at all 10 sizes, **fewer LUTs on 6/10**
+- **DCT 8-point**: 8 DSP → 78 LUT shift-add trees via CSD decomposition
+- **GEMM (N=32)**: 31 adder levels → 5 (6.2×) via associativity
+- **DSP Pre-adder**: `(a+b)*c` → 1 DSP48E1 slice (verified)
+- **Streaming FIR**: Pareto-optimal pipeline retiming (0.30ns–4.50ns)
+- **17 unit tests**, zero clippy warnings, CI on every push
 
 ## Quick Start
 
 ```bash
-# Build the Rust engine
-cd hwine-rs
-cargo build --release
+git clone https://github.com/TT1nKer/hwine.git
+cd hwine/hwine-rs
 
-# Generate hwine FIR designs
-cargo run --example gen_all_hwine_fir
+# Run all tests
+cargo test
 
-# Run on a simple adder tree
-cargo run --example adder_tree -- 64
+# Run real kernel benchmarks (DCT, FFT, GEMM, Stencil)
+cargo run --release --example bench_real
+
+# Run streaming FIR with pipeline retiming
+cargo run --release --example stream_fir_bench
+
+# Run formal equivalence verification (requires Yosys)
+cargo run --release --example formal_equiv
+
+# Build all examples
+cargo build --examples --release
 ```
 
 ## Project Structure
@@ -53,12 +57,11 @@ hwine/
 
 ## How It Works
 
-1. **E-graph saturation** — A single associativity rule (`Add(Add(a,b), c) ⇔ Add(a, Add(b,c))`) explores all equivalent tree topologies
-2. **FPGA-aware extraction** — Delay-weighted cost model selects the optimal structure
-3. **Automated pipelining** — Per-operation register insertion at configurable granularity
-4. **RTL generation** — Synthesizable SystemVerilog targeting Xilinx 7-series
-
-The cost model is calibrated against Vivado synthesis results but requires no ML training — it encodes FPGA-relative operation costs (Add/Sub: 0.8, Shl/Shr: 0.5, Mul/Mac: 2.5, Pipe: 0.3) to correctly rank design alternatives.
+1. **E-graph saturation** — 10 algebraic rewrite rules (associativity, CSD decomposition, MAC fuse/decompose, DSP pre-adder, pipeline retiming, distributivity, identities) explore equivalent micro-architectures
+2. **Multi-objective FPGA-aware extraction** — Delay/LUT/DSP/FF cost model with pipeline barrier semantics selects optimal implementation
+3. **Automated pipeline retiming** — StreamFifo options created at every operation; extraction chooses Pareto-optimal pipeline depth
+4. **RTL generation** — Synthesizable SystemVerilog targeting Xilinx 7-series; supports 22+ atom operations
+5. **Formal equivalence** — Yosys equiv_induct for associativity/MAC patterns; e-graph union for CSD decomposition
 
 ## Citation
 

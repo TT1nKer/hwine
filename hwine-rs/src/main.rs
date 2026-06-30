@@ -127,7 +127,7 @@ fn bench(args: &[String]) {
     let sp = ser_ns / (td as f64 * 0.8).max(0.01);
 
     println!("{label}: {iters}it {}cls {}un {:.3}s  ser={ser_ns:.1}ns tree={}lv({:.1}ns) {sp:.1}x  [bidir={},loose={},narrow={}]",
-        eg.n_classes(), eg.union_count, dt.as_secs_f64(),
+        eg.n_classes(), eg.union_count(), dt.as_secs_f64(),
         td, td as f64 * 0.8, cfg.bidir, cfg.loose, cfg.narrow);
 }
 
@@ -232,7 +232,7 @@ fn compare(args: &[String]) {
         let td = tree_depth(&best, &eg);
         let sp = add_delay(n) / (td as f64 * 0.8).max(0.01);
         println!("  {name:<20} {:8.3} {:>6} {:>8} {:>6} {:>7.1}x",
-            dt.as_secs_f64(), eg.n_classes(), eg.union_count, td, sp);
+            dt.as_secs_f64(), eg.n_classes(), eg.union_count(), td, sp);
     }
 }
 
@@ -261,11 +261,11 @@ fn softmax(args: &[String]) {
     let dt = t0.elapsed();
 
     let cid = eg.canon(softmax_node);
-    let cls = &eg.classes[cid as usize].as_ref().unwrap();
+    let cls = eg.class_nodes(cid).unwrap();
     println!("Softmax N={n}: {iters}it {}cls {:.3}s", eg.n_classes(), dt.as_secs_f64());
-    println!("  {} equivalent representations found:", cls.nodes.len());
+    println!("  {} equivalent representations found:", cls.len());
 
-    for node in cls.nodes.iter().take(10) {
+    for node in cls.iter().take(10) {
         let op_name = format!("{:?}", node.op);
         let d = 1 + node.children.iter()
             .map(|&c| tree_depth_rec(&eg.extract_optimal(c, ExtractMode::MinDelay).0, &eg)).max().unwrap_or(0);

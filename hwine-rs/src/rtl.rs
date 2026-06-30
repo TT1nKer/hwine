@@ -3,6 +3,7 @@ use crate::egraph::EGraph;
 use crate::ir::DataType;
 use crate::ir::{AtomOp, ENode};
 use crate::cost::ExtractMode;
+use crate::error::{HwineError, HwineResult};
 
 /// SystemVerilog RTL generator from e-graph extraction
 pub struct RtlGen {
@@ -10,7 +11,8 @@ pub struct RtlGen {
     data_width: usize,
     wire_counter: u32,
     wires: HashMap<u32, String>,
-    ports: Vec<(String, String, usize)>,
+    port_map: HashMap<String, (String, usize)>, // name → (dir, width)
+    port_order: Vec<String>,                    // insertion order
     assign_lines: Vec<String>,
     ff_lines: Vec<String>,
     has_clk: bool,
@@ -25,7 +27,8 @@ impl RtlGen {
             data_width,
             wire_counter: 0,
             wires: HashMap::new(),
-            ports: Vec::new(),
+            port_map: HashMap::new(),
+            port_order: Vec::new(),
             assign_lines: Vec::new(),
             ff_lines: Vec::new(),
             has_clk: false,
@@ -37,6 +40,24 @@ impl RtlGen {
     /// Register a name for a specific Var node's e-class
     pub fn set_name(&mut self, cid: u32, name: &str) {
         self.name_map.insert(cid, name.to_string());
+    }
+
+    /// Add a port with deduplication and conflict detection.
+    /// Returns true if this is a new port, false if already registered (same dir/width).
+    /// Panics on conflict (same name, different dir or width).
+    fn add_port(&mut self, name: String, dir: &str, width: usize) {
+        if let Some((existing_dir, existing_width)) = self.port_map.get(&name) {
+            if existing_dir != dir || *existing_width != width {
+                panic!(
+                    "RTL port conflict: '{}' declared as {} {}bit, \
+                     but already declared as {} {}bit",
+                    name, dir, width, existing_dir, existing_width
+                );
+            }
+            return; // deduplicated — same name, dir, width
+        }
+        self.port_map.insert(name.clone(), (dir.to_string(), width));
+        self.port_order.push(name);
     }
 
     fn fresh_wire(&mut self, prefix: &str) -> String {
@@ -115,7 +136,7 @@ impl RtlGen {
                             format!("w{}", idx / 2)
                         }
                     });
-                self.ports.push((name.clone(), "input".into(), dw));
+                self.add_port(name.clone(), "input", dw);
                 self.assign_lines.push(format!("  assign {w} = {name};"));
             }
 
@@ -216,14 +237,14 @@ impl RtlGen {
 
             AtomOp::StreamRead => {
                 let port_name = format!("stream_in_{}", self.wire_counter);
-                self.ports.push((port_name.clone(), "input".into(), dw));
+                self.add_port(port_name.clone(), "input", dw);
                 self.assign_lines.push(format!("  assign {w} = {port_name};  // stream read"));
             }
 
             AtomOp::StreamWrite => {
                 let a = child_wire(self, eg, node, 0, visited);
                 let port_name = format!("stream_out_{}", self.wire_counter);
-                self.ports.push((port_name.clone(), "output".into(), dw));
+                self.add_port(port_name.clone(), "output", dw);
                 self.assign_lines.push(format!("  assign {port_name} = {a};  // stream write"));
             }
 
@@ -296,8 +317,8 @@ impl RtlGen {
             out.push_str("  input  logic rst_n,\n");
         }
 
-        for (_i, (name, dir, w)) in self.ports.iter().enumerate() {
-            // Input ports always have trailing comma (output follows)
+        for name in &self.port_order {
+            let (dir, w) = &self.port_map[name];
             out.push_str(&format!("  {dir} logic signed [{w}-1:0] {name},\n"));
         }
         out.push_str(&format!("  output logic signed [{dw}-1:0] result\n"));
@@ -342,7 +363,15 @@ impl RtlGen {
     }
 }
 
-/// Generate RTL from e-graph extraction
+/// Generate RTL from e-graph extraction (fallible, catch_unwind for FFI safety)
+pub fn try_generate_rtl(eg: &EGraph, target_cid: u32, module_name: &str, data_width: usize) -> HwineResult<String> {
+    std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        generate_rtl(eg, target_cid, module_name, data_width)
+    }))
+    .map_err(|_| HwineError::ExtractionFailed("RTL generation panicked (unsupported op or cycle)".into()))
+}
+
+/// Generate RTL from e-graph extraction (convenience, panics on errors)
 pub fn generate_rtl(eg: &EGraph, target_cid: u32, module_name: &str, data_width: usize) -> String {
     let mut rtl_gen = RtlGen::new(module_name, data_width);
     let mut visited = HashMap::new();
