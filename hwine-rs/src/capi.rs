@@ -1,5 +1,5 @@
 // C FFI for hwine-rs — callable from C/C++ (Yosys pass)
-use std::ffi::{CStr, CString};
+use std::ffi::CString;
 use std::os::raw::c_char;
 
 use crate::egraph::EGraph;
@@ -29,6 +29,13 @@ pub unsafe extern "C" fn hwine_optimize_add_chain(
     loose: bool,
     result: *mut HwineResult,
 ) -> i32 {
+    // Validate inputs
+    if result.is_null() {
+        return -1;
+    }
+    if n_inputs == 0 {
+        return -2;
+    }
     let n = n_inputs as usize;
     let mut eg = EGraph::new();
 
@@ -73,6 +80,13 @@ pub unsafe extern "C" fn hwine_optimize_graph(
     n_nodes: u32,
     result: *mut HwineResult,
 ) -> i32 {
+    // Validate inputs
+    if result.is_null() || edges.is_null() {
+        return -1;
+    }
+    if n_edges == 0 || n_nodes == 0 {
+        return -2;
+    }
     let n_edges = n_edges as usize;
     let n_nodes = n_nodes as usize;
 
@@ -92,6 +106,9 @@ pub unsafe extern "C" fn hwine_optimize_graph(
             let child = (*edges.add(i))[1];
             let p = parent as usize;
             let c = child as usize;
+            if p >= n_nodes || c >= n_nodes {
+                return -3; // edge index out of bounds
+            }
             // Create ADD(parent, child)
             node_to_cid[p] = eg.add(ENode::new(
                 AtomOp::Add,
@@ -140,8 +157,8 @@ pub unsafe extern "C" fn hwine_version() -> *mut c_char {
 
 /// Free a string returned by hwine_version.
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn hwine_free_string(s: *mut c_char) {
+pub unsafe extern "C" fn hwine_free_string(s: *mut c_char) { unsafe {
     if !s.is_null() {
         drop(CString::from_raw(s));
     }
-}
+}}

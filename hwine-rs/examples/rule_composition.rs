@@ -50,24 +50,24 @@ fn main() {
         if depth > 3 { return "...".to_string(); }
         match node.op {
             AtomOp::Mac => {
-                let (w, _) = eg.extract_optimal(node.children[0]);
-                let (a, _) = eg.extract_optimal(node.children[1]);
-                let (acc, _) = eg.extract_optimal(node.children[2]);
+                let (w, _) = eg.extract_optimal(node.children[0], ExtractMode::MinDelay);
+                let (a, _) = eg.extract_optimal(node.children[1], ExtractMode::MinDelay);
+                let (acc, _) = eg.extract_optimal(node.children[2], ExtractMode::MinDelay);
                 format!("MAC({},{},{})", fmt_subtree(&w, eg, depth+1), fmt_subtree(&a, eg, depth+1), fmt_subtree(&acc, eg, depth+1))
             }
             AtomOp::Mul => {
-                let (a, _) = eg.extract_optimal(node.children[0]);
-                let (b, _) = eg.extract_optimal(node.children[1]);
+                let (a, _) = eg.extract_optimal(node.children[0], ExtractMode::MinDelay);
+                let (b, _) = eg.extract_optimal(node.children[1], ExtractMode::MinDelay);
                 format!("MUL({},{})", fmt_subtree(&a, eg, depth+1), fmt_subtree(&b, eg, depth+1))
             }
             AtomOp::Add => {
-                let (a, _) = eg.extract_optimal(node.children[0]);
-                let (b, _) = eg.extract_optimal(node.children[1]);
+                let (a, _) = eg.extract_optimal(node.children[0], ExtractMode::MinDelay);
+                let (b, _) = eg.extract_optimal(node.children[1], ExtractMode::MinDelay);
                 format!("ADD({},{})", fmt_subtree(&a, eg, depth+1), fmt_subtree(&b, eg, depth+1))
             }
             AtomOp::AccStep => {
-                let (p, _) = eg.extract_optimal(node.children[0]);
-                let (v, _) = eg.extract_optimal(node.children[1]);
+                let (p, _) = eg.extract_optimal(node.children[0], ExtractMode::MinDelay);
+                let (v, _) = eg.extract_optimal(node.children[1], ExtractMode::MinDelay);
                 format!("ACC({},{})", fmt_subtree(&p, eg, depth+1), fmt_subtree(&v, eg, depth+1))
             }
             AtomOp::AccInit => "ACC_INIT".to_string(),

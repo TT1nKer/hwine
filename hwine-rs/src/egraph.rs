@@ -463,7 +463,7 @@ impl EGraph {
                         }
                     }
                     let k = match k { Some(v) => v, None => continue };
-                    if k <= 1 { continue; }
+                    if k.abs() <= 1 { continue; } // skip 0, ±1 (no decomposition needed)
 
                     // Build shift-add tree for k
                     let tree = self.build_shift_add_tree(var_cid, k);
@@ -828,10 +828,11 @@ impl EGraph {
     /// Creates a pipeline stage option at every operation point.
     /// Multi-objective extraction then selects FIFO placement based on delay vs FF tradeoff.
     ///
-    /// NOTE: StreamFifo is NOT unified with the original op because a register
-    /// changes timing (adds latency). The e-graph records both forms in the
-    /// same class so the extraction can choose between combinational and
-    /// pipelined implementations.
+    /// The FIFO version is unified with the original op in the same e-class.
+    /// This is valid under retiming equivalence: Reg(Op(x)) and Op(x) produce
+    /// the same functional result at different cycle latencies. The cost model
+    /// distinguishes them via cycle count (FIFO: +1 cycle) and delay (FIFO: 0.3ns
+    /// pipeline barrier), enabling Pareto-optimal pipeline depth selection.
     fn rule_pipeline_retime(&mut self, worklist: &[u32], _node_limit: usize) {
         for &cid in worklist {
             let cid = self.canon_mut(cid);
@@ -846,8 +847,8 @@ impl EGraph {
                 if matches!(node.op, AtomOp::StreamFifo | AtomOp::Pipe) { continue; }
                 if node.children.is_empty() { continue; }
 
-                // Create child e-class: re-use existing node via hash-cons
-                // StreamFifo delays by 1 cycle → NOT unioned (timing differs)
+                // Create child e-class via hash-cons (reuses existing node)
+                // Union: makes StreamFifo(Op) an extraction alternative to Op
                 let inner = self.add(node.clone());
                 let fifo = self.add(ENode::new(
                     AtomOp::StreamFifo,
@@ -865,29 +866,33 @@ impl EGraph {
 /// Returns (sign, exponent) pairs. CSD guarantees at most one non-zero
 /// among any two consecutive bits, minimizing the number of shift-add terms.
 /// Example: 7 → [(1,3), (-1,0)] = 8 - 1 (2 terms, vs 4+2+1 = 3 terms).
-fn decompose_to_pow2(mut k: i64) -> Vec<(i32, u32)> {
-    if k <= 0 { return vec![]; }
+pub(crate) fn decompose_to_pow2(k: i64) -> Vec<(i32, u32)> {
+    if k == 0 { return vec![]; }
+    if k < 0 {
+        // Decompose abs(k) and negate all terms
+        let pos_terms = decompose_to_pow2(-k);
+        return pos_terms.into_iter().map(|(s, e)| (-s, e)).collect();
+    }
     if k == 1 { return vec![(1, 0)]; }
-    if k > 0 && (k & (k - 1)) == 0 {
+    if (k & (k - 1)) == 0 {
         return vec![(1, k.trailing_zeros())]; // single power of 2
     }
 
     let mut terms = Vec::new();
     let mut bit: u32 = 0;
+    let mut remaining = k;
 
-    while k > 0 {
-        if k & 1 != 0 {
-            // Check for consecutive 1s: pattern ...011... can be ...100... - ...001...
-            if (k & 3) == 3 {
-                // Two consecutive 1s: use subtraction
+    while remaining > 0 {
+        if remaining & 1 != 0 {
+            if (remaining & 3) == 3 {
                 terms.push((-1, bit));
-                k = (k + 1) >> 1; // propagate borrow
+                remaining = (remaining + 1) >> 1;
             } else {
                 terms.push((1, bit));
-                k >>= 1;
+                remaining >>= 1;
             }
         } else {
-            k >>= 1;
+            remaining >>= 1;
         }
         bit += 1;
     }

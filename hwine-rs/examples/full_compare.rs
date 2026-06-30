@@ -14,7 +14,7 @@ fn bench(name: &str, n: usize, op: AtomOp) {
     let mut vs = Vec::with_capacity(n);
     for i in 0..n { vs.push(eg.add(ENode::leaf(AtomOp::Var(i)))); }
     let mut chain = vs[0];
-    for i in 1..n { chain = eg.add(ENode::new(op, vec![chain, vs[i]])); }
+    for i in 1..n { chain = eg.add(ENode::new(op, vec![chain, vs[i]], DataType::default())); }
     let ser_lv = n-1;
     let t0 = Instant::now();
     let iters = eg.saturate_with_config(30, 5000, 15, 10, false);

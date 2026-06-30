@@ -39,7 +39,7 @@ pub fn dsp_cost(op: AtomOp, dtype: &DataType) -> f64 {
     let base = match op {
         AtomOp::Mul | AtomOp::Mac | AtomOp::Madd | AtomOp::DspMul | AtomOp::DspMac | AtomOp::DspPreAdd => {
             // Wide multipliers may use multiple DSP slices
-            if dtype.width > 25 { ((dtype.width as f64 / 25.0).ceil()) } else { 1.0 }
+            if dtype.width > 25 { (dtype.width as f64 / 25.0).ceil()  } else { 1.0 }
         }
         _ => 0.0,
     };

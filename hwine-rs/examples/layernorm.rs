@@ -10,7 +10,7 @@ fn main() {
     // Fused: 1 pass tracking both sum and sum-of-squares
     
     println!("LayerNorm — Naive 2-pass vs Fused 1-pass reduction");
-    println!("{'N':<6} {'Naive lv':<10} {'Fused lv':<10} {'Saving':<10} {'Fused/Naive':<12}");
+    println!("{:<6} {:<10} {:<10} {:<10} {:<12}", "N", "Naive lv", "Fused lv", "Saving", "Fused/Naive");
     println!("{:-<6} {:-<10} {:-<10} {:-<10} {:-<12}", "", "", "", "", "");
 
     for n in [4, 8, 16, 32, 64, 128, 256].iter() {

@@ -44,26 +44,22 @@ impl RtlGen {
         format!("{prefix}_{}", self.wire_counter)
     }
 
-    fn wire_for_cid(&mut self, cid: u32, prefix: &str) -> String {
-        if let Some(w) = self.wires.get(&cid) {
-            return w.clone();
-        }
-        let w = self.fresh_wire(prefix);
-        self.wires.insert(cid, w.clone());
-        w
-    }
-
     pub fn emit_node(&mut self, eg: &EGraph, cid: u32, is_root: bool, visited: &mut HashMap<u32, bool>) -> String {
         let cid = eg.canon(cid);
         if let Some(w) = self.wires.get(&cid) {
             return w.clone();
         }
-        // Cycle detection: this CID is already being processed higher in the call stack
+        // Cycle detection: this CID is already being processed higher in the call stack.
+        // This means the e-graph extraction produced a node with a circular dependency —
+        // a bug in the rewrite rules or extraction DP. We must not silently generate
+        // wrong hardware (assign cycle = 0).
         if visited.contains_key(&cid) {
-            let w = self.fresh_wire("cycle");
-            self.wires.insert(cid, w.clone());
-            self.assign_lines.push(format!("  assign {w} = 0;  // cycle break"));
-            return w;
+            panic!(
+                "RTL generation error: cycle detected at e-class {}. \
+                 This indicates a bug in the e-graph extraction (self-referencing node). \
+                 The generated RTL would be semantically incorrect.",
+                cid
+            );
         }
         visited.insert(cid, true);
 
@@ -124,7 +120,11 @@ impl RtlGen {
             }
 
             AtomOp::Const(v) => {
-                self.assign_lines.push(format!("  assign {w} = {dw}'d{v};"));
+                if v < 0 {
+                    self.assign_lines.push(format!("  assign {w} = -{dw}'sd{};", (-v) as u64));
+                } else {
+                    self.assign_lines.push(format!("  assign {w} = {dw}'d{v};"));
+                }
             }
 
             AtomOp::Zero => {
@@ -215,14 +215,16 @@ impl RtlGen {
             }
 
             AtomOp::StreamRead => {
-                self.ports.push((format!("stream_in_{}", self.wire_counter), "input".into(), dw));
-                self.assign_lines.push(format!("  assign {w} = stream_in;  // stream read"));
+                let port_name = format!("stream_in_{}", self.wire_counter);
+                self.ports.push((port_name.clone(), "input".into(), dw));
+                self.assign_lines.push(format!("  assign {w} = {port_name};  // stream read"));
             }
 
             AtomOp::StreamWrite => {
                 let a = child_wire(self, eg, node, 0, visited);
-                self.ports.push((format!("stream_out_{}", self.wire_counter), "output".into(), dw));
-                self.assign_lines.push(format!("  assign stream_out = {a};  // stream write"));
+                let port_name = format!("stream_out_{}", self.wire_counter);
+                self.ports.push((port_name.clone(), "output".into(), dw));
+                self.assign_lines.push(format!("  assign {port_name} = {a};  // stream write"));
             }
 
             AtomOp::StreamFifo => {
@@ -234,13 +236,41 @@ impl RtlGen {
                 self.assign_lines.push(format!("  assign {w} = {ff};"));
             }
 
+            AtomOp::Concat => {
+                let a = child_wire(self, eg, node, 0, visited);
+                let b = child_wire(self, eg, node, 1, visited);
+                self.assign_lines.push(format!("  assign {w} = {{{a}, {b}}};  // concat"));
+            }
+
+            AtomOp::Slice | AtomOp::Extract => {
+                let a = child_wire(self, eg, node, 0, visited);
+                self.assign_lines.push(format!("  assign {w} = {a};  // slice/extract (passthrough)"));
+            }
+
+            AtomOp::Pack | AtomOp::Unpack | AtomOp::Quant | AtomOp::Dequant | AtomOp::DequantW => {
+                let a = child_wire(self, eg, node, 0, visited);
+                self.assign_lines.push(format!("  assign {w} = {a};  // {:?} (passthrough)", node.op));
+            }
+
+            AtomOp::Sat | AtomOp::Round | AtomOp::Route | AtomOp::Broadcast => {
+                let a = child_wire(self, eg, node, 0, visited);
+                self.assign_lines.push(format!("  assign {w} = {a};  // {:?} (passthrough)", node.op));
+            }
+
+            AtomOp::Div | AtomOp::Exp | AtomOp::Softmax
+            | AtomOp::StrLit | AtomOp::Scan | AtomOp::Delay | AtomOp::Buffer => {
+                panic!(
+                    "RTL generator: operation {:?} is not supported. \
+                     Cannot generate valid hardware for this operation.",
+                    node.op
+                );
+            }
+
             _ => {
-                if node.children.len() >= 1 {
-                    let a = child_wire(self, eg, node, 0, visited);
-                    self.assign_lines.push(format!("  assign {w} = {a};  // {node:?}"));
-                } else {
-                    self.assign_lines.push(format!("  assign {w} = {dw}'d0;  // leaf {node:?}"));
-                }
+                panic!(
+                    "RTL generator: unknown operation {:?}. Cannot generate hardware.",
+                    node.op
+                );
             }
         }
 
@@ -266,7 +296,7 @@ impl RtlGen {
             out.push_str("  input  logic rst_n,\n");
         }
 
-        for (i, (name, dir, w)) in self.ports.iter().enumerate() {
+        for (_i, (name, dir, w)) in self.ports.iter().enumerate() {
             // Input ports always have trailing comma (output follows)
             out.push_str(&format!("  {dir} logic signed [{w}-1:0] {name},\n"));
         }
