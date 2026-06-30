@@ -1,0 +1,4 @@
+kernel,taps,tool,LUT,FF,DSP,BRAM,latency,clock_ns,note
+fir,8,"Vivado HLS",TBD,TBD,TBD,TBD,TBD,3.3,"Run Vivado HLS to fill"
+gemm,8,"Vivado HLS",TBD,TBD,TBD,TBD,TBD,3.3,"Run Vivado HLS to fill"
+dct,8,"Vivado HLS",TBD,TBD,TBD,TBD,TBD,3.3,"Run Vivado HLS to fill"

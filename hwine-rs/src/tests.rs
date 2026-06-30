@@ -238,4 +238,118 @@ mod tests {
 
         check_dtype(&best, &eg, dt);
     }
+
+    // ─── Integration: IR → RTL → iverilog syntax check ──────────────────
+
+    #[test]
+    fn test_rtl_syntax_valid_dct8() {
+        use crate::rtl::generate_rtl;
+        let coeffs: [i64; 8] = [181, 251, 213, 142, 256, 107, 71, 25];
+        let dt = DataType::S16;
+        let mut eg = EGraph::new();
+        let inputs: Vec<u32> = (0..8).map(|i| eg.add(ENode::leaf_typed(AtomOp::Var(i), dt))).collect();
+        let mut terms = Vec::new();
+        for i in 0..8 {
+            let c = eg.add(ENode::leaf_typed(AtomOp::Const(coeffs[i]), dt));
+            terms.push(eg.add(ENode::new(AtomOp::Mul, vec![inputs[i], c], dt)));
+        }
+        let mut root = terms[0];
+        for i in 1..8 { root = eg.add(ENode::new(AtomOp::Add, vec![root, terms[i]], dt)); }
+        eg.saturate(20, 5000);
+        let rtl = generate_rtl(&eg, root, "test_dct8", 16);
+        assert!(rtl.contains("module test_dct8"), "RTL must have module declaration");
+        assert!(rtl.contains("input"), "RTL must have input ports");
+        assert!(rtl.contains("output"), "RTL must have output port");
+        assert!(!rtl.contains("cycle_break"), "RTL must not contain cycle-break wires");
+    }
+
+    #[test]
+    fn test_rtl_dedups_reused_var_ports() {
+        use crate::rtl::generate_rtl;
+        let dt = DataType::S16;
+        let mut eg = EGraph::new();
+        let a = eg.add(ENode::leaf_typed(AtomOp::Var(0), dt));
+        // Same variable used twice in expression
+        let add = eg.add(ENode::new(AtomOp::Add, vec![a, a], dt));
+        let rtl = generate_rtl(&eg, add, "test_dedup", 16);
+        // Count how many times 'a0' appears as input port
+        let input_count = rtl.lines().filter(|l| l.contains("input") && l.contains("a0")).count();
+        assert_eq!(input_count, 1, "Var(a0) used twice but should only generate 1 input port");
+    }
+
+    #[test]
+    fn test_stream_fir_has_clk_and_ff() {
+        use crate::rtl::generate_rtl;
+        let dt = DataType::S16;
+        let taps: [i64; 3] = [7, 13, -5];
+        let mut eg = EGraph::new();
+        let inputs: Vec<u32> = (0..3).map(|i| eg.add(ENode::leaf_typed(AtomOp::Var(i), dt))).collect();
+        let coeffs: Vec<u32> = taps.iter().map(|&c| eg.add(ENode::leaf_typed(AtomOp::Const(c), dt))).collect();
+        let mut terms = Vec::new();
+        for i in 0..3 { terms.push(eg.add(ENode::new(AtomOp::Mul, vec![inputs[i], coeffs[i]], dt))); }
+        let mut fir = terms[0];
+        for i in 1..3 { fir = eg.add(ENode::new(AtomOp::Add, vec![fir, terms[i]], dt)); }
+        eg.saturate_retime(20, 5000);
+        let rtl = generate_rtl(&eg, fir, "test_stream", 16);
+        assert!(rtl.contains("input  logic clk"), "streaming RTL must have clk input");
+        assert!(rtl.contains("always_ff @(posedge clk)"), "streaming RTL must have sequential logic");
+    }
+
+    // ─── Property: try_add / try_union error paths ──────────────────────
+
+    #[test]
+    fn test_try_add_invalid_child() {
+        let dt = DataType::S16;
+        let mut eg = EGraph::new();
+        let a = eg.add(ENode::leaf_typed(AtomOp::Var(0), dt));
+        let bad_node = ENode::new(AtomOp::Add, vec![a, 99999], dt);
+        let result = eg.try_add(bad_node);
+        assert!(result.is_err(), "try_add with invalid child CID must return Err");
+    }
+
+    #[test]
+    fn test_try_union_deleted_class() {
+        let dt = DataType::S16;
+        let mut eg = EGraph::new();
+        let a = eg.add(ENode::leaf_typed(AtomOp::Var(0), dt));
+        let b = eg.add(ENode::leaf_typed(AtomOp::Var(1), dt));
+        eg.union(a, b); // b merged into a, b is now deleted
+        let result = eg.try_union(a, 99999);
+        assert!(result.is_err(), "try_union with out-of-bounds ID must return Err");
+    }
+
+    #[test]
+    fn test_try_union_valid() {
+        let dt = DataType::S16;
+        let mut eg = EGraph::new();
+        let a = eg.add(ENode::leaf_typed(AtomOp::Var(0), dt));
+        let b = eg.add(ENode::leaf_typed(AtomOp::Var(1), dt));
+        let add = eg.add(ENode::new(AtomOp::Add, vec![a, b], dt));
+        let c = eg.add(ENode::leaf_typed(AtomOp::Var(2), dt));
+        let b_add_c = eg.add(ENode::new(AtomOp::Add, vec![b, c], dt));
+        let result = eg.try_union(add, b_add_c);
+        assert!(result.is_ok(), "try_union with valid IDs must return Ok");
+    }
+
+    // ─── Property: Pareto domination with cycles ────────────────────────
+
+    #[test]
+    fn test_pareto_cycles_in_domination() {
+        use crate::cost::FpgaStats;
+        let low_cycles = FpgaStats { lut: 5.0, dsp: 2.0, ff: 10.0, delay_ns: 3.0, cycles: 2, fmax_mhz: 333.0 };
+        let high_cycles = FpgaStats { lut: 5.0, dsp: 2.0, ff: 10.0, delay_ns: 3.0, cycles: 5, fmax_mhz: 333.0 };
+        // Same resources, same delay, but fewer cycles → dominates
+        assert!(low_cycles.dominates(&high_cycles), "fewer cycles must dominate");
+        assert!(!high_cycles.dominates(&low_cycles), "more cycles must not dominate");
+    }
+
+    #[test]
+    fn test_pareto_cycles_no_cross_domination() {
+        use crate::cost::FpgaStats;
+        let fast_high_cycles = FpgaStats { lut: 5.0, dsp: 2.0, ff: 20.0, delay_ns: 0.5, cycles: 5, fmax_mhz: 500.0 };
+        let slow_low_cycles = FpgaStats { lut: 5.0, dsp: 2.0, ff: 0.0, delay_ns: 5.0, cycles: 0, fmax_mhz: 200.0 };
+        // Different tradeoff: fast+more cycles vs slow+fewer cycles → no domination
+        assert!(!fast_high_cycles.dominates(&slow_low_cycles), "different tradeoffs must not dominate");
+        assert!(!slow_low_cycles.dominates(&fast_high_cycles), "different tradeoffs must not dominate");
+    }
 }

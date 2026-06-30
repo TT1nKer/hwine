@@ -373,6 +373,23 @@ pub fn try_generate_rtl(eg: &EGraph, target_cid: u32, module_name: &str, data_wi
 }
 
 /// Generate RTL from e-graph extraction (convenience, panics on errors)
+///
+/// # Examples
+///
+/// ```
+/// use hwine_rs::egraph::EGraph;
+/// use hwine_rs::ir::{AtomOp, ENode, DataType};
+/// use hwine_rs::rtl::generate_rtl;
+///
+/// let mut eg = EGraph::new();
+/// let a = eg.add(ENode::leaf_typed(AtomOp::Var(0), DataType::S16));
+/// let b = eg.add(ENode::leaf_typed(AtomOp::Var(1), DataType::S16));
+/// let add = eg.add(ENode::new(AtomOp::Add, vec![a, b], DataType::S16));
+/// let rtl = generate_rtl(&eg, add, "adder", 16);
+/// assert!(rtl.contains("module adder"));
+/// assert!(rtl.contains("input"));
+/// assert!(rtl.contains("output"));
+/// ```
 pub fn generate_rtl(eg: &EGraph, target_cid: u32, module_name: &str, data_width: usize) -> String {
     let mut rtl_gen = RtlGen::new(module_name, data_width);
     let mut visited = HashMap::new();

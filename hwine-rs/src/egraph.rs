@@ -72,6 +72,18 @@ impl EGraph {
     }
 
     /// Add a node to the e-graph. Returns canonical e-class ID.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use hwine_rs::egraph::EGraph;
+    /// use hwine_rs::ir::{AtomOp, ENode, DataType};
+    ///
+    /// let mut eg = EGraph::new();
+    /// let a = eg.add(ENode::leaf_typed(AtomOp::Var(0), DataType::S16));
+    /// let b = eg.add(ENode::leaf_typed(AtomOp::Var(1), DataType::S16));
+    /// let add = eg.add(ENode::new(AtomOp::Add, vec![a, b], DataType::S16));
+    /// ```
     pub fn add(&mut self, mut node: ENode) -> u32 {
         // Canonicalize children
         node.children = node
@@ -578,6 +590,22 @@ impl EGraph {
 
     /// Extract optimal node with full FPGA resource stats.
     /// mode: MinDelay, MinLut{max_delay}, MinDsp{max_delay}, MinFf{max_delay}, Weighted{...}, Pareto
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use hwine_rs::egraph::EGraph;
+    /// use hwine_rs::ir::{AtomOp, ENode, DataType};
+    /// use hwine_rs::cost::ExtractMode;
+    ///
+    /// let mut eg = EGraph::new();
+    /// let a = eg.add(ENode::leaf_typed(AtomOp::Var(0), DataType::S16));
+    /// let b = eg.add(ENode::leaf_typed(AtomOp::Var(1), DataType::S16));
+    /// let add = eg.add(ENode::new(AtomOp::Add, vec![a, b], DataType::S16));
+    /// let (node, stats) = eg.extract_optimal(add, ExtractMode::MinDelay);
+    /// assert_eq!(node.op, AtomOp::Add);
+    /// assert!(stats.delay_ns <= 1.0);
+    /// ```
     pub fn extract_optimal(&self, cid: u32, mode: ExtractMode) -> (ENode, FpgaStats) {
         self._extract_dp(cid, &mut FxHashMap::default(), &mut FxHashSet::default(), mode)
     }

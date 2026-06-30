@@ -161,6 +161,16 @@ impl FpgaStats {
 
     /// Returns true if `self` dominates `other` (better or equal in all dimensions, strictly better in at least one).
     /// Includes cycle latency for pipeline-aware Pareto frontiers.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use hwine_rs::cost::FpgaStats;
+    /// let a = FpgaStats { lut: 5.0, dsp: 1.0, ff: 10.0, delay_ns: 3.0, cycles: 2, fmax_mhz: 333.0 };
+    /// let b = FpgaStats { lut: 6.0, dsp: 2.0, ff: 12.0, delay_ns: 3.0, cycles: 3, fmax_mhz: 333.0 };
+    /// assert!(a.dominates(&b));   // a is strictly better in LUT/DSP/FF/cycles
+    /// assert!(!b.dominates(&a));  // b is worse in all dimensions
+    /// ```
     pub fn dominates(&self, other: &FpgaStats) -> bool {
         let not_worse = self.lut <= other.lut
             && self.dsp <= other.dsp
