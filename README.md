@@ -42,16 +42,18 @@ cargo build --examples --release
 ```
 hwine/
 ├── hwine-rs/          # Rust e-graph engine (core)
-│   ├── src/
-│   │   ├── egraph.rs  # E-graph saturation + 10 rewrite rules
-│   │   ├── rtl.rs     # SystemVerilog RTL generator
-│   │   ├── ir.rs      # 34 atom operations
-│   │   └── cost.rs    # FPGA-aware delay cost model
-│   └── examples/      # FIR generation, adder trees, benchmarks
-├── benchmarks/        # UCSD Kastner FIR reference designs
+│   ├── src/           # Library + CLI source
+│   ├── examples/      # FIR, DCT, FFT, GEMM benchmarks
+│   └── ARCHITECTURE.md
 ├── paper/             # Paper source (typst) + compiled PDF
+│   ├── main.typ       # Paper text
+│   ├── refs.bib       # Citations (14 entries)
+│   ├── data/          # Synthesis result CSVs
+│   └── figures/       # Paper figures (PDF)
+├── benchmarks/        # Vivado HLS baseline kernels
 ├── tools/             # Python analysis scripts
-├── vivado_pack/       # Vivado TCL synthesis scripts
+├── legacy/            # Archived old code (Python era, old RTL)
+├── vivado_pack/       # Vivado reference designs
 └── yosys-plugin/      # Yosys RTLIL integration
 ```
 
