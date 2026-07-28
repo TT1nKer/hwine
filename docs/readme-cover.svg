@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 420" role="img" aria-labelledby="title desc">
+  <title id="title">hwine — hardware synthesis</title>
+  <desc id="desc">TT1nKer system archive cover for hwine.</desc>
+  <rect width="1280" height="420" fill="#0B0B0D"/>
+  <path d="M0 1H1280M0 419H1280M44 0V420M1236 0V420" stroke="#303036" stroke-width="1"/>
+  <path d="M44 78H1236" stroke="#303036" stroke-width="1"/>
+  <rect x="44" y="0" width="7" height="78" fill="#7458D8"/>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="12" font-weight="700" letter-spacing="2.4">
+    <text x="72" y="47" fill="#F1EFE7">[ 04 / SYSTEM ARCHIVE ]</text>
+    <text x="1208" y="47" fill="#85858D" text-anchor="end">TT1NKER.NET</text>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="72" y="210" fill="#F1EFE7" font-size="96" font-weight="800" letter-spacing="-4">hwine</text>
+    <text x="75" y="256" fill="#929299" font-size="18" font-weight="500" letter-spacing=".5">HARDWARE SYNTHESIS</text>
+  </g>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="11" font-weight="700" letter-spacing="2">
+    <text x="74" y="355" fill="#85858D">STATE</text>
+    <text x="132" y="355" fill="#7458D8">EXPERIMENT</text>
+    <text x="74" y="384" fill="#85858D">OWNER</text>
+    <text x="132" y="384" fill="#F1EFE7">TT1NKER</text>
+  </g>
+  
+      <g fill="none" stroke="#5B5B62" stroke-width="2">
+        <path d="M780 220H845M845 220L920 145M845 220L920 295M920 145L1010 220M920 295L1010 220M1010 220H1125"/>
+      </g>
+      <g fill="#0B0B0D" stroke="#7458D8" stroke-width="3">
+        <rect x="760" y="200" width="40" height="40"/><circle cx="845" cy="220" r="20"/>
+        <circle cx="920" cy="145" r="24"/><circle cx="920" cy="295" r="24"/>
+        <circle cx="1010" cy="220" r="28"/><rect x="1105" y="200" width="40" height="40"/>
+      </g>
+      <path d="M904 145H936M920 129V161M904 295H936" stroke="#F1EFE7" stroke-width="3"/>
+</svg>

@@ -1,8 +1,24 @@
+<p align="center">
+  <img src="docs/readme-cover.svg" alt="hwine — hardware-synthesis experiment" width="100%">
+</p>
+
+<p align="center">
+  <a href="https://ttinker.net">ttinker.net</a> ·
+  <a href="hwine-rs/ARCHITECTURE.md">architecture</a>
+</p>
+
 # hwine
 
 **hardware is not enough** — and neither is hwine.
 
-A declarative, training-free FPGA hardware optimization engine using e-graph equality saturation. **10 algebraic rewrite rules** discover optimal datapath structures competitive with expert hand-optimized designs. Verified via Vivado 2026.1 synthesis and Yosys formal equivalence.
+A declarative FPGA datapath-optimization experiment built around e-graph
+equality saturation. Ten algebraic rewrite rules explore equivalent structures;
+an FPGA-aware extractor chooses among them. Checked-in experiments include
+Vivado 2026.1 synthesis data and limited Yosys equivalence work.
+
+| State | Evidence | Current boundary |
+| --- | --- | --- |
+| Experiment | 25 Rust unit tests + 4 doctests pass locally | Several RTL atoms remain passthrough stubs; latest GitHub CI is red on formatting, and deep RTL equivalence is incomplete |
 
 ## Key Results
 
@@ -13,7 +29,8 @@ On the UCSD Kastner FIR benchmark suite (Xilinx 7-series, Vivado 2026.1):
 - **GEMM (N=32)**: 31 adder levels → 5 (6.2×) via associativity
 - **DSP Pre-adder**: `(a+b)*c` → 1 DSP48E1 slice (verified)
 - **Streaming FIR**: Pareto-optimal pipeline retiming (0.30ns–4.50ns)
-- **17 unit tests**, zero clippy warnings, CI on every push
+- **25 unit tests + 4 doctests** pass locally; example targets currently emit
+  compiler warnings, and the repository's formatting gate needs cleanup
 
 ## Quick Start
 
