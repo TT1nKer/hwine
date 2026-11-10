@@ -115,7 +115,14 @@ fn sum(eg: &mut EGraph, xs: &[u32], dt: DataType, balanced: bool) -> u32 {
 
 // Ordinary signed-digit decomposition, explicitly available to the template
 // baseline too. No saturation or cost-guided selection is used here.
-fn constant_mul(eg: &mut EGraph, x: u32, k: i64, dt: DataType, csd: bool) -> u32 {
+fn constant_mul(
+    eg: &mut EGraph,
+    x: u32,
+    k: i64,
+    dt: DataType,
+    csd: bool,
+    balanced_digits: bool,
+) -> u32 {
     if k == 1 {
         return x;
     }
@@ -140,6 +147,29 @@ fn constant_mul(eg: &mut EGraph, x: u32, k: i64, dt: DataType, csd: bool) -> u32
         }
         bit += 1;
         n >>= 1;
+    }
+    if balanced_digits {
+        let positive: Vec<_> = terms
+            .iter()
+            .filter(|(s, _)| *s > 0)
+            .map(|(_, x)| *x)
+            .collect();
+        let negative: Vec<_> = terms
+            .iter()
+            .filter(|(s, _)| *s < 0)
+            .map(|(_, x)| *x)
+            .collect();
+        let p = if positive.is_empty() {
+            eg.add(ENode::leaf_typed(AtomOp::Zero, dt))
+        } else {
+            sum(eg, &positive, dt, true)
+        };
+        return if negative.is_empty() {
+            p
+        } else {
+            let n = sum(eg, &negative, dt, true);
+            add(eg, AtomOp::Sub, vec![p, n], dt)
+        };
     }
     // Start with a positive term where possible to avoid an unnecessary negate.
     terms.sort_by_key(|(sign, _)| -*sign);
@@ -171,6 +201,7 @@ fn build(coeff: &[i64], width: u32, style: &str) -> (EGraph, u32) {
         .collect();
     let symmetry = style.contains("symmetry");
     let csd = style.starts_with("csd");
+    let balanced_digits = style == "csd_digits_balanced";
     let native = style
         .strip_prefix("mixed_")
         .map(|s| s.rsplit('_').next().unwrap().parse::<usize>().unwrap());
@@ -185,12 +216,19 @@ fn build(coeff: &[i64], width: u32, style: &str) -> (EGraph, u32) {
                 dt,
             );
             let soft = csd || native.is_some_and(|j| i != j);
-            terms.push(constant_mul(&mut eg, pair, coeff[i], dt, soft));
+            terms.push(constant_mul(
+                &mut eg,
+                pair,
+                coeff[i],
+                dt,
+                soft,
+                balanced_digits,
+            ));
         }
     } else {
         for (i, (&x, &c)) in xs.iter().zip(coeff).enumerate() {
             let soft = csd || native.is_some_and(|j| i != j);
-            terms.push(constant_mul(&mut eg, x, c, dt, soft));
+            terms.push(constant_mul(&mut eg, x, c, dt, soft, balanced_digits));
         }
     }
     let root = sum(&mut eg, &terms, dt, style != "direct_left");
@@ -203,9 +241,16 @@ fn build(coeff: &[i64], width: u32, style: &str) -> (EGraph, u32) {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut args = std::env::args().skip(1);
     let out = PathBuf::from(args.next().ok_or("output directory required")?);
-    let custom = args.next();
-    if args.next().is_some() {
-        return Err("usage: explore_fixtures OUT [CASES.tsv]".into());
+    let mut custom = None;
+    let mut balanced_digits = false;
+    for arg in args {
+        if arg == "--balanced-digits" && !balanced_digits {
+            balanced_digits = true;
+        } else if !arg.starts_with('-') && custom.is_none() {
+            custom = Some(arg);
+        } else {
+            return Err("usage: explore_fixtures OUT [CASES.tsv] [--balanced-digits]".into());
+        }
     }
     let builtin: [(&str, &[i64]); 6] = [
         ("dot3", &[7, 13, -5]),
@@ -249,6 +294,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .into_iter()
         .map(str::to_owned)
         .collect();
+        if balanced_digits {
+            styles.push("csd_digits_balanced".into());
+        }
         if symmetry {
             styles.extend(["direct_symmetry", "csd_symmetry"].map(str::to_owned));
         }

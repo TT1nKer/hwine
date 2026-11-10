@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Summarize the measured ablation, or export a proven feasible implementation."""
 import argparse
+from collections import Counter
 import hashlib
 import json
 from pathlib import Path
 import shutil
+import statistics
 
 
 def points(summary):
@@ -58,6 +60,39 @@ def compact(p):
     return {k: p[k] for k in ['rtl_sha256', 'aliases', 'mapping', 'comb', 'ff', 'dsp', 'fmax_mhz', 'seed_fmax_mhz']}
 
 
+def aggregate(rows):
+    effects = Counter()
+    savings = []
+    improved = []
+    for row in rows:
+        baseline, template = row['basic'], row['template']
+        if template is None:
+            assert baseline is None, 'Template group must include basic candidates'
+            effects['both_infeasible'] += 1
+        elif baseline is None:
+            effects['newly_feasible'] += 1
+        else:
+            assert resources(template) <= resources(baseline)
+            saving = 100 * (baseline['comb'] - template['comb']) / baseline['comb'] if baseline['comb'] else 0
+            savings.append(saving)
+            if template['comb'] < baseline['comb']:
+                effects['fewer_comb'] += 1
+                improved.append(saving)
+            elif resources(template) < resources(baseline):
+                effects['same_comb_fewer_other_resources'] += 1
+            else:
+                effects['same_resources'] += 1
+    return {
+        'cases': len(rows),
+        'feasible': {g: sum(row[g] is not None for row in rows) for g in ['basic', 'template', 'egraph', 'all']},
+        'template_vs_basic': dict(effects),
+        'comb_saving_percent_among_improved': {'min': min(improved), 'max': max(improved)} if improved else None,
+        'comb_saving_percent_median_all_paired_feasible': statistics.median(savings) if savings else None,
+        'paired_feasible_cases': len(savings),
+        'egraph_increment': dict(Counter(row['egraph_increment'] for row in rows)),
+    }
+
+
 def analyze(summary):
     candidates = points(summary)
     rows = []
@@ -95,6 +130,17 @@ def analyze(summary):
                 (rows if mhz == summary['config']['frequency_mhz'] else sensitivity).append(row)
     source_proofs = {r['source_proof']['artifact']: r['source_proof'] for r in summary['results']}
     routes = {route['artifact'] for r in summary['results'] for m in r['measurements'] for route in m['routes']}
+    case_shapes = {r['case']: (r['width'], len(r['coefficients'])) for r in summary['results']}
+    aggregates = []
+    for mhz in sorted({r['min_mhz'] for r in rows + sensitivity}):
+        for dsp in [0, 1, 2, None]:
+            selected = [r for r in rows + sensitivity if r['min_mhz'] == mhz and r['max_dsp'] == dsp]
+            aggregates.append({'min_mhz': mhz, 'max_dsp': dsp, **aggregate(selected)})
+    strata = []
+    for width, terms in sorted(set(case_shapes.values())):
+        selected = [r for r in rows if r['max_dsp'] == 0 and case_shapes[r['case']] == (width, terms)]
+        strata.append({'width': width, 'terms': terms, 'min_mhz': summary['config']['frequency_mhz'],
+                       'max_dsp': 0, **aggregate(selected)})
     return {
         'config': summary['config'],
         'counts': {
@@ -113,6 +159,8 @@ def analyze(summary):
         'comparisons': rows,
         'frequency_sensitivity': sensitivity,
         'resource_frontier_additions': frontier_additions,
+        'constraint_aggregates': aggregates,
+        'zero_dsp_strata': strata,
     }
 
 

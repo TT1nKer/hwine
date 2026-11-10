@@ -16,12 +16,14 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     (out / 'summary.json').unlink(missing_ok=True)
 
-    def generate(text, folder, valid):
+    def generate(text, folder, valid, balanced=False):
         manifest = out / (folder + '.tsv')
         manifest.write_text(text)
         target = out / folder
         command = ['cargo', 'run', '--locked', '--manifest-path', str(explore.ROOT / 'hwine-rs/Cargo.toml'),
                    '--example', 'explore_fixtures', '--', str(target), str(manifest)]
+        if balanced:
+            command.append('--balanced-digits')
         _, code, _ = explore.run(command, explore.ROOT, out / (folder + '.log'))
         assert (code == 0) == valid, folder
         if not valid:
@@ -30,7 +32,7 @@ def main():
 
     rtl = generate(HEADER + 'zero_mixed\t8\t0,127,-128\nidentity\t8\t0,1\n'
                    'sym_extreme\t12\t-2048,2047,2047,-2048\n'
-                   'wide\t16\t32767,-32768,0,-1\nminimum\t2\t0,-2,1\n', 'valid', True)
+                   'wide\t16\t32767,-32768,0,-1\nminimum\t2\t0,-2,1\n', 'valid', True, balanced=True)
     invalid = [
         '', HEADER, 'bad\theader\n', HEADER + '../escape\t8\t1,2\n',
         HEADER + 'duplicate\t8\t1,2\nduplicate\t8\t3,4\n',
@@ -46,6 +48,7 @@ def main():
         'zero_mixed_csd_balanced_p0', 'zero_mixed_egraph_dsp_p0',
         'identity_egraph_delay_p1', 'sym_extreme_csd_symmetry_p2',
         'wide_mixed_1_p0', 'minimum_csd_balanced_p0',
+        'zero_mixed_csd_digits_balanced_p0', 'sym_extreme_csd_digits_balanced_p2',
     ]
     records = []
     for case in csv.DictReader((rtl / 'manifest.tsv').open(), delimiter='\t'):

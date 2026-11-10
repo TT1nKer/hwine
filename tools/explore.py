@@ -340,6 +340,7 @@ def main():
     parser.add_argument('--out', type=Path, default=ROOT / 'build' / 'explore')
     parser.add_argument('--filter', default='')
     parser.add_argument('--cases', type=Path, help='custom TSV: case, width, coefficients')
+    parser.add_argument('--balanced-digits', action='store_true', help='also search balanced signed-digit multiplier trees (post-holdout extension)')
     parser.add_argument('--jobs', type=int, default=2)
     parser.add_argument('--seeds', default='1,2,3')
     parser.add_argument('--formal-timeout', type=int, default=45)
@@ -357,27 +358,38 @@ def main():
     for exe, opt in [('yosys', '-V'), ('nextpnr-ecp5', '--version'), ('iverilog', '-V'), ('rustc', '--version'), ('bitwuzla', '--version')]:
         text, _ = checked([exe, opt], out, f'version-{exe}.log')
         tools[exe] = text.strip().splitlines()[0]
-    sources = sorted((ROOT / 'hwine-rs/src').glob('*.rs')) + [ROOT / p for p in
+    sources = sorted((ROOT / 'hwine-rs/src').rglob('*.rs')) + [ROOT / p for p in
               ['tools/explore.py', 'tools/linear_check.py', 'hwine-rs/examples/explore_fixtures.rs',
                'hwine-rs/Cargo.toml', 'hwine-rs/Cargo.lock', 'rust-toolchain.toml']]
     config = {'device': 'LFE5U-25F-6 CABGA381', 'frequency_mhz': args.frequency,
               'pnr_seeds': seeds, 'formal_timeout': args.formal_timeout,
               'simulation_seed': SEED, 'tools': tools, 'scope_filter': args.filter,
               'case_manifest': {'filename': args.cases.name, 'sha256': digest(case_data)} if case_data is not None else None,
+              'candidate_options': {'balanced_digits': args.balanced_digits},
               'latency': 4, 'initiation_interval': 1,
               'source_sha256': {str(p.relative_to(ROOT)): digest(p.read_bytes()) for p in sources}}
     # Driver changes invalidate result caches rather than silently reusing old
     # checks or experimental policies. Source RTL itself is also in each key.
     config['tools']['experiment_driver_sha256'] = digest([config['source_sha256'][p]
                                                         for p in ['tools/explore.py', 'tools/linear_check.py']])
+    # Cargo can consider another checkout's same-named package fresh in a
+    # shared target directory based on timestamps. Isolate by actual source
+    # content, so a differently edited generator cannot reuse that executable.
+    fingerprint = digest([config['source_sha256'], tools['rustc']])
+    target_root = Path(os.environ.get('CARGO_TARGET_DIR', ROOT / 'hwine-rs/target')).resolve()
+    generator_target = target_root / 'hwine-generators' / fingerprint
+    config['generator'] = {'source_fingerprint': fingerprint, 'target_isolated_by_source_content': True}
     (out / 'summary.json').unlink(missing_ok=True)
     dump(out / 'config.json', config)
     custom = []
     if case_data is not None:
         (out / 'cases.tsv').write_bytes(case_data)
         custom = [str(out / 'cases.tsv')]
+    if args.balanced_digits:
+        custom.append('--balanced-digits')
     checked(['cargo', 'run', '--locked', '--manifest-path', str(ROOT / 'hwine-rs/Cargo.toml'),
-             '--example', 'explore_fixtures', '--', str(out / 'rtl'), *custom], ROOT, str(out / 'generation.log'))
+             '--target-dir', str(generator_target), '--example', 'explore_fixtures', '--', str(out / 'rtl'), *custom],
+            ROOT, str(out / 'generation.log'))
     manifest = list(csv.DictReader((out / 'rtl/manifest.tsv').open(), delimiter='\t'))
     unique = {}
     for c in manifest:

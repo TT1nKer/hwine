@@ -217,6 +217,13 @@ Run the normal experiment with `--cases kernels.tsv`, then select it with
 are retained in run/export metadata. See the frozen
 [arbitrary-coefficient holdout protocol](../experiments/HOLDOUT_V1.md).
 
+`--balanced-digits` adds a later template that balances positive and negative
+signed-digit sums within each constant multiplier. The default candidate set
+is unchanged. This opt-in extension was motivated by a post-holdout diagnostic;
+results with it enabled are not part of the frozen comparison at `6afa5d1`.
+Generator builds now use source-content-specific Cargo target directories so
+different source copies cannot silently reuse a stale same-named executable.
+
 ```bash
 tools/with_eda.sh python3 tools/validate.py
 tools/with_eda.sh python3 tools/check_linear.py --out build/linear-check

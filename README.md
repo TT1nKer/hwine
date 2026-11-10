@@ -31,6 +31,9 @@ Custom 2–8-input signed dot products at widths 2–16 are accepted through
 `tools/explore.py --cases kernels.tsv`; the
 [input format and experiment contract](docs/ECP5_EXPLORATION.md#reproduce-and-export)
 include explicit coefficient ranges, latency, and wrapping semantics.
+The optional `--balanced-digits` flag also searches multipliers built from
+balanced positive/negative signed-digit sums. It is a later template extension,
+separate from the frozen holdout comparison.
 
 ## Reproduce
 
