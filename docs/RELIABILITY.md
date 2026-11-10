@@ -17,6 +17,8 @@ verified compilation system.
   width argument must equal the root width. Each wire uses its node's type.
 - `Const(i64)` is reduced modulo 2^W, including i64::MIN/MAX. `Zero`, `One`, and
   indexed `Var` leaves are supported. One variable cannot have conflicting types.
+  Default port names are `a0`, `w0`, `a1`, `w1`, … for Var(0), Var(1), …;
+  the names do not change the mathematical meaning of the inputs.
 - `ReduceMin` / `ReduceMax` are binary comparisons using the declared signedness.
 - `Shl` is logical left shift. `Shr` is arithmetic for signed data and logical
   for unsigned data. The shift count is a separate unsigned 1–64-bit value.

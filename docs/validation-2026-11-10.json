@@ -1,0 +1,7467 @@
+{
+  "source_sha256": {
+    "hwine-rs/src/builders.rs": "d26e46bde009d6f1b1d5d797825e0724bd560ef7cac81ff29bbcfaf520aa923f",
+    "hwine-rs/src/capi.rs": "988079ae3384d47d3593b32963a549658b0231ae16979709beafd64a977b9c4d",
+    "hwine-rs/src/cost.rs": "ab2aa312edc3c0fbd0f3e9645e471d4164d1deb5ff77d9a2c89c3762a053c4a0",
+    "hwine-rs/src/egraph.rs": "7d2507153b1be8c7bcaae5c1c4be839725d0719147be44bd20f1d3e307ab93a8",
+    "hwine-rs/src/error.rs": "0a655b2505601dff8b996858fe0dd759bb0e15b3fc3cfe4a7ab0ff531d34fff8",
+    "hwine-rs/src/extract.rs": "a8edd1e58000c85cf8f36487395cf759e1b1349417e10d2c59c048d787f3e855",
+    "hwine-rs/src/ir.rs": "f96473685741949d77fb1c8b577cd317201805f3a307fc34682a87b1fb8d629b",
+    "hwine-rs/src/lib.rs": "cd5de34927ee0948c400307d4f95c7bcd851aa810181f079ef2e8f5eb2ec6b7f",
+    "hwine-rs/src/main.rs": "4d4dd46877e0161bd7d7146e752481946e0553dad7e81ff8a1fadef8e72f2618",
+    "hwine-rs/src/rtl.rs": "ea0ca2076472caf89b93e5cd637660a698a7bed79c96218b48d1800f54da0b6a",
+    "hwine-rs/src/tcl.rs": "3febecb31a5bef1af0756864f20d2a7eefaa0bb0bef670b34acfd56b7250c6b5",
+    "hwine-rs/src/tests.rs": "b5b62e6958ebbb26d3b3d4a23556040a89c211a87a94f103585f6b93cf65dda7",
+    "hwine-rs/src/util.rs": "9594cd70804ada31d02d9c90e6d5224b7b3501194efca9510f324f14f7479aa6",
+    "hwine-rs/tests/reliability.rs": "bdc66ea790a4fb42bd92a3d725e48f94a8a25de7dadb85743fdc32a5508c94f7",
+    "hwine-rs/examples/validation_fixtures.rs": "ce340ef2f18f39745944a6eef881b070590623d53f38ca77280ae5f484923cda",
+    "tools/validate.py": "473e807a721283f7d5045d2cd3698217ee3cc21ea129a3119e70813dc51dbc11",
+    "tools/with_eda.sh": "e19145f5b08eaebfedf3e78d06b655a86a7ed964db8206b6e5e301f3ea80edf1",
+    "hwine-rs/Cargo.lock": "b591079bb4280fe89e479bb2a9dc763d9a3113b1184bdd68d4eccbefe5736305",
+    "hwine-rs/Cargo.toml": "90b1e595dadab762d0c330b6eb1833dc2b6ad0f5b9fb9617468ca871fa04385d",
+    "rust-toolchain.toml": "e59c5da37d1f9f4e0f815bc188cb6056fc7410c9cdaa9673c2d44da557c75d12"
+  },
+  "status": "passed",
+  "scope_filter": "",
+  "seed": 310702067269,
+  "tools": {
+    "rustc": "rustc 1.96.0 (ac68faa20 2026-05-25)",
+    "yosys": "Yosys 0.70+360 (git sha1 5e740962d, Release, Clang /usr/bin/clang++ 21.1.8)",
+    "iverilog": "Icarus Verilog version 14.0 (devel) (s20260301-918-g3e2189b36-dirty)",
+    "python3": "Python 3.14.8"
+  },
+  "cases": 249,
+  "simulation_comparisons": 1982765,
+  "formal_proofs": 247,
+  "formal_out_of_scope": [
+    "const_max_u64_opt_dsp",
+    "const_max_s64_opt_dsp"
+  ],
+  "negative_controls": [
+    "wrong Python oracle rejected by simulation",
+    "arithmetic mutation rejected by simulation and formal",
+    "signedness mutation rejected by simulation and formal",
+    "latency mutation rejected by simulation and formal",
+    "reset mutation rejected by simulation and formal"
+  ],
+  "results": [
+    {
+      "name": "add_u4_baseline",
+      "kind": "add",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8250000000000001",
+      "rtl_sha256": "50e190b27492c47f9b9f72ffeaff1bcce01af90de372699a86e46760e0db0769",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.008
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "add_u4_opt_dsp",
+      "kind": "add",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8250000000000001",
+      "rtl_sha256": "ec39490f849feff4feda04d6e30a7f864c2aff769d0d5a5a216f294412bde6ea",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.008
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "sub_u4_baseline",
+      "kind": "sub",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8250000000000001",
+      "rtl_sha256": "9f16ee0dd48354268b25d6b273c17de7e6419004707b676f184f063dc2a20a98",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.008
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.146
+      }
+    },
+    {
+      "name": "sub_u4_opt_dsp",
+      "kind": "sub",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8250000000000001",
+      "rtl_sha256": "bb21b720938bac3501b673eccae1989fc6b164d9ab44fc13a3eb9efd9fd0ca5b",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.008
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "mul_u4_baseline",
+      "kind": "mul",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "e49ee85dbd006fa5529a76ef44be2b51f3aa58e60632d8b2e2ad10af4ef56443",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "mul_u4_opt_dsp",
+      "kind": "mul",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "6e023d555635e876ccad84a4a36b0033ffd436132294c2d60a92bd3f3f526a44",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "mac_u4_baseline",
+      "kind": "mac",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4,
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "4ee813402be779997d66d3b0a3e6668015ee266be850ebf2c068d03ecbcc439d",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.014
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "mac_u4_opt_dsp",
+      "kind": "mac",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4,
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "416492783f16d2a1f0de1d94cdde241aae2959b6465e4ee2f480c0e9e114493d",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.014
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "madd_u4_baseline",
+      "kind": "madd",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4,
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "8c93b24ae13f9bfa5baed0b100b37799216d9c482400a2f16f037784e9606517",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.016
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "madd_u4_opt_dsp",
+      "kind": "madd",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4,
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "46dd88993d7443227d744c984b141ffb8d69c84f2cc37346b9456861e10b7b49",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.026
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.032
+      }
+    },
+    {
+      "name": "dspmul_u4_baseline",
+      "kind": "dspmul",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "809a15747282eaa6abb9db06d5481611a27f2721cdd5f8501a04c218a740a8be",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.025
+      }
+    },
+    {
+      "name": "dspmul_u4_opt_dsp",
+      "kind": "dspmul",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "f9b102f85620a82d837decbfdad0a62be23a065b489eab24716f19d7fde1e005",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.012
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.026
+      }
+    },
+    {
+      "name": "dspmac_u4_baseline",
+      "kind": "dspmac",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4,
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "f6cd72e9331a71b541ed8d0b4ae2588cca55418a2aecdbc7cc4c671938e7b2fb",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.014
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "dspmac_u4_opt_dsp",
+      "kind": "dspmac",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4,
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "676d6537a001d7cfe8a1299cfc0ef80b68b3ba9497ca68b7a277507b7c82c0bf",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.014
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "preadd_u4_baseline",
+      "kind": "preadd",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4,
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "70fa6420288fad7b651e848a5f1dd5e585ad7caf39a3d91c3e6bf6aa8449c5b6",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.015
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "preadd_u4_opt_dsp",
+      "kind": "preadd",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4,
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "dec2ea9ddb380d27cd630486cd5ddf2933b1b4ae020e2c68148803bce85a655f",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.014
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "reduceadd_u4_baseline",
+      "kind": "reduceadd",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8250000000000001",
+      "rtl_sha256": "1c88fb268147f023fcd30f37add8f0bbaa81995439e45746c743fc28edb3c318",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "reduceadd_u4_opt_dsp",
+      "kind": "reduceadd",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8250000000000001",
+      "rtl_sha256": "9ad8179f7e9ab471ca5cabbf162fdb7787f2b2f44162a51d34155871526af7a5",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "min_u4_baseline",
+      "kind": "min",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "190b5b45d9652bc8283deea890ddf209a3de54489cc6e9b9da1ab5f9aa8e9c93",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.008
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "min_u4_opt_dsp",
+      "kind": "min",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "232f57efca60d5147b54a8b1240b01692b34bc00d08b6f0c966b60e16e775168",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "max_u4_baseline",
+      "kind": "max",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "3d7fae11b799d5968569c62a67ddc8d16aaa8c01a69db4c493be29faba33c6fb",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "max_u4_opt_dsp",
+      "kind": "max",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "f7f6ad341e8c83933545b29dc7ed2e52343fd862f296021988c78c6419bf85ac",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "shl_u4_baseline",
+      "kind": "shl",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "f2a788725c5f2779e74b7dc6ddb2be5a9a53433d2e524cc6c50f25a081d7c3f8",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.014
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "shl_u4_opt_dsp",
+      "kind": "shl",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "c820c4de9237c8c177823b4edd07d18dc1f666835bba63922385a0304bbf1e30",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.013
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "shr_u4_baseline",
+      "kind": "shr",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "07b33ca06d3a912f746c91eda55bc4eaca06f66a73052e9d50ec5b3f93443fd1",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.013
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "shr_u4_opt_dsp",
+      "kind": "shr",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "a434b92ad974ba2173f8b9d607c6eddb3c6179ccf86b577526741dd54cd53219",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.013
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "identity_u4_baseline",
+      "kind": "identity",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "3.325",
+      "rtl_sha256": "4993ec653828c851311acfedb20ec4bbe5145df847c88dca88ee58bd563db709",
+      "simulation": {
+        "vectors": 16,
+        "comparisons": 16,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.026
+      }
+    },
+    {
+      "name": "identity_u4_opt_dsp",
+      "kind": "identity",
+      "width": 4,
+      "signed": false,
+      "input_widths": [
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0",
+      "rtl_sha256": "80e84545efffd51f6ffd45b84a09977863e13972cad0b9d81ffb079d9f17e6f5",
+      "simulation": {
+        "vectors": 16,
+        "comparisons": 16,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "shr_u1_baseline",
+      "kind": "shr",
+      "width": 1,
+      "signed": false,
+      "input_widths": [
+        1,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "e0d4285210502bd7013030766528d30f94da2dd8e2211debf4d4b7aff058191d",
+      "simulation": {
+        "vectors": 512,
+        "comparisons": 512,
+        "coverage": "exhaustive",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "shr_u1_opt_dsp",
+      "kind": "shr",
+      "width": 1,
+      "signed": false,
+      "input_widths": [
+        1,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "98e571756b3b4e42e1cde481fc379dd0f4b5a97a0f02e124ee043c2f82da21b8",
+      "simulation": {
+        "vectors": 512,
+        "comparisons": 512,
+        "coverage": "exhaustive",
+        "seconds": 0.008
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "min_u1_baseline",
+      "kind": "min",
+      "width": 1,
+      "signed": false,
+      "input_widths": [
+        1,
+        1
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "e940cbd0a5aee34bb9bf46293385dbdd3cadb2a86ac1eda10244507bb01454e5",
+      "simulation": {
+        "vectors": 4,
+        "comparisons": 4,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "min_u1_opt_dsp",
+      "kind": "min",
+      "width": 1,
+      "signed": false,
+      "input_widths": [
+        1,
+        1
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "11252e902e3ab8bfe09cdbd71135abba4b41ad3793d3c6d171d8760abd4939f4",
+      "simulation": {
+        "vectors": 4,
+        "comparisons": 4,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "max_u1_baseline",
+      "kind": "max",
+      "width": 1,
+      "signed": false,
+      "input_widths": [
+        1,
+        1
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "60233c79e51b665223b7b80007aea7051595304427b9fccc725457b86786a86c",
+      "simulation": {
+        "vectors": 4,
+        "comparisons": 4,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "max_u1_opt_dsp",
+      "kind": "max",
+      "width": 1,
+      "signed": false,
+      "input_widths": [
+        1,
+        1
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "6015a1d7456f881ec221cc9e2ea0a7fbc65355019057b070b87dcac7c1b765c8",
+      "simulation": {
+        "vectors": 4,
+        "comparisons": 4,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "add_u1_baseline",
+      "kind": "add",
+      "width": 1,
+      "signed": false,
+      "input_widths": [
+        1,
+        1
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.80625",
+      "rtl_sha256": "1cc38e146f5dc9093f67a55f656b5442d0543c3bdaf477c0d46a4114844a1a36",
+      "simulation": {
+        "vectors": 4,
+        "comparisons": 4,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "add_u1_opt_dsp",
+      "kind": "add",
+      "width": 1,
+      "signed": false,
+      "input_widths": [
+        1,
+        1
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.80625",
+      "rtl_sha256": "61b53a88429cc6a195854c8a688d697d1389dc9b3c451ee6a1c44b6e8a7fd9bc",
+      "simulation": {
+        "vectors": 4,
+        "comparisons": 4,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "sub_u1_baseline",
+      "kind": "sub",
+      "width": 1,
+      "signed": false,
+      "input_widths": [
+        1,
+        1
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.80625",
+      "rtl_sha256": "a611ad78e7025f8042025c693024aaa0aba44f1c7a5e6cf3c6deb3f34f72669a",
+      "simulation": {
+        "vectors": 4,
+        "comparisons": 4,
+        "coverage": "exhaustive",
+        "seconds": 0.008
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "sub_u1_opt_dsp",
+      "kind": "sub",
+      "width": 1,
+      "signed": false,
+      "input_widths": [
+        1,
+        1
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.80625",
+      "rtl_sha256": "af05c8b62595a1c4d5c90e2f4181a760e46a8c144cf7dffa9d7b3f78d43020cb",
+      "simulation": {
+        "vectors": 4,
+        "comparisons": 4,
+        "coverage": "exhaustive",
+        "seconds": 0.008
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "mul_u1_baseline",
+      "kind": "mul",
+      "width": 1,
+      "signed": false,
+      "input_widths": [
+        1,
+        1
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "b2dd2a9dd31624b09b254606300a933b5c4ddfdce458fe6701d9316b35a72eb4",
+      "simulation": {
+        "vectors": 4,
+        "comparisons": 4,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "mul_u1_opt_dsp",
+      "kind": "mul",
+      "width": 1,
+      "signed": false,
+      "input_widths": [
+        1,
+        1
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "1925a6a581c9eadfc4c20d402a013e438a4f1ad76430340fa3aebf0f41a5618d",
+      "simulation": {
+        "vectors": 4,
+        "comparisons": 4,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "mac_u1_baseline",
+      "kind": "mac",
+      "width": 1,
+      "signed": false,
+      "input_widths": [
+        1,
+        1,
+        1
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "584e2af39f76e97771412e2e1ea31b6722e93a3b551b35a8fd32555cdd910494",
+      "simulation": {
+        "vectors": 8,
+        "comparisons": 8,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "mac_u1_opt_dsp",
+      "kind": "mac",
+      "width": 1,
+      "signed": false,
+      "input_widths": [
+        1,
+        1,
+        1
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "2d079b9bdc956e29aad4f01888e2d655965c9f1c31586e0b093c110ab3fa07ac",
+      "simulation": {
+        "vectors": 8,
+        "comparisons": 8,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "shr_u8_baseline",
+      "kind": "shr",
+      "width": 8,
+      "signed": false,
+      "input_widths": [
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "79648d2055af862bd6e598f32e34e055bdaebb6fd14e433e34b176bbf4e28b4a",
+      "simulation": {
+        "vectors": 65536,
+        "comparisons": 65536,
+        "coverage": "exhaustive",
+        "seconds": 0.112
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "shr_u8_opt_dsp",
+      "kind": "shr",
+      "width": 8,
+      "signed": false,
+      "input_widths": [
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "8e59e9746e6e3f65c823108635361cb4b291ae1298ad76dabb369accae27a553",
+      "simulation": {
+        "vectors": 65536,
+        "comparisons": 65536,
+        "coverage": "exhaustive",
+        "seconds": 0.106
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "min_u8_baseline",
+      "kind": "min",
+      "width": 8,
+      "signed": false,
+      "input_widths": [
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.25",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "26d708ce43ad49c771bf7af48a78635b41e14e957a18dee5ca736eb9be195525",
+      "simulation": {
+        "vectors": 65536,
+        "comparisons": 65536,
+        "coverage": "exhaustive",
+        "seconds": 0.101
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "min_u8_opt_dsp",
+      "kind": "min",
+      "width": 8,
+      "signed": false,
+      "input_widths": [
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.25",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "7e8d076f8c27d021853e91e89d7fc050a0a52eea8723d9cf4e9951b31db5bcbe",
+      "simulation": {
+        "vectors": 65536,
+        "comparisons": 65536,
+        "coverage": "exhaustive",
+        "seconds": 0.194
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "max_u8_baseline",
+      "kind": "max",
+      "width": 8,
+      "signed": false,
+      "input_widths": [
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.25",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "410f8e471db3e8b8146631b351e1c71e6a3d5aacc3a90cf1d765ac8791310fe8",
+      "simulation": {
+        "vectors": 65536,
+        "comparisons": 65536,
+        "coverage": "exhaustive",
+        "seconds": 0.102
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "max_u8_opt_dsp",
+      "kind": "max",
+      "width": 8,
+      "signed": false,
+      "input_widths": [
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.25",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "b811c2bbc3222056f5e6ee197ff117a731adf6825743ca2171a76d39813d70b6",
+      "simulation": {
+        "vectors": 65536,
+        "comparisons": 65536,
+        "coverage": "exhaustive",
+        "seconds": 0.103
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "add_u8_baseline",
+      "kind": "add",
+      "width": 8,
+      "signed": false,
+      "input_widths": [
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.25",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8500000000000001",
+      "rtl_sha256": "3d0e0bcbe5fa4c819e1ebc7b60c18c3829a2aaede42a0cb5f00a5a2f4d63e93a",
+      "simulation": {
+        "vectors": 65536,
+        "comparisons": 65536,
+        "coverage": "exhaustive",
+        "seconds": 0.113
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.022
+      }
+    },
+    {
+      "name": "add_u8_opt_dsp",
+      "kind": "add",
+      "width": 8,
+      "signed": false,
+      "input_widths": [
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.25",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8500000000000001",
+      "rtl_sha256": "45f5937864ffd35c4b7e033352267f3217e44a35d3652d90fb8232d6ecdf6b57",
+      "simulation": {
+        "vectors": 65536,
+        "comparisons": 65536,
+        "coverage": "exhaustive",
+        "seconds": 0.106
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "sub_u8_baseline",
+      "kind": "sub",
+      "width": 8,
+      "signed": false,
+      "input_widths": [
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.25",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8500000000000001",
+      "rtl_sha256": "20191f98e641d6e5c48e5f2d05d800977820d4fa386e08b2356543a3f9643125",
+      "simulation": {
+        "vectors": 65536,
+        "comparisons": 65536,
+        "coverage": "exhaustive",
+        "seconds": 0.108
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "sub_u8_opt_dsp",
+      "kind": "sub",
+      "width": 8,
+      "signed": false,
+      "input_widths": [
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.25",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8500000000000001",
+      "rtl_sha256": "bce495b635d342efe7c14f0543a73584ee8e00efe4df90cce071f1fbd523f0e0",
+      "simulation": {
+        "vectors": 65536,
+        "comparisons": 65536,
+        "coverage": "exhaustive",
+        "seconds": 0.106
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "mul_u8_baseline",
+      "kind": "mul",
+      "width": 8,
+      "signed": false,
+      "input_widths": [
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "b22f5a54234676fa1f0673fffa4ca2619aa7da66f46e213776df36eea28f4b06",
+      "simulation": {
+        "vectors": 65536,
+        "comparisons": 65536,
+        "coverage": "exhaustive",
+        "seconds": 0.107
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "mul_u8_opt_dsp",
+      "kind": "mul",
+      "width": 8,
+      "signed": false,
+      "input_widths": [
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "f133c4105ee46581fd186f1a178c789aa39bade4a614972ab23c6ced7d997666",
+      "simulation": {
+        "vectors": 65536,
+        "comparisons": 65536,
+        "coverage": "exhaustive",
+        "seconds": 0.114
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "mac_u8_baseline",
+      "kind": "mac",
+      "width": 8,
+      "signed": false,
+      "input_widths": [
+        8,
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "1ec0515c54473ee972903077195aa7908791e5264bc6cc399984a998d266318a",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "mac_u8_opt_dsp",
+      "kind": "mac",
+      "width": 8,
+      "signed": false,
+      "input_widths": [
+        8,
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "c67e959e47af1e50c416a72828d714abac32085f9cec03ff0477d514a320fd5f",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "shr_u16_baseline",
+      "kind": "shr",
+      "width": 16,
+      "signed": false,
+      "input_widths": [
+        16,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "f3cf53b504fffd8be7dbf4fdc226b515a02700a7018341ee6b65b4a4c0ffd2e8",
+      "simulation": {
+        "vectors": 1066,
+        "comparisons": 1066,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "shr_u16_opt_dsp",
+      "kind": "shr",
+      "width": 16,
+      "signed": false,
+      "input_widths": [
+        16,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "908595889320a36dfc1fd23881ff5ad2e076e23c745d6ceed061e39e4658d72b",
+      "simulation": {
+        "vectors": 1066,
+        "comparisons": 1066,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.009
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "min_u16_baseline",
+      "kind": "min",
+      "width": 16,
+      "signed": false,
+      "input_widths": [
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.5",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "09beaaf9103e01c05a5c4cc91722ead05d9d9fecbd211faf39cc421a99d512cb",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.009
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "min_u16_opt_dsp",
+      "kind": "min",
+      "width": 16,
+      "signed": false,
+      "input_widths": [
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.5",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "2dbefa0b6abf52adbbc1e2d5fb1380e6e8fc40f00ba6ab050bd93360b1ba7e59",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.009
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "max_u16_baseline",
+      "kind": "max",
+      "width": 16,
+      "signed": false,
+      "input_widths": [
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.5",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "e4d73e457c42949730472ba039d34de87be502e1e3e70cf7775fbd0ec4fb6e1f",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "max_u16_opt_dsp",
+      "kind": "max",
+      "width": 16,
+      "signed": false,
+      "input_widths": [
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.5",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "546cffb5c225bdd232d4ac86b9f1e89f0fcef388d3396081a01cb2e33664c2a4",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.009
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "add_u16_baseline",
+      "kind": "add",
+      "width": 16,
+      "signed": false,
+      "input_widths": [
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.5",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.9",
+      "rtl_sha256": "7c246872fa4a0ef3ac2dbc8d99f2dd219235dd78815c98626a0e4dc011746429",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "add_u16_opt_dsp",
+      "kind": "add",
+      "width": 16,
+      "signed": false,
+      "input_widths": [
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.5",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.9",
+      "rtl_sha256": "cb948d60e0c1224a46c1ba54c8958c4923a80d145679d2ea91e98373afcc4249",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.009
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "sub_u16_baseline",
+      "kind": "sub",
+      "width": 16,
+      "signed": false,
+      "input_widths": [
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.5",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.9",
+      "rtl_sha256": "a58bd8897aa0e3c9816506d63340b7a40ace6d8f50cc0b81c2f805d51397b29e",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "sub_u16_opt_dsp",
+      "kind": "sub",
+      "width": 16,
+      "signed": false,
+      "input_widths": [
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.5",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.9",
+      "rtl_sha256": "a916647e25563f5c5ab7e9a9a99aab850844961427d6c220a8ec812d238f3075",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.022
+      }
+    },
+    {
+      "name": "mul_u16_baseline",
+      "kind": "mul",
+      "width": 16,
+      "signed": false,
+      "input_widths": [
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "3f3a192e4b27d4d2b4fc6ef52aed7d87a5f4839775a4a54601ee50d5b78822c7",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "mul_u16_opt_dsp",
+      "kind": "mul",
+      "width": 16,
+      "signed": false,
+      "input_widths": [
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "6d052e58b3c9bba6fa64222e28fdd9f23d1ff8e7e29af0319309198421766148",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "mac_u16_baseline",
+      "kind": "mac",
+      "width": 16,
+      "signed": false,
+      "input_widths": [
+        16,
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "f3952449d9ba7890f1216d8672f7c582248d930a1d41919f2b54f916d4581977",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.022
+      }
+    },
+    {
+      "name": "mac_u16_opt_dsp",
+      "kind": "mac",
+      "width": 16,
+      "signed": false,
+      "input_widths": [
+        16,
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "6346547567b4b09f1b80420b7f5d6b19ea2466e3fafbddaffec63b027d2e655b",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.012
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.022
+      }
+    },
+    {
+      "name": "shr_u32_baseline",
+      "kind": "shr",
+      "width": 32,
+      "signed": false,
+      "input_widths": [
+        32,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "c4dfa4ebfe09381bde0c7df5463d2bc938000f92b87520e3a8af72c9fbb0ad17",
+      "simulation": {
+        "vectors": 1066,
+        "comparisons": 1066,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.009
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "shr_u32_opt_dsp",
+      "kind": "shr",
+      "width": 32,
+      "signed": false,
+      "input_widths": [
+        32,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "9f88bb09db852a0cc88c9e451baf4ed8b8e5b3d85ad069bc2a5b2409e10e6c44",
+      "simulation": {
+        "vectors": 1066,
+        "comparisons": 1066,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "min_u32_baseline",
+      "kind": "min",
+      "width": 32,
+      "signed": false,
+      "input_widths": [
+        32,
+        32
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "1",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "d21390b721ea774e0cea11a5ef3ea6d2a75a36a71cb29371f0390afe44b5a354",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "min_u32_opt_dsp",
+      "kind": "min",
+      "width": 32,
+      "signed": false,
+      "input_widths": [
+        32,
+        32
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "1",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "dfa7d58dd9fd840ed4d9bba4e8a8ded6f155a1f2766550b45b9657315232e3a7",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.012
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.022
+      }
+    },
+    {
+      "name": "max_u32_baseline",
+      "kind": "max",
+      "width": 32,
+      "signed": false,
+      "input_widths": [
+        32,
+        32
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "1",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "075ccea490840482c921bd4e42ab656d23dfa271c2a56962187b6dcf779f2ba5",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.023
+      }
+    },
+    {
+      "name": "max_u32_opt_dsp",
+      "kind": "max",
+      "width": 32,
+      "signed": false,
+      "input_widths": [
+        32,
+        32
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "1",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "9ee2e2a99d2c66259d9f29aa26ddff709f784f4f95532b30165d3f7db1fd7505",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "add_u32_baseline",
+      "kind": "add",
+      "width": 32,
+      "signed": false,
+      "input_widths": [
+        32,
+        32
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "1",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "1",
+      "rtl_sha256": "6bd61aa3658a3e16f921fb7c154058f09384a728d1ef73e1de3bc7d11177093c",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "add_u32_opt_dsp",
+      "kind": "add",
+      "width": 32,
+      "signed": false,
+      "input_widths": [
+        32,
+        32
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "1",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "1",
+      "rtl_sha256": "647353577701cb7001dd5747f359a82c69f9bead642d932245c91f2c60acd1f3",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.023
+      }
+    },
+    {
+      "name": "sub_u32_baseline",
+      "kind": "sub",
+      "width": 32,
+      "signed": false,
+      "input_widths": [
+        32,
+        32
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "1",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "1",
+      "rtl_sha256": "98d5395146d3316a27f5454131749870886454915d05f3aab7c1f8a9651fee1a",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.012
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "sub_u32_opt_dsp",
+      "kind": "sub",
+      "width": 32,
+      "signed": false,
+      "input_widths": [
+        32,
+        32
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "1",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "1",
+      "rtl_sha256": "02ba7f9a9602b3ef9064245265733a7eb985d601e373337f4b849d31f2fe5057",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "mul_u32_baseline",
+      "kind": "mul",
+      "width": 32,
+      "signed": false,
+      "input_widths": [
+        32,
+        32
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "4",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "05efd64dbc6234979935d0d681633bea9f7adce1a9128e3356a711cd3238f8d1",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.025
+      }
+    },
+    {
+      "name": "mul_u32_opt_dsp",
+      "kind": "mul",
+      "width": 32,
+      "signed": false,
+      "input_widths": [
+        32,
+        32
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "4",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "866ea38783983aeb50b69f8b7a3d14bacf7330d7861f3b843e2c5a213860ac95",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.024
+      }
+    },
+    {
+      "name": "mac_u32_baseline",
+      "kind": "mac",
+      "width": 32,
+      "signed": false,
+      "input_widths": [
+        32,
+        32,
+        32
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "4",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "1eff8a587f9f859d25d360264069fa36ce7e72436e4270bfe63f287932c2a249",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.013
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.025
+      }
+    },
+    {
+      "name": "mac_u32_opt_dsp",
+      "kind": "mac",
+      "width": 32,
+      "signed": false,
+      "input_widths": [
+        32,
+        32,
+        32
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "4",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "82f4a82877ea13d6ee0be766e1c8012b1d344b4afb392b6292b5b2b2c7f12cd3",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.013
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.025
+      }
+    },
+    {
+      "name": "shr_u64_baseline",
+      "kind": "shr",
+      "width": 64,
+      "signed": false,
+      "input_widths": [
+        64,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "9080eb40c9dfbd23bebb82be857e3479179aa2f9fbd8ea357723447c0b9368bd",
+      "simulation": {
+        "vectors": 1066,
+        "comparisons": 1066,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.022
+      }
+    },
+    {
+      "name": "shr_u64_opt_dsp",
+      "kind": "shr",
+      "width": 64,
+      "signed": false,
+      "input_widths": [
+        64,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "6bc7421cdcfacef064417957913be74d6bb547205923963ed9e39fa78d016e99",
+      "simulation": {
+        "vectors": 1066,
+        "comparisons": 1066,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.022
+      }
+    },
+    {
+      "name": "min_u64_baseline",
+      "kind": "min",
+      "width": 64,
+      "signed": false,
+      "input_widths": [
+        64,
+        64
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "2",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "3039a460b3d46f147b5760282c82f5af91fc0011aa0049a1ba88137e76e55aa5",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.012
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.024
+      }
+    },
+    {
+      "name": "min_u64_opt_dsp",
+      "kind": "min",
+      "width": 64,
+      "signed": false,
+      "input_widths": [
+        64,
+        64
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "2",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "658addb61a9a70b1845227e61f337a69465b4978f73e7d865485bb51f0cde3c5",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.012
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.025
+      }
+    },
+    {
+      "name": "max_u64_baseline",
+      "kind": "max",
+      "width": 64,
+      "signed": false,
+      "input_widths": [
+        64,
+        64
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "2",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "0a972041a86b5c2971d5162e969cd95560e1ea255521a43628cca92b2a96cf2c",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.014
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.024
+      }
+    },
+    {
+      "name": "max_u64_opt_dsp",
+      "kind": "max",
+      "width": 64,
+      "signed": false,
+      "input_widths": [
+        64,
+        64
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "2",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "90dd088c3248aef8c25b804e0aaf6478d9afaf124bea08a5843352151bc7eed5",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.012
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.025
+      }
+    },
+    {
+      "name": "add_u64_baseline",
+      "kind": "add",
+      "width": 64,
+      "signed": false,
+      "input_widths": [
+        64,
+        64
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "2",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "1.2000000000000002",
+      "rtl_sha256": "bd1d7ebfdbaa776256f6455cf9570a08b3a7fda89c0e412fe51c711156f20cc0",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.013
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.024
+      }
+    },
+    {
+      "name": "add_u64_opt_dsp",
+      "kind": "add",
+      "width": 64,
+      "signed": false,
+      "input_widths": [
+        64,
+        64
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "2",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "1.2000000000000002",
+      "rtl_sha256": "34d457334f58851ab4aa08f48365f4f19231a3e879030dcad7fca074614cd888",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.013
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.023
+      }
+    },
+    {
+      "name": "sub_u64_baseline",
+      "kind": "sub",
+      "width": 64,
+      "signed": false,
+      "input_widths": [
+        64,
+        64
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "2",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "1.2000000000000002",
+      "rtl_sha256": "932041dc2fc1df289f88881a66e0f14e554d97eb6f85ddbab72b80c32548e95f",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.012
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.023
+      }
+    },
+    {
+      "name": "sub_u64_opt_dsp",
+      "kind": "sub",
+      "width": 64,
+      "signed": false,
+      "input_widths": [
+        64,
+        64
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "2",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "1.2000000000000002",
+      "rtl_sha256": "581e6aee95e00c0b310d0cd5f8bb72375affce6a0c29d4ec2c83d5858908fe89",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.013
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.024
+      }
+    },
+    {
+      "name": "mul_u64_baseline",
+      "kind": "mul",
+      "width": 64,
+      "signed": false,
+      "input_widths": [
+        64,
+        64
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "12",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "f791df69ca5b171c293a8da9cff9d5c267a4c734326a98fbad495bbd79214cd0",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.014
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.041
+      }
+    },
+    {
+      "name": "mul_u64_opt_dsp",
+      "kind": "mul",
+      "width": 64,
+      "signed": false,
+      "input_widths": [
+        64,
+        64
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "12",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "e2c3f8ba34433953a76a03eff060918b12dfceca0d0ff88e0e6e831124744406",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.013
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.043
+      }
+    },
+    {
+      "name": "mac_u64_baseline",
+      "kind": "mac",
+      "width": 64,
+      "signed": false,
+      "input_widths": [
+        64,
+        64,
+        64
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "12",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "7754fc2e36cd9f26ec33ff071b4daee3445c77708f02eca62f093c0c715fec62",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.017
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.046
+      }
+    },
+    {
+      "name": "mac_u64_opt_dsp",
+      "kind": "mac",
+      "width": 64,
+      "signed": false,
+      "input_widths": [
+        64,
+        64,
+        64
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "12",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "b465a88070628a197759dc93eaa1f1d541c9dc2d04a7b77f12f29929eac26bbc",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.019
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.045
+      }
+    },
+    {
+      "name": "const_min_u64_baseline",
+      "kind": "const_min",
+      "width": 64,
+      "signed": false,
+      "input_widths": [
+        64
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "12",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "72f660cc9a49f993eb4529323d759439e2632c9ce01f9f53dff9b6dbef823922",
+      "simulation": {
+        "vectors": 1030,
+        "comparisons": 1030,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.038
+      }
+    },
+    {
+      "name": "const_min_u64_opt_dsp",
+      "kind": "const_min",
+      "width": 64,
+      "signed": false,
+      "input_widths": [
+        64
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "2",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "1.5000000000000002",
+      "rtl_sha256": "05c440134c83ef776c3748d58f7da6c13eb94b407d9663ee5be6c378a6a3d76b",
+      "simulation": {
+        "vectors": 1030,
+        "comparisons": 1030,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.262
+      }
+    },
+    {
+      "name": "const_max_u64_baseline",
+      "kind": "const_max",
+      "width": 64,
+      "signed": false,
+      "input_widths": [
+        64
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "12",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "9d5b7689b90c2c9e2e2d299e7826b192a9b638453680e7e195d251a67f527ee8",
+      "simulation": {
+        "vectors": 1030,
+        "comparisons": 1030,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.012
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.04
+      }
+    },
+    {
+      "name": "const_max_u64_opt_dsp",
+      "kind": "const_max",
+      "width": 64,
+      "signed": false,
+      "input_widths": [
+        64
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "4",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "2.4000000000000004",
+      "rtl_sha256": "934e4dc66c86b34e23e90963dc94006e2a5547440cfd5633571a0b47e18880a4",
+      "simulation": {
+        "vectors": 1030,
+        "comparisons": 1030,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.012
+      },
+      "formal": {
+        "method": "not-run",
+        "status": "outside-default-proof-scope",
+        "reason": "64-bit CSD restructuring timed out at 45 s in initial validation; simulation remains required"
+      }
+    },
+    {
+      "name": "add_s4_baseline",
+      "kind": "add",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8250000000000001",
+      "rtl_sha256": "35effcedcbd19ed282361412a067629184f44f6af50cb46661b71dc813ba326d",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.008
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "add_s4_opt_dsp",
+      "kind": "add",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8250000000000001",
+      "rtl_sha256": "2b50b3be7b1a4d3455eba2f8ffd5b3f3d94af6e8aa2076854cc87d677e465aae",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "sub_s4_baseline",
+      "kind": "sub",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8250000000000001",
+      "rtl_sha256": "f4af76d88165088501e7c8900897b65ad6baa5d3e31ce9b0f8949b3f373aa185",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "sub_s4_opt_dsp",
+      "kind": "sub",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8250000000000001",
+      "rtl_sha256": "2c466e05f906b81f1432403bd39a642a289c41a58e1d567d0f4f6e72b6fcf504",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "mul_s4_baseline",
+      "kind": "mul",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "53f9a15eaf4e1ec1a3cd3bcb325df24148cc67298e79e2aecce30269e7e0992c",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "mul_s4_opt_dsp",
+      "kind": "mul",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "60df0adf27ee0786c7fcb8cc89b5002d950734741678adc8b906f00f921b49f7",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.008
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "mac_s4_baseline",
+      "kind": "mac",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "e9ee4abbafbbf91cc68ed3dd683e82378ea2d2b664d6bc97db38b4cc4ca3971c",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.013
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "mac_s4_opt_dsp",
+      "kind": "mac",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "561bfb20854e43a4a74e77dd2f610968a68840d379d63fbb499a266178f4fea0",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.014
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "madd_s4_baseline",
+      "kind": "madd",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "65fac6d6c750be7199aa103e33d8627bb281291f6a8c8e34584665a710b72a22",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.014
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "madd_s4_opt_dsp",
+      "kind": "madd",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "884bd0d26af259f578ada9c41a6b1960bcde2210ff59d10a099f51788a155619",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.014
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "dspmul_s4_baseline",
+      "kind": "dspmul",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "909cfafc0ff32a5b22bee96eb1d443afa32dc7d06511bda81862637d41a458b9",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "dspmul_s4_opt_dsp",
+      "kind": "dspmul",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "e2575353c88737f7a83ee5d58261275c72f20cbcc3ae1ae2071bab7a6d1aae16",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.008
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "dspmac_s4_baseline",
+      "kind": "dspmac",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "8a5993c3753037afeb02aa2d50c003f04d0fccd89b3af825bdcd415aa86dba61",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.014
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "dspmac_s4_opt_dsp",
+      "kind": "dspmac",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "11b38b8c487ec1a62686f988abcb9e81e0b690ba4b611af3f82cbd0c6a502ce3",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.015
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "preadd_s4_baseline",
+      "kind": "preadd",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "1e4379be8bcb40241a5002f59a78cb288959e29217f3f3f15dee2c7b9bf66714",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.014
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "preadd_s4_opt_dsp",
+      "kind": "preadd",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "a6d39f7917198d4f11e4813858b58c1b69507fc5b8ad1beb2adad0fe876b01cf",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.014
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "reduceadd_s4_baseline",
+      "kind": "reduceadd",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8250000000000001",
+      "rtl_sha256": "18265cddbf4939b3e2260afb2ea4b35957322452b585eee45fef399fe71db8ee",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.008
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.022
+      }
+    },
+    {
+      "name": "reduceadd_s4_opt_dsp",
+      "kind": "reduceadd",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8250000000000001",
+      "rtl_sha256": "a619b25dda5e55623df10172659c1c1f3ea415c22231451a2a97c43a71861094",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.009
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "min_s4_baseline",
+      "kind": "min",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "51dc08024d6ec066ce4048155cb6d72e42866540accd94a50d3787bd8d8de042",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.008
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "min_s4_opt_dsp",
+      "kind": "min",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "ee932d07876465161a2d114997fdb796a8e3f3e7e41d523a14d76adfc1701b6d",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.009
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "max_s4_baseline",
+      "kind": "max",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "8481c85a19e3e3701a42d6a2a5092009ff66ec8fd438eaa525e0e03259629cc9",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.024
+      }
+    },
+    {
+      "name": "max_s4_opt_dsp",
+      "kind": "max",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "fd95e32c5321d5a7c42a1986a2d5267705e3a4c3c84e281fc1478970381398a3",
+      "simulation": {
+        "vectors": 256,
+        "comparisons": 256,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "shl_s4_baseline",
+      "kind": "shl",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "01bb0e4b02971bb0859b4b24eacab25c26742e1de3eee9c593cf803723499226",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.013
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "shl_s4_opt_dsp",
+      "kind": "shl",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "077a6d4e89e9adbb57f3d4f44be5e0cb0970ee0f2354ea385bd58e8b5c45ff04",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.013
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "shr_s4_baseline",
+      "kind": "shr",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "5c7a5b57ea08e895385a0dcdaeeac8d6e395248d29c056af48c8e819418f6532",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.013
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "shr_s4_opt_dsp",
+      "kind": "shr",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "fd06a08441037c97f298c7c604c82539c779d069fa65d26442418ff95659026a",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.014
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.022
+      }
+    },
+    {
+      "name": "identity_s4_baseline",
+      "kind": "identity",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "3.325",
+      "rtl_sha256": "f1dc98834f5974e23782ef367d8e411ad34eefd7fb6589d7f016d577f076a228",
+      "simulation": {
+        "vectors": 16,
+        "comparisons": 16,
+        "coverage": "exhaustive",
+        "seconds": 0.008
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.027
+      }
+    },
+    {
+      "name": "identity_s4_opt_dsp",
+      "kind": "identity",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0",
+      "rtl_sha256": "929840d78cc3f0b148d23f7eac316c08f06ef445c1555dd69ce7416b4df17231",
+      "simulation": {
+        "vectors": 16,
+        "comparisons": 16,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.018
+      }
+    },
+    {
+      "name": "shr_s1_baseline",
+      "kind": "shr",
+      "width": 1,
+      "signed": true,
+      "input_widths": [
+        1,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "981f775ed103dfc4735bd1afef9e58a7b7973432e46c7b9497a34bc6b1c3df2d",
+      "simulation": {
+        "vectors": 512,
+        "comparisons": 512,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "shr_s1_opt_dsp",
+      "kind": "shr",
+      "width": 1,
+      "signed": true,
+      "input_widths": [
+        1,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "e7c4a3a2a88a7b75f7373f7069229ac83a2214c20a7ab10b1ff098860e164834",
+      "simulation": {
+        "vectors": 512,
+        "comparisons": 512,
+        "coverage": "exhaustive",
+        "seconds": 0.008
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "min_s1_baseline",
+      "kind": "min",
+      "width": 1,
+      "signed": true,
+      "input_widths": [
+        1,
+        1
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "194cb86e0ec55f3f1229a68d543d4fff33635d138d3eafc64273b1c18c243b62",
+      "simulation": {
+        "vectors": 4,
+        "comparisons": 4,
+        "coverage": "exhaustive",
+        "seconds": 0.008
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "min_s1_opt_dsp",
+      "kind": "min",
+      "width": 1,
+      "signed": true,
+      "input_widths": [
+        1,
+        1
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "a41bdf44e6d31ef3034c0f847018dfaa1a9a55e7d1ef78530b8f3a1bfaa93949",
+      "simulation": {
+        "vectors": 4,
+        "comparisons": 4,
+        "coverage": "exhaustive",
+        "seconds": 0.008
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "max_s1_baseline",
+      "kind": "max",
+      "width": 1,
+      "signed": true,
+      "input_widths": [
+        1,
+        1
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "f9df73e73096eef143cc53d2ef140444677db1fd71bc1c047c705d65ed5acabf",
+      "simulation": {
+        "vectors": 4,
+        "comparisons": 4,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "max_s1_opt_dsp",
+      "kind": "max",
+      "width": 1,
+      "signed": true,
+      "input_widths": [
+        1,
+        1
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "347425a70bf1923e4bc20e65125e188e673afbc4f07f11cc0760309373603ba6",
+      "simulation": {
+        "vectors": 4,
+        "comparisons": 4,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "add_s1_baseline",
+      "kind": "add",
+      "width": 1,
+      "signed": true,
+      "input_widths": [
+        1,
+        1
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.80625",
+      "rtl_sha256": "9f46d88c1fc1e44b1e9ce403b15faa478ba060e327c71c37d3e2d118a0e41d29",
+      "simulation": {
+        "vectors": 4,
+        "comparisons": 4,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "add_s1_opt_dsp",
+      "kind": "add",
+      "width": 1,
+      "signed": true,
+      "input_widths": [
+        1,
+        1
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.80625",
+      "rtl_sha256": "e9ceea5878937784839084e5298c210c2727871de4d1e68f34af075bae9914dc",
+      "simulation": {
+        "vectors": 4,
+        "comparisons": 4,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "sub_s1_baseline",
+      "kind": "sub",
+      "width": 1,
+      "signed": true,
+      "input_widths": [
+        1,
+        1
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.80625",
+      "rtl_sha256": "a45df9e4d0b069521aae961d6e2b2386f6dca02f10e841d9624ba6931a5c5756",
+      "simulation": {
+        "vectors": 4,
+        "comparisons": 4,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "sub_s1_opt_dsp",
+      "kind": "sub",
+      "width": 1,
+      "signed": true,
+      "input_widths": [
+        1,
+        1
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.125",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.80625",
+      "rtl_sha256": "b7c1c1e48eb6a7c53b79e93b7ec68fc067305568f45b302fff0e2cc674e9323f",
+      "simulation": {
+        "vectors": 4,
+        "comparisons": 4,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "mul_s1_baseline",
+      "kind": "mul",
+      "width": 1,
+      "signed": true,
+      "input_widths": [
+        1,
+        1
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "d0430a0431a9d885bc517b87a532dc7d31dbc3c13854a0879f2a47926acadd17",
+      "simulation": {
+        "vectors": 4,
+        "comparisons": 4,
+        "coverage": "exhaustive",
+        "seconds": 0.008
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "mul_s1_opt_dsp",
+      "kind": "mul",
+      "width": 1,
+      "signed": true,
+      "input_widths": [
+        1,
+        1
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "f1c8142a6c8dd1cd264a0038aabe5b799f66cf2ed4495ff302054877e03217e7",
+      "simulation": {
+        "vectors": 4,
+        "comparisons": 4,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "mac_s1_baseline",
+      "kind": "mac",
+      "width": 1,
+      "signed": true,
+      "input_widths": [
+        1,
+        1,
+        1
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "e1757bb689b8d7e56f651deb3bc8d94eeb6fb81cf9b9ae854e34c589c23897bf",
+      "simulation": {
+        "vectors": 8,
+        "comparisons": 8,
+        "coverage": "exhaustive",
+        "seconds": 0.007
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "mac_s1_opt_dsp",
+      "kind": "mac",
+      "width": 1,
+      "signed": true,
+      "input_widths": [
+        1,
+        1,
+        1
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "4b6ffa87cfa77261b8945ecb8a22d74766e6ab2011e2a7b09593418efeb7d3ec",
+      "simulation": {
+        "vectors": 8,
+        "comparisons": 8,
+        "coverage": "exhaustive",
+        "seconds": 0.008
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "shr_s8_baseline",
+      "kind": "shr",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "d5ce9f14039687a1d564355fbf673e231becfd757246c414d972fafa70bce296",
+      "simulation": {
+        "vectors": 65536,
+        "comparisons": 65536,
+        "coverage": "exhaustive",
+        "seconds": 0.104
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "shr_s8_opt_dsp",
+      "kind": "shr",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "a2e13b8afb0baae39a881c85409bf73f8a4ebfbf2b6d347c8e6eeeba5435a9bc",
+      "simulation": {
+        "vectors": 65536,
+        "comparisons": 65536,
+        "coverage": "exhaustive",
+        "seconds": 0.106
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "min_s8_baseline",
+      "kind": "min",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.25",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "d27e92e0507f4bef9fa00c5ed0fe21011757c179454e7ca00318895cfd54ae74",
+      "simulation": {
+        "vectors": 65536,
+        "comparisons": 65536,
+        "coverage": "exhaustive",
+        "seconds": 0.104
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "min_s8_opt_dsp",
+      "kind": "min",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.25",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "91c9f6e4a06f22d671afd0b932302ae261f20b5d1cd9e0de7e245c08fbc201a6",
+      "simulation": {
+        "vectors": 65536,
+        "comparisons": 65536,
+        "coverage": "exhaustive",
+        "seconds": 0.109
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "max_s8_baseline",
+      "kind": "max",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.25",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "33c79606a7853107426608f2e05791429e2090c8b5692ea2d0db5202fe2ffd51",
+      "simulation": {
+        "vectors": 65536,
+        "comparisons": 65536,
+        "coverage": "exhaustive",
+        "seconds": 0.104
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "max_s8_opt_dsp",
+      "kind": "max",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.25",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "070dcf90d1c7ae9b834bd62e41b033c0d5fe2d14c6cff15c3a5c44e107fb9142",
+      "simulation": {
+        "vectors": 65536,
+        "comparisons": 65536,
+        "coverage": "exhaustive",
+        "seconds": 0.101
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "add_s8_baseline",
+      "kind": "add",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.25",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8500000000000001",
+      "rtl_sha256": "fb05b0b318d9670b121dd43802e2e6c46f16ba997d4a47173651361f72ec3440",
+      "simulation": {
+        "vectors": 65536,
+        "comparisons": 65536,
+        "coverage": "exhaustive",
+        "seconds": 0.107
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "add_s8_opt_dsp",
+      "kind": "add",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.25",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8500000000000001",
+      "rtl_sha256": "b1844e2d6e803276d66992bd461888dbbdac3b70a461fcfb6fd15ee2171b0116",
+      "simulation": {
+        "vectors": 65536,
+        "comparisons": 65536,
+        "coverage": "exhaustive",
+        "seconds": 0.118
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "sub_s8_baseline",
+      "kind": "sub",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.25",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8500000000000001",
+      "rtl_sha256": "bed48fb4715d6aae27fae5db169ef22603c64a050adfda7958d46b8344824910",
+      "simulation": {
+        "vectors": 65536,
+        "comparisons": 65536,
+        "coverage": "exhaustive",
+        "seconds": 0.11
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "sub_s8_opt_dsp",
+      "kind": "sub",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.25",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8500000000000001",
+      "rtl_sha256": "bd01e7c5ffd8c744ee5333d1317931a0684a0f76a232e1c9a491a4a44d9c4e2b",
+      "simulation": {
+        "vectors": 65536,
+        "comparisons": 65536,
+        "coverage": "exhaustive",
+        "seconds": 0.112
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.025
+      }
+    },
+    {
+      "name": "mul_s8_baseline",
+      "kind": "mul",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "67ab225b9b443bbb5dcd05063ceb27fb590240338453ed294b8ffd5c583de824",
+      "simulation": {
+        "vectors": 65536,
+        "comparisons": 65536,
+        "coverage": "exhaustive",
+        "seconds": 0.119
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.022
+      }
+    },
+    {
+      "name": "mul_s8_opt_dsp",
+      "kind": "mul",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "35efb5b198449bc7076bd5d2891f9f16d127fb05fda5cc999fa9be808f70f54e",
+      "simulation": {
+        "vectors": 65536,
+        "comparisons": 65536,
+        "coverage": "exhaustive",
+        "seconds": 0.115
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.022
+      }
+    },
+    {
+      "name": "mac_s8_baseline",
+      "kind": "mac",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "7aff5ff02bcc0545cb80f914a207776d5946d67d0d3b1103d5cd050271c00b23",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.012
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.022
+      }
+    },
+    {
+      "name": "mac_s8_opt_dsp",
+      "kind": "mac",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "09435ae3b8fc958489818ce3b542222051aa7f998bff5ef8d0dae716e6da8cae",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.023
+      }
+    },
+    {
+      "name": "shr_s16_baseline",
+      "kind": "shr",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "e68ee60a0ac051b6c61665a61959e5fb93119aa81261248232780f667965be70",
+      "simulation": {
+        "vectors": 1066,
+        "comparisons": 1066,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.023
+      }
+    },
+    {
+      "name": "shr_s16_opt_dsp",
+      "kind": "shr",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "2d9c513b35c03f4df2a0baca3e286dae22f9973d88a513f7ee6b513377d7713f",
+      "simulation": {
+        "vectors": 1066,
+        "comparisons": 1066,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.022
+      }
+    },
+    {
+      "name": "min_s16_baseline",
+      "kind": "min",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.5",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "6516f6fe0f44f2b98dbe8a67f865c705aa214d67ceb630627bf659122c4016c5",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.025
+      }
+    },
+    {
+      "name": "min_s16_opt_dsp",
+      "kind": "min",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.5",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "9c2555e211278ac15480dd3cfe914e9e351e76a5721f15c84054d7387b9149d6",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.024
+      }
+    },
+    {
+      "name": "max_s16_baseline",
+      "kind": "max",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.5",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "12f72f809b3b986a842a2e918534afa9490d40e7be57f047901fff8de4ef0426",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.023
+      }
+    },
+    {
+      "name": "max_s16_opt_dsp",
+      "kind": "max",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.5",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "9240ed71a718ee6cd4f11b9a3c4e456c8ccae420f9bde4caffa3fd33c6f5c525",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.009
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "add_s16_baseline",
+      "kind": "add",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.5",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.9",
+      "rtl_sha256": "5c7dc3332fc04b0042f7b152787c15c5d5e7beb0661ea2f32760af49e3dd90c2",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "add_s16_opt_dsp",
+      "kind": "add",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.5",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.9",
+      "rtl_sha256": "8987e1ceb8f3b6f985f7f502f373a1b3f6c0cdbb063be51c195b1585af2df8e2",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.009
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "sub_s16_baseline",
+      "kind": "sub",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.5",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.9",
+      "rtl_sha256": "caa8c3ef4a2e4bac04dc31ec075c28d809944fe9c08c4e2de312416e04967c5d",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "sub_s16_opt_dsp",
+      "kind": "sub",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.5",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.9",
+      "rtl_sha256": "1d9012b6805701580806e09639ca4f89fcc794fc6f207249e544d9f826b7140e",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.019
+      }
+    },
+    {
+      "name": "mul_s16_baseline",
+      "kind": "mul",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "1a6cac886fb14255b2aee6a4791d78b2d0f385e8aee0ea5a88eff8f45a0b7691",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.009
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "mul_s16_opt_dsp",
+      "kind": "mul",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "70ca803c9077c50875f494de540a96d7a8e1fb27cf6f7f7bce11677ad11b496f",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "mac_s16_baseline",
+      "kind": "mac",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "2925674aaf954506f2382834cb81f1e42b8e83bbf578489ebdaa1cdeaf1d0d76",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.022
+      }
+    },
+    {
+      "name": "mac_s16_opt_dsp",
+      "kind": "mac",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "1",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "bd762a1642c5f158e8e14e31502868932d71af3e3713b450aeb31922f949e119",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.022
+      }
+    },
+    {
+      "name": "shr_s32_baseline",
+      "kind": "shr",
+      "width": 32,
+      "signed": true,
+      "input_widths": [
+        32,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "1eb70c2a3d145eb076f3ebe5cc84d8ca9c3b219c83846020bcb90acfb45d5455",
+      "simulation": {
+        "vectors": 1066,
+        "comparisons": 1066,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.023
+      }
+    },
+    {
+      "name": "shr_s32_opt_dsp",
+      "kind": "shr",
+      "width": 32,
+      "signed": true,
+      "input_widths": [
+        32,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "839737a8c190dea7652aa020fec36a3b1b2dcc9aa9df878f75483db029952fd0",
+      "simulation": {
+        "vectors": 1066,
+        "comparisons": 1066,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "min_s32_baseline",
+      "kind": "min",
+      "width": 32,
+      "signed": true,
+      "input_widths": [
+        32,
+        32
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "1",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "6de5e6a657d67b00c6c687e1b9deabf148d07e49ae27da79ad3f7a7075816990",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.023
+      }
+    },
+    {
+      "name": "min_s32_opt_dsp",
+      "kind": "min",
+      "width": 32,
+      "signed": true,
+      "input_widths": [
+        32,
+        32
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "1",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "a8b75586407ea330308d665c5713e1e3d41eb68aee51ff2f30b578cec718db17",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.022
+      }
+    },
+    {
+      "name": "max_s32_baseline",
+      "kind": "max",
+      "width": 32,
+      "signed": true,
+      "input_widths": [
+        32,
+        32
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "1",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "8b67916a94636930156dda1c256543334de0dc6ba40fb19f4bd5d78c7894415e",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "max_s32_opt_dsp",
+      "kind": "max",
+      "width": 32,
+      "signed": true,
+      "input_widths": [
+        32,
+        32
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "1",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "8237f3a3092fde3e429f5b795603ad97708c9b4dcef80704937f8743a787e496",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "add_s32_baseline",
+      "kind": "add",
+      "width": 32,
+      "signed": true,
+      "input_widths": [
+        32,
+        32
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "1",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "1",
+      "rtl_sha256": "b117b29299781583aa68a1842d4ca8b6e0981b755b0ba54c50940b8ad949c2c4",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "add_s32_opt_dsp",
+      "kind": "add",
+      "width": 32,
+      "signed": true,
+      "input_widths": [
+        32,
+        32
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "1",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "1",
+      "rtl_sha256": "442674bd41ceb8f338c4f37356912a3fbe8705122d3149a23f2be44c7a3f9c66",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.023
+      }
+    },
+    {
+      "name": "sub_s32_baseline",
+      "kind": "sub",
+      "width": 32,
+      "signed": true,
+      "input_widths": [
+        32,
+        32
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "1",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "1",
+      "rtl_sha256": "a37ecf41789b51f3f75d286caf21289800b678dec4d914f289bc1354ac9cdb36",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "sub_s32_opt_dsp",
+      "kind": "sub",
+      "width": 32,
+      "signed": true,
+      "input_widths": [
+        32,
+        32
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "1",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "1",
+      "rtl_sha256": "c4c6680fdbb1e96606c8ad92eaf54d48682b973d664bf1bbd4796bb6823315e2",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "mul_s32_baseline",
+      "kind": "mul",
+      "width": 32,
+      "signed": true,
+      "input_widths": [
+        32,
+        32
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "4",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "4b461b9a9b31c931aa6d0606aa6a843ec71c726b3130613f83dc91be4a7cd0ec",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.023
+      }
+    },
+    {
+      "name": "mul_s32_opt_dsp",
+      "kind": "mul",
+      "width": 32,
+      "signed": true,
+      "input_widths": [
+        32,
+        32
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "4",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "7cb1877a9f3fd6972ea37c2ac37d9a05cf3fa5281b774b51fcbbaaf7accecf80",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.026
+      }
+    },
+    {
+      "name": "mac_s32_baseline",
+      "kind": "mac",
+      "width": 32,
+      "signed": true,
+      "input_widths": [
+        32,
+        32,
+        32
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "4",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "fdbcceb9bebf60b01ae6d85cdfde090240f47d02a8812d91293427626d972959",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.013
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.026
+      }
+    },
+    {
+      "name": "mac_s32_opt_dsp",
+      "kind": "mac",
+      "width": 32,
+      "signed": true,
+      "input_widths": [
+        32,
+        32,
+        32
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "4",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "29fc4eb56b7837acf47e67d3629957d7af8b84fcb8fa8bdf5a235ea04be13dbd",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.013
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.024
+      }
+    },
+    {
+      "name": "shr_s64_baseline",
+      "kind": "shr",
+      "width": 64,
+      "signed": true,
+      "input_widths": [
+        64,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "e2b9ac916f599ef22e14d17ed099abdeeecd491d39d2133b97c76b0f19d1a9db",
+      "simulation": {
+        "vectors": 1066,
+        "comparisons": 1066,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "shr_s64_opt_dsp",
+      "kind": "shr",
+      "width": 64,
+      "signed": true,
+      "input_widths": [
+        64,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.3",
+      "rtl_sha256": "47c92a7de54ead8e2f026588d3988fe930eb8f008efec8e796fd723b396cc2d0",
+      "simulation": {
+        "vectors": 1066,
+        "comparisons": 1066,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.01
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.022
+      }
+    },
+    {
+      "name": "min_s64_baseline",
+      "kind": "min",
+      "width": 64,
+      "signed": true,
+      "input_widths": [
+        64,
+        64
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "2",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "181fcc881a1385c5360b9a581346b2f9ebe4f09ea520745fd134b7b0e798a661",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.023
+      }
+    },
+    {
+      "name": "min_s64_opt_dsp",
+      "kind": "min",
+      "width": 64,
+      "signed": true,
+      "input_widths": [
+        64,
+        64
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "2",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "8b6a502c1b54c93e14d65e017b06b60e68b747eb96b47ad58cf5238d5ffc01ff",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.012
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.022
+      }
+    },
+    {
+      "name": "max_s64_baseline",
+      "kind": "max",
+      "width": 64,
+      "signed": true,
+      "input_widths": [
+        64,
+        64
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "2",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "7684826bab6f94755d3a9120b1c1fd907e7e32f22d56b5efc58b26380aae4a15",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.023
+      }
+    },
+    {
+      "name": "max_s64_opt_dsp",
+      "kind": "max",
+      "width": 64,
+      "signed": true,
+      "input_widths": [
+        64,
+        64
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "2",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "0.8",
+      "rtl_sha256": "816ad3d0eb82ac02c09991ddd3efcb540bc5eb931391b0a42146eb32a2aa4ca8",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.023
+      }
+    },
+    {
+      "name": "add_s64_baseline",
+      "kind": "add",
+      "width": 64,
+      "signed": true,
+      "input_widths": [
+        64,
+        64
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "2",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "1.2000000000000002",
+      "rtl_sha256": "30b61ba39db9142d6fcc71473b43730e5c183ccfd35555e24bfbf657b9605890",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.013
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.024
+      }
+    },
+    {
+      "name": "add_s64_opt_dsp",
+      "kind": "add",
+      "width": 64,
+      "signed": true,
+      "input_widths": [
+        64,
+        64
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "2",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "1.2000000000000002",
+      "rtl_sha256": "6c38184d5f27ba9591f8d5be91c07eb819d958320273d378d68705cc5fcb6f6c",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.013
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.022
+      }
+    },
+    {
+      "name": "sub_s64_baseline",
+      "kind": "sub",
+      "width": 64,
+      "signed": true,
+      "input_widths": [
+        64,
+        64
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "2",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "1.2000000000000002",
+      "rtl_sha256": "e0690bd8bd641d8f057e3f2fcc2fb6564cd53968bfd173daf433644cc41f70da",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.013
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "sub_s64_opt_dsp",
+      "kind": "sub",
+      "width": 64,
+      "signed": true,
+      "input_widths": [
+        64,
+        64
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "2",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "1.2000000000000002",
+      "rtl_sha256": "79b74ac5498a814e8309738e8b2f4ee806f27ca179de5bbffb56da14e84691b2",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.013
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.023
+      }
+    },
+    {
+      "name": "mul_s64_baseline",
+      "kind": "mul",
+      "width": 64,
+      "signed": true,
+      "input_widths": [
+        64,
+        64
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "12",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "1f48da4a766c26ef52f1d3bfe1a81189a8564acdb3fb677a7ac4ca76830db2ce",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.013
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.042
+      }
+    },
+    {
+      "name": "mul_s64_opt_dsp",
+      "kind": "mul",
+      "width": 64,
+      "signed": true,
+      "input_widths": [
+        64,
+        64
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "12",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "ab8af2ddc6b9c53e534164f3caa5f4b131f8bd3311bd7c63629314a1825e4ae7",
+      "simulation": {
+        "vectors": 1060,
+        "comparisons": 1060,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.013
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.043
+      }
+    },
+    {
+      "name": "mac_s64_baseline",
+      "kind": "mac",
+      "width": 64,
+      "signed": true,
+      "input_widths": [
+        64,
+        64,
+        64
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "12",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "0da96ac5365a6f239848a499718fbfcfaade68d4eb75928282cd53db09c7b104",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.018
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.047
+      }
+    },
+    {
+      "name": "mac_s64_opt_dsp",
+      "kind": "mac",
+      "width": 64,
+      "signed": true,
+      "input_widths": [
+        64,
+        64,
+        64
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0",
+      "estimated_dsp": "12",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "da7102cd83faec439d5800f7083874e2b697b3f9125c474ed81cb52ae05a2c23",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.018
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.044
+      }
+    },
+    {
+      "name": "const_min_s64_baseline",
+      "kind": "const_min",
+      "width": 64,
+      "signed": true,
+      "input_widths": [
+        64
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "12",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "88a80af556fb19767bf89638a73bdfdc1ecbd9c45633bccb96c8bff99fdf0dc6",
+      "simulation": {
+        "vectors": 1030,
+        "comparisons": 1030,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.514
+      }
+    },
+    {
+      "name": "const_min_s64_opt_dsp",
+      "kind": "const_min",
+      "width": 64,
+      "signed": true,
+      "input_widths": [
+        64
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "2",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "1.5000000000000002",
+      "rtl_sha256": "bf1be9074ce2eaa3d20daeabefe20d6c6c5c9fc607a574fb3c97683aea766c44",
+      "simulation": {
+        "vectors": 1030,
+        "comparisons": 1030,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.276
+      }
+    },
+    {
+      "name": "const_max_s64_baseline",
+      "kind": "const_max",
+      "width": 64,
+      "signed": true,
+      "input_widths": [
+        64
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0",
+      "estimated_dsp": "12",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "73f9ecea4d1671f8150354b9926014e1902f176fb0cf43abc28934592cb97843",
+      "simulation": {
+        "vectors": 1030,
+        "comparisons": 1030,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 1.48
+      }
+    },
+    {
+      "name": "const_max_s64_opt_dsp",
+      "kind": "const_max",
+      "width": 64,
+      "signed": true,
+      "input_widths": [
+        64
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "4",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "2.4000000000000004",
+      "rtl_sha256": "5dcf4804fbae81d8f4baa77abf4218906388bda838d79ec7a693c0e6b9610edd",
+      "simulation": {
+        "vectors": 1030,
+        "comparisons": 1030,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.013
+      },
+      "formal": {
+        "method": "not-run",
+        "status": "outside-default-proof-scope",
+        "reason": "64-bit CSD restructuring timed out at 45 s in initial validation; simulation remains required"
+      }
+    },
+    {
+      "name": "fir3_s4_baseline",
+      "kind": "fir3",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.25",
+      "estimated_dsp": "3",
+      "estimated_ff": "0",
+      "estimated_delay": "4.15",
+      "rtl_sha256": "5c76d0fd692d18c65080d0fb5ca5746a8d043df35d8aafd50a2d757575b49adc",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.016
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.062
+      }
+    },
+    {
+      "name": "fir3_s4_opt_delay",
+      "kind": "fir3",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_delay",
+      "estimated_lut": "1",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "3.6000000000000005",
+      "rtl_sha256": "e53acb777be6b73407543a2b6f9de90ffcfe54bf2078899fbd8aa61c26bd6db9",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.016
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.075
+      }
+    },
+    {
+      "name": "fir3_s4_opt_dsp",
+      "kind": "fir3",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "1",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "3.6000000000000005",
+      "rtl_sha256": "f0a66668ea7691b05984a9f8194d56f71ebe69a58ceda93153141c87954f781a",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.016
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.095
+      }
+    },
+    {
+      "name": "fir3_s4_pipe_output",
+      "kind": "fir3",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4,
+        4
+      ],
+      "latency": 1,
+      "variant": "pipe_output",
+      "estimated_lut": "1",
+      "estimated_dsp": "0",
+      "estimated_ff": "4",
+      "estimated_delay": "3.6000000000000005",
+      "rtl_sha256": "7584fcaddb573eb8efafeae7b890a865cb6efdb9c92b01735784cedb391d38d8",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.028
+      },
+      "formal": {
+        "method": "temporal-induction",
+        "status": "proved",
+        "seconds": 0.053,
+        "reference_proof": {
+          "method": "combinational-SAT",
+          "status": "proved",
+          "seconds": 0.092
+        },
+        "reference_rtl_sha256": "219abf74aee6ea67a7cb8a0249284119a3cf77ee22c933383ab7b4545de1bced"
+      }
+    },
+    {
+      "name": "fir3_s4_pipe_every",
+      "kind": "fir3",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4,
+        4
+      ],
+      "latency": 5,
+      "variant": "pipe_every",
+      "estimated_lut": "1",
+      "estimated_dsp": "0",
+      "estimated_ff": "68",
+      "estimated_delay": "1.125",
+      "rtl_sha256": "a9ecaa4c7250aa33bd98d0b5a920f21cf8f4ca67eeb95e7ec0f29e627213dc93",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4092,
+        "coverage": "exhaustive",
+        "seconds": 0.043
+      },
+      "formal": {
+        "method": "temporal-induction",
+        "status": "proved",
+        "seconds": 0.182,
+        "reference_proof": {
+          "method": "combinational-SAT",
+          "status": "proved",
+          "seconds": 0.096
+        },
+        "reference_rtl_sha256": "3a85216bea1d117ec5e075287230b6ff92b25001dad31d0b7a3b03bd7b51d57f"
+      }
+    },
+    {
+      "name": "chain_s4_baseline",
+      "kind": "chain",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.5",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "3.3000000000000003",
+      "rtl_sha256": "b2ba3fc0ff34f0661524359fea43874a50a2caa5e1f443a7f5f4a066fe61dea4",
+      "simulation": {
+        "vectors": 8800,
+        "comparisons": 8800,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.025
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.02
+      }
+    },
+    {
+      "name": "chain_s4_opt_delay",
+      "kind": "chain",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_delay",
+      "estimated_lut": "0.5",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "2.475",
+      "rtl_sha256": "c2d1b4343760e04de4b6062e4d9bc2501cedd0ffe9a4bcff23dd7b1fac64c46f",
+      "simulation": {
+        "vectors": 8800,
+        "comparisons": 8800,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.026
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.066
+      }
+    },
+    {
+      "name": "chain_s4_opt_dsp",
+      "kind": "chain",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.5",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "2.475",
+      "rtl_sha256": "9249a62c6d1877367db8a65b320a15a7dba508c52eabe5bb321437a7c6d4ad3d",
+      "simulation": {
+        "vectors": 8800,
+        "comparisons": 8800,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.026
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.065
+      }
+    },
+    {
+      "name": "chain_s4_pipe_output",
+      "kind": "chain",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "latency": 1,
+      "variant": "pipe_output",
+      "estimated_lut": "0.5",
+      "estimated_dsp": "0",
+      "estimated_ff": "4",
+      "estimated_delay": "2.475",
+      "rtl_sha256": "6301901e51183e4f0dcfa8bd479f65ef67d5e5a67b676775c2efbacd6557381d",
+      "simulation": {
+        "vectors": 8800,
+        "comparisons": 8800,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.05
+      },
+      "formal": {
+        "method": "temporal-induction",
+        "status": "proved",
+        "seconds": 0.046,
+        "reference_proof": {
+          "method": "combinational-SAT",
+          "status": "proved",
+          "seconds": 0.067
+        },
+        "reference_rtl_sha256": "729a9cbaf73ddd66390c6e49bc0ca301a7910a00a669a551d7267ac6a8120f61"
+      }
+    },
+    {
+      "name": "chain_s4_pipe_every",
+      "kind": "chain",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4,
+        4,
+        4,
+        4
+      ],
+      "latency": 3,
+      "variant": "pipe_every",
+      "estimated_lut": "0.5",
+      "estimated_dsp": "0",
+      "estimated_ff": "24",
+      "estimated_delay": "1.125",
+      "rtl_sha256": "22987ae154440ef8bfe35e0367abed3355f22f7f694b37fb3b2bb8deb3a1e564",
+      "simulation": {
+        "vectors": 8800,
+        "comparisons": 8798,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.06
+      },
+      "formal": {
+        "method": "temporal-induction",
+        "status": "proved",
+        "seconds": 0.079,
+        "reference_proof": {
+          "method": "combinational-SAT",
+          "status": "proved",
+          "seconds": 0.072
+        },
+        "reference_rtl_sha256": "ae0090719a6e80f570e4d69206bac1c15403b5dc0c5fe90e515e6d73b94365c2"
+      }
+    },
+    {
+      "name": "shared_s4_baseline",
+      "kind": "shared",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.375",
+      "estimated_dsp": "3",
+      "estimated_ff": "0",
+      "estimated_delay": "4.9750000000000005",
+      "rtl_sha256": "44b11a9f85f9a0e5d24d7fb1399918d13d5a3846d5f1cfccb8ac57ca45639747",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.016
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.04
+      }
+    },
+    {
+      "name": "shared_s4_opt_delay",
+      "kind": "shared",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_delay",
+      "estimated_lut": "0.375",
+      "estimated_dsp": "3",
+      "estimated_ff": "0",
+      "estimated_delay": "4.9750000000000005",
+      "rtl_sha256": "e4e108db5a6a231052ad7a7086383eb70897671dfd9531828a5d66ad1683f17c",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.282
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.038
+      }
+    },
+    {
+      "name": "shared_s4_opt_dsp",
+      "kind": "shared",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4,
+        4
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.375",
+      "estimated_dsp": "3",
+      "estimated_ff": "0",
+      "estimated_delay": "4.9750000000000005",
+      "rtl_sha256": "6962172c4de2eef9db289bd134500098365792d90e33b8cab69a08eb497889a5",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.015
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.037
+      }
+    },
+    {
+      "name": "shared_s4_pipe_output",
+      "kind": "shared",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4,
+        4
+      ],
+      "latency": 1,
+      "variant": "pipe_output",
+      "estimated_lut": "0.375",
+      "estimated_dsp": "3",
+      "estimated_ff": "4",
+      "estimated_delay": "4.9750000000000005",
+      "rtl_sha256": "5eb0490333af63e461110c100b238d7bb5060a24c9b9c1507519bbba4239a842",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4096,
+        "coverage": "exhaustive",
+        "seconds": 0.026
+      },
+      "formal": {
+        "method": "temporal-induction",
+        "status": "proved",
+        "seconds": 0.045,
+        "reference_proof": {
+          "method": "combinational-SAT",
+          "status": "proved",
+          "seconds": 0.038
+        },
+        "reference_rtl_sha256": "9542ee5799a3f4ac028adcffce83298f63ea80ab3596be8df2c1a591e79b638c"
+      }
+    },
+    {
+      "name": "shared_s4_pipe_every",
+      "kind": "shared",
+      "width": 4,
+      "signed": true,
+      "input_widths": [
+        4,
+        4,
+        4
+      ],
+      "latency": 4,
+      "variant": "pipe_every",
+      "estimated_lut": "0.375",
+      "estimated_dsp": "3",
+      "estimated_ff": "40",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "9f492bb3d64b3652756b6560cf82b8d9ae9f143b7e3a6d3458e5668b0c98882a",
+      "simulation": {
+        "vectors": 4096,
+        "comparisons": 4093,
+        "coverage": "exhaustive",
+        "seconds": 0.036
+      },
+      "formal": {
+        "method": "temporal-induction",
+        "status": "proved",
+        "seconds": 0.115,
+        "reference_proof": {
+          "method": "combinational-SAT",
+          "status": "proved",
+          "seconds": 0.04
+        },
+        "reference_rtl_sha256": "8e859cb349c5baa599772a411a66560aca0f913e437387996e948a4ce77cead3"
+      }
+    },
+    {
+      "name": "fir3_s8_baseline",
+      "kind": "fir3",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.5",
+      "estimated_dsp": "3",
+      "estimated_ff": "0",
+      "estimated_delay": "4.2",
+      "rtl_sha256": "3354f6f503116a44a0688d08a92749c742790f7ee621059c84b5e46dfa9f44a1",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.086
+      }
+    },
+    {
+      "name": "fir3_s8_opt_delay",
+      "kind": "fir3",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_delay",
+      "estimated_lut": "2",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "3.7",
+      "rtl_sha256": "1e1a529317ae08ecc2b1d1d2bc7c81008ab50faa4d3cfde248c6e6d3d5539ac6",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.014
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.604
+      }
+    },
+    {
+      "name": "fir3_s8_opt_dsp",
+      "kind": "fir3",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "2",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "3.7",
+      "rtl_sha256": "4d0a6071e725753b76c706102b24b9bd95cbd6bd3fb0cb6052d6c6f5bd6e80df",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.014
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 1.404
+      }
+    },
+    {
+      "name": "fir3_s8_pipe_output",
+      "kind": "fir3",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8,
+        8
+      ],
+      "latency": 1,
+      "variant": "pipe_output",
+      "estimated_lut": "2",
+      "estimated_dsp": "0",
+      "estimated_ff": "8",
+      "estimated_delay": "3.7",
+      "rtl_sha256": "a8293a2dbe3e1be82b3f076d6d2caecb4d2dc8d709e7c3c684567dc0100e1385",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.018
+      },
+      "formal": {
+        "method": "temporal-induction",
+        "status": "proved",
+        "seconds": 0.083,
+        "reference_proof": {
+          "method": "combinational-SAT",
+          "status": "proved",
+          "seconds": 1.496
+        },
+        "reference_rtl_sha256": "744db2fefc870ba70abffb91c405fde382f3b884ebc0345ffdf74493e1567c65"
+      }
+    },
+    {
+      "name": "fir3_s8_pipe_every",
+      "kind": "fir3",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8,
+        8
+      ],
+      "latency": 5,
+      "variant": "pipe_every",
+      "estimated_lut": "2",
+      "estimated_dsp": "0",
+      "estimated_ff": "136",
+      "estimated_delay": "1.1500000000000001",
+      "rtl_sha256": "37eefaccabddf29cb4fffd1de214654e8d413e8c5eba7752de11fa7cabc6db4d",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1236,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.023
+      },
+      "formal": {
+        "method": "temporal-induction",
+        "status": "proved",
+        "seconds": 1.711,
+        "reference_proof": {
+          "method": "combinational-SAT",
+          "status": "proved",
+          "seconds": 1.409
+        },
+        "reference_rtl_sha256": "608fe1ba6874f5db77140abb5fc355b48df814137651ef6c765927b63f5748fc"
+      }
+    },
+    {
+      "name": "chain_s8_baseline",
+      "kind": "chain",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "1",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "3.4000000000000004",
+      "rtl_sha256": "4be7df046d1bc431b848e4ba106dc1f476cd2b3efa7dc57431a02c2c90be3df7",
+      "simulation": {
+        "vectors": 8800,
+        "comparisons": 8800,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.027
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.021
+      }
+    },
+    {
+      "name": "chain_s8_opt_delay",
+      "kind": "chain",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_delay",
+      "estimated_lut": "1",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5500000000000003",
+      "rtl_sha256": "9c202111926b31f7dc60e3d5627e3b02e3867b3427b29f86d7f5f5dfc4d207fc",
+      "simulation": {
+        "vectors": 8800,
+        "comparisons": 8800,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.03
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.447
+      }
+    },
+    {
+      "name": "chain_s8_opt_dsp",
+      "kind": "chain",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "1",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "2.5500000000000003",
+      "rtl_sha256": "55038ad48d669c462a32a100238caee7e195420fb1a3761af4a430d813ba5552",
+      "simulation": {
+        "vectors": 8800,
+        "comparisons": 8800,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.028
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.425
+      }
+    },
+    {
+      "name": "chain_s8_pipe_output",
+      "kind": "chain",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "latency": 1,
+      "variant": "pipe_output",
+      "estimated_lut": "1",
+      "estimated_dsp": "0",
+      "estimated_ff": "8",
+      "estimated_delay": "2.5500000000000003",
+      "rtl_sha256": "b66539906092f7be88e9644da347c5e6568fcef14739f5890913eea46a4e70bb",
+      "simulation": {
+        "vectors": 8800,
+        "comparisons": 8800,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.055
+      },
+      "formal": {
+        "method": "temporal-induction",
+        "status": "proved",
+        "seconds": 0.06,
+        "reference_proof": {
+          "method": "combinational-SAT",
+          "status": "proved",
+          "seconds": 0.442
+        },
+        "reference_rtl_sha256": "74181d46daf31d379dc68f198764ae498d764be201f87dfb61942c7fa80052ff"
+      }
+    },
+    {
+      "name": "chain_s8_pipe_every",
+      "kind": "chain",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8,
+        8,
+        8,
+        8
+      ],
+      "latency": 3,
+      "variant": "pipe_every",
+      "estimated_lut": "1",
+      "estimated_dsp": "0",
+      "estimated_ff": "48",
+      "estimated_delay": "1.1500000000000001",
+      "rtl_sha256": "0fd3c9cbbb545ef275e0597d67d63e1a7f0cc7640de57b5613d9a25e594b0104",
+      "simulation": {
+        "vectors": 8800,
+        "comparisons": 8798,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.062
+      },
+      "formal": {
+        "method": "temporal-induction",
+        "status": "proved",
+        "seconds": 0.147,
+        "reference_proof": {
+          "method": "combinational-SAT",
+          "status": "proved",
+          "seconds": 0.42
+        },
+        "reference_rtl_sha256": "29f74af6ebaab3dc85a95f1227e07b18a81085b5d4320a496435c4b749be0cbb"
+      }
+    },
+    {
+      "name": "shared_s8_baseline",
+      "kind": "shared",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "0.75",
+      "estimated_dsp": "3",
+      "estimated_ff": "0",
+      "estimated_delay": "5.050000000000001",
+      "rtl_sha256": "b36efbf20820257360e7df377dcea9a109779897d1c6fec19ae2323c6cfb8cf3",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.012
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.062
+      }
+    },
+    {
+      "name": "shared_s8_opt_delay",
+      "kind": "shared",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_delay",
+      "estimated_lut": "0.75",
+      "estimated_dsp": "3",
+      "estimated_ff": "0",
+      "estimated_delay": "5.050000000000001",
+      "rtl_sha256": "41a5d34d0a88c6420a36df80320e81d70559145e78765fe2252987e9ad79db1a",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.012
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.062
+      }
+    },
+    {
+      "name": "shared_s8_opt_dsp",
+      "kind": "shared",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8,
+        8
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "0.75",
+      "estimated_dsp": "3",
+      "estimated_ff": "0",
+      "estimated_delay": "5.050000000000001",
+      "rtl_sha256": "2446ac6631c008f74167f795835659906af7293d9376f3583eeb2019bf4dcf27",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.012
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.057
+      }
+    },
+    {
+      "name": "shared_s8_pipe_output",
+      "kind": "shared",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8,
+        8
+      ],
+      "latency": 1,
+      "variant": "pipe_output",
+      "estimated_lut": "0.75",
+      "estimated_dsp": "3",
+      "estimated_ff": "8",
+      "estimated_delay": "5.050000000000001",
+      "rtl_sha256": "248dc4551c235896b6c9b5e78afac6c7f5a4f2df2600d6b7cf3e89901f6f531c",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.015
+      },
+      "formal": {
+        "method": "temporal-induction",
+        "status": "proved",
+        "seconds": 0.078,
+        "reference_proof": {
+          "method": "combinational-SAT",
+          "status": "proved",
+          "seconds": 0.057
+        },
+        "reference_rtl_sha256": "318c58e21b7376b22de2d5a64ca2c4ca29098f0d74367242fd28fdda69c91efa"
+      }
+    },
+    {
+      "name": "shared_s8_pipe_every",
+      "kind": "shared",
+      "width": 8,
+      "signed": true,
+      "input_widths": [
+        8,
+        8,
+        8
+      ],
+      "latency": 4,
+      "variant": "pipe_every",
+      "estimated_lut": "0.75",
+      "estimated_dsp": "3",
+      "estimated_ff": "80",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "8b270b2e20c1332d50f7db3ead0d0b029e6a4bfd495e1d2ec76aab06e37ca7ff",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1237,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.016
+      },
+      "formal": {
+        "method": "temporal-induction",
+        "status": "proved",
+        "seconds": 0.241,
+        "reference_proof": {
+          "method": "combinational-SAT",
+          "status": "proved",
+          "seconds": 0.067
+        },
+        "reference_rtl_sha256": "124018edb84b9ded2e8b8438d28d4c54bd252da2542b71c95528dedc2a0a023c"
+      }
+    },
+    {
+      "name": "fir3_s16_baseline",
+      "kind": "fir3",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "1",
+      "estimated_dsp": "3",
+      "estimated_ff": "0",
+      "estimated_delay": "4.3",
+      "rtl_sha256": "e5125a3f37bd50ec2330f56b1faf6cdb1ac33058ecc3d40057862b400449f081",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.011
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.267
+      },
+      "synthesis": {
+        "target": "Yosys synth_xilinx xc7 (no place/route)",
+        "cells": {
+          "DSP48E1": 3
+        },
+        "LUT": 0,
+        "FF": 0,
+        "DSP48E1": 3,
+        "seconds": 3.265
+      }
+    },
+    {
+      "name": "fir3_s16_opt_delay",
+      "kind": "fir3",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "opt_delay",
+      "estimated_lut": "4",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "3.9",
+      "rtl_sha256": "791dc14dcec6d94b646a675f2f6d67edfb0afec7000fd736c11b23e641e29c05",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.016
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 7.037
+      },
+      "synthesis": {
+        "target": "Yosys synth_xilinx xc7 (no place/route)",
+        "cells": {
+          "CARRY4": 4,
+          "LUT2": 6,
+          "LUT3": 32,
+          "LUT4": 6,
+          "LUT5": 34,
+          "LUT6": 29
+        },
+        "LUT": 107,
+        "FF": 0,
+        "DSP48E1": 0,
+        "seconds": 3.467
+      }
+    },
+    {
+      "name": "fir3_s16_opt_dsp",
+      "kind": "fir3",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "4",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "3.9",
+      "rtl_sha256": "0f6da91cdf61a60c9f1f0507339c9663d3291bf66d2a5bf5fa5190b5b4ea6ade",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.016
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 6.079
+      },
+      "synthesis": {
+        "target": "Yosys synth_xilinx xc7 (no place/route)",
+        "cells": {
+          "CARRY4": 4,
+          "LUT2": 6,
+          "LUT3": 32,
+          "LUT4": 6,
+          "LUT5": 34,
+          "LUT6": 29
+        },
+        "LUT": 107,
+        "FF": 0,
+        "DSP48E1": 0,
+        "seconds": 3.49
+      }
+    },
+    {
+      "name": "fir3_s16_pipe_output",
+      "kind": "fir3",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        16,
+        16
+      ],
+      "latency": 1,
+      "variant": "pipe_output",
+      "estimated_lut": "4",
+      "estimated_dsp": "0",
+      "estimated_ff": "16",
+      "estimated_delay": "3.9",
+      "rtl_sha256": "7297043896d329727f590eee778dbc93df53590d00651ec8b4c687dc0381b165",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.019
+      },
+      "formal": {
+        "method": "temporal-induction",
+        "status": "proved",
+        "seconds": 0.162,
+        "reference_proof": {
+          "method": "combinational-SAT",
+          "status": "proved",
+          "seconds": 5.953
+        },
+        "reference_rtl_sha256": "4475f916a7dd5b3aeffc89059f6c617545ec5868ff2d6e043623274b276af541"
+      },
+      "synthesis": {
+        "target": "Yosys synth_xilinx xc7 (no place/route)",
+        "cells": {
+          "CARRY4": 4,
+          "FDRE": 16,
+          "INV": 1,
+          "LUT2": 8,
+          "LUT3": 31,
+          "LUT4": 6,
+          "LUT5": 34,
+          "LUT6": 29
+        },
+        "LUT": 108,
+        "FF": 16,
+        "DSP48E1": 0,
+        "seconds": 3.54
+      }
+    },
+    {
+      "name": "fir3_s16_pipe_every",
+      "kind": "fir3",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        16,
+        16
+      ],
+      "latency": 5,
+      "variant": "pipe_every",
+      "estimated_lut": "4",
+      "estimated_dsp": "0",
+      "estimated_ff": "272",
+      "estimated_delay": "1.2",
+      "rtl_sha256": "5c5f0e6f6d3b079af0cb752271d9221cce19ec4ae03f048b8e39315db74922a5",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1236,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.022
+      },
+      "formal": {
+        "method": "temporal-induction",
+        "status": "proved",
+        "seconds": 31.791,
+        "reference_proof": {
+          "method": "combinational-SAT",
+          "status": "proved",
+          "seconds": 6.027
+        },
+        "reference_rtl_sha256": "30af774127131500fe3127709c64f60dbef88afca9a3e03d65135e840ff11b06"
+      },
+      "synthesis": {
+        "target": "Yosys synth_xilinx xc7 (no place/route)",
+        "cells": {
+          "CARRY4": 31,
+          "FDRE": 229,
+          "INV": 33,
+          "LUT2": 85,
+          "LUT3": 2
+        },
+        "LUT": 87,
+        "FF": 229,
+        "DSP48E1": 0,
+        "seconds": 3.638
+      }
+    },
+    {
+      "name": "chain_s16_baseline",
+      "kind": "chain",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        16,
+        16,
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "2",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "3.6",
+      "rtl_sha256": "a6b1cde87c8a680151600ea27f7654378a9a0d6232aebf524b95885a21f2a988",
+      "simulation": {
+        "vectors": 8800,
+        "comparisons": 8800,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.042
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.024
+      },
+      "synthesis": {
+        "target": "Yosys synth_xilinx xc7 (no place/route)",
+        "cells": {
+          "CARRY4": 4,
+          "LUT2": 10,
+          "LUT3": 20,
+          "LUT4": 9,
+          "LUT5": 11,
+          "LUT6": 29
+        },
+        "LUT": 79,
+        "FF": 0,
+        "DSP48E1": 0,
+        "seconds": 3.488
+      }
+    },
+    {
+      "name": "chain_s16_opt_delay",
+      "kind": "chain",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        16,
+        16,
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "opt_delay",
+      "estimated_lut": "2",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "2.7",
+      "rtl_sha256": "27a406d7d13ac6cd7345337c084c07d7a25f540638f815a427f9915f0d740dff",
+      "simulation": {
+        "vectors": 8800,
+        "comparisons": 8800,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.037
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 3.316
+      },
+      "synthesis": {
+        "target": "Yosys synth_xilinx xc7 (no place/route)",
+        "cells": {
+          "CARRY4": 4,
+          "LUT2": 10,
+          "LUT3": 20,
+          "LUT4": 9,
+          "LUT5": 11,
+          "LUT6": 29
+        },
+        "LUT": 79,
+        "FF": 0,
+        "DSP48E1": 0,
+        "seconds": 3.379
+      }
+    },
+    {
+      "name": "chain_s16_opt_dsp",
+      "kind": "chain",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        16,
+        16,
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "2",
+      "estimated_dsp": "0",
+      "estimated_ff": "0",
+      "estimated_delay": "2.7",
+      "rtl_sha256": "33109c8e5aecba5a377700738c36a785083587e4594b599480b2185f3a7ffe51",
+      "simulation": {
+        "vectors": 8800,
+        "comparisons": 8800,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.037
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 3.271
+      },
+      "synthesis": {
+        "target": "Yosys synth_xilinx xc7 (no place/route)",
+        "cells": {
+          "CARRY4": 4,
+          "LUT2": 10,
+          "LUT3": 20,
+          "LUT4": 9,
+          "LUT5": 11,
+          "LUT6": 29
+        },
+        "LUT": 79,
+        "FF": 0,
+        "DSP48E1": 0,
+        "seconds": 3.343
+      }
+    },
+    {
+      "name": "chain_s16_pipe_output",
+      "kind": "chain",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        16,
+        16,
+        16,
+        16
+      ],
+      "latency": 1,
+      "variant": "pipe_output",
+      "estimated_lut": "2",
+      "estimated_dsp": "0",
+      "estimated_ff": "16",
+      "estimated_delay": "2.7",
+      "rtl_sha256": "5633627741dd8ff87f9bd74162cdb3a5b16f29d948f2bc2d17f19b078e91f26c",
+      "simulation": {
+        "vectors": 8800,
+        "comparisons": 8800,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.06
+      },
+      "formal": {
+        "method": "temporal-induction",
+        "status": "proved",
+        "seconds": 0.099,
+        "reference_proof": {
+          "method": "combinational-SAT",
+          "status": "proved",
+          "seconds": 3.292
+        },
+        "reference_rtl_sha256": "80603b94b923446c0caa4ac3ee78bfd59c0c918dacd75ece2ceb2727b1afda54"
+      },
+      "synthesis": {
+        "target": "Yosys synth_xilinx xc7 (no place/route)",
+        "cells": {
+          "CARRY4": 4,
+          "FDRE": 16,
+          "INV": 1,
+          "LUT2": 10,
+          "LUT3": 19,
+          "LUT4": 9,
+          "LUT5": 11,
+          "LUT6": 29
+        },
+        "LUT": 78,
+        "FF": 16,
+        "DSP48E1": 0,
+        "seconds": 3.462
+      }
+    },
+    {
+      "name": "chain_s16_pipe_every",
+      "kind": "chain",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        16,
+        16,
+        16,
+        16
+      ],
+      "latency": 3,
+      "variant": "pipe_every",
+      "estimated_lut": "2",
+      "estimated_dsp": "0",
+      "estimated_ff": "96",
+      "estimated_delay": "1.2",
+      "rtl_sha256": "51bcac01f4e3ae9cb4940512dd8dedac7aad41eb93c333b08a1d1c57d4ff811e",
+      "simulation": {
+        "vectors": 8800,
+        "comparisons": 8798,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.07
+      },
+      "formal": {
+        "method": "temporal-induction",
+        "status": "proved",
+        "seconds": 0.311,
+        "reference_proof": {
+          "method": "combinational-SAT",
+          "status": "proved",
+          "seconds": 3.346
+        },
+        "reference_rtl_sha256": "641cc8e3f61636ebb205f3c8a32863d739e05e04840453a113842396374846dd"
+      },
+      "synthesis": {
+        "target": "Yosys synth_xilinx xc7 (no place/route)",
+        "cells": {
+          "CARRY4": 16,
+          "FDRE": 96,
+          "INV": 1,
+          "LUT2": 64
+        },
+        "LUT": 64,
+        "FF": 96,
+        "DSP48E1": 0,
+        "seconds": 3.274
+      }
+    },
+    {
+      "name": "shared_s16_baseline",
+      "kind": "shared",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "baseline",
+      "estimated_lut": "1.5",
+      "estimated_dsp": "3",
+      "estimated_ff": "0",
+      "estimated_delay": "5.2",
+      "rtl_sha256": "da471817d751417af2f1534a2fd426e68aadac14d9808ec1ef05233aff39fa08",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.014
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.129
+      },
+      "synthesis": {
+        "target": "Yosys synth_xilinx xc7 (no place/route)",
+        "cells": {
+          "CARRY4": 4,
+          "DSP48E1": 1,
+          "LUT2": 1,
+          "LUT3": 15,
+          "LUT4": 7,
+          "LUT5": 8
+        },
+        "LUT": 31,
+        "FF": 0,
+        "DSP48E1": 1,
+        "seconds": 3.325
+      }
+    },
+    {
+      "name": "shared_s16_opt_delay",
+      "kind": "shared",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "opt_delay",
+      "estimated_lut": "1.5",
+      "estimated_dsp": "3",
+      "estimated_ff": "0",
+      "estimated_delay": "5.2",
+      "rtl_sha256": "2a7e8ec2a7c1137c1aefbcd8ea5650eada0e1815338fe3f4b2275f3d05813ac5",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.014
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.126
+      },
+      "synthesis": {
+        "target": "Yosys synth_xilinx xc7 (no place/route)",
+        "cells": {
+          "CARRY4": 4,
+          "DSP48E1": 1,
+          "LUT2": 1,
+          "LUT3": 15,
+          "LUT4": 7,
+          "LUT5": 8
+        },
+        "LUT": 31,
+        "FF": 0,
+        "DSP48E1": 1,
+        "seconds": 3.34
+      }
+    },
+    {
+      "name": "shared_s16_opt_dsp",
+      "kind": "shared",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        16,
+        16
+      ],
+      "latency": 0,
+      "variant": "opt_dsp",
+      "estimated_lut": "1.5",
+      "estimated_dsp": "3",
+      "estimated_ff": "0",
+      "estimated_delay": "5.2",
+      "rtl_sha256": "405978e6241cba1657490d79ecca7589cf3aa229b791ab9f48c637dcbd1d81a3",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.014
+      },
+      "formal": {
+        "method": "combinational-SAT",
+        "status": "proved",
+        "seconds": 0.127
+      },
+      "synthesis": {
+        "target": "Yosys synth_xilinx xc7 (no place/route)",
+        "cells": {
+          "CARRY4": 4,
+          "DSP48E1": 1,
+          "LUT2": 1,
+          "LUT3": 15,
+          "LUT4": 7,
+          "LUT5": 8
+        },
+        "LUT": 31,
+        "FF": 0,
+        "DSP48E1": 1,
+        "seconds": 3.231
+      }
+    },
+    {
+      "name": "shared_s16_pipe_output",
+      "kind": "shared",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        16,
+        16
+      ],
+      "latency": 1,
+      "variant": "pipe_output",
+      "estimated_lut": "1.5",
+      "estimated_dsp": "3",
+      "estimated_ff": "16",
+      "estimated_delay": "5.2",
+      "rtl_sha256": "02d9c937ad6fd4c35d25d66812f6a68cd9018058d10c5be5b953434732aac7d6",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1240,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.018
+      },
+      "formal": {
+        "method": "temporal-induction",
+        "status": "proved",
+        "seconds": 0.211,
+        "reference_proof": {
+          "method": "combinational-SAT",
+          "status": "proved",
+          "seconds": 0.127
+        },
+        "reference_rtl_sha256": "f612ee335763bcd9b6d242c0c06c510fe5a5dadd6ef6426ef217d4eb165a71d1"
+      },
+      "synthesis": {
+        "target": "Yosys synth_xilinx xc7 (no place/route)",
+        "cells": {
+          "CARRY4": 4,
+          "DSP48E1": 1,
+          "FDRE": 16,
+          "INV": 1,
+          "LUT2": 1,
+          "LUT3": 15,
+          "LUT4": 7,
+          "LUT5": 8
+        },
+        "LUT": 31,
+        "FF": 16,
+        "DSP48E1": 1,
+        "seconds": 3.32
+      }
+    },
+    {
+      "name": "shared_s16_pipe_every",
+      "kind": "shared",
+      "width": 16,
+      "signed": true,
+      "input_widths": [
+        16,
+        16,
+        16
+      ],
+      "latency": 4,
+      "variant": "pipe_every",
+      "estimated_lut": "1.5",
+      "estimated_dsp": "3",
+      "estimated_ff": "160",
+      "estimated_delay": "2.5",
+      "rtl_sha256": "6e7c5188ecd57513c40171612f0fc7c021cd8c47f06b3879bfe7307583315810",
+      "simulation": {
+        "vectors": 1240,
+        "comparisons": 1237,
+        "coverage": "boundary+seeded-random",
+        "seconds": 0.017
+      },
+      "formal": {
+        "method": "temporal-induction",
+        "status": "proved",
+        "seconds": 0.74,
+        "reference_proof": {
+          "method": "combinational-SAT",
+          "status": "proved",
+          "seconds": 0.127
+        },
+        "reference_rtl_sha256": "819d28606b615dddc00d9e528304b4b22e8ddd9e03e08d8103844974a9b3bc1f"
+      },
+      "synthesis": {
+        "target": "Yosys synth_xilinx xc7 (no place/route)",
+        "cells": {
+          "CARRY4": 12,
+          "DSP48E1": 1,
+          "FDRE": 96,
+          "INV": 1,
+          "LUT2": 48,
+          "LUT3": 1
+        },
+        "LUT": 49,
+        "FF": 96,
+        "DSP48E1": 1,
+        "seconds": 3.55
+      }
+    }
+  ],
+  "validation_record": {
+    "date": "2026-11-10",
+    "timezone": "America/Toronto",
+    "source_commit": "4b626c714fcf8c8a004972d3fbc6ae75554725ff",
+    "checkout": "clean detached worktree; empty target/build directories before validation",
+    "repeatability": "All 249 RTL hashes, comparison counts, formal statuses and 15 mapped cell dictionaries match the preceding working-tree run.",
+    "rust": {
+      "unit_tests": 26,
+      "integration_tests": 11,
+      "doctests": 4,
+      "fmt": "passed",
+      "clippy_lib_warnings_denied": "passed"
+    },
+    "vivado": "not available; not run",
+    "remote_ci": "not run for this unpushed branch"
+  }
+}
