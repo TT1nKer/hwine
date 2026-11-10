@@ -2,9 +2,9 @@
 // Each benchmark has a known algebraic optimization that e-graph can discover.
 // We compare hwine-optimized vs baseline (naive) RTL.
 
-use hwine_rs::egraph::EGraph;
-use hwine_rs::ir::{AtomOp, ENode, DataType};
 use hwine_rs::cost::{ExtractMode, FpgaStats};
+use hwine_rs::egraph::EGraph;
+use hwine_rs::ir::{AtomOp, DataType, ENode};
 use hwine_rs::rtl::generate_rtl;
 use std::time::Instant;
 
@@ -13,8 +13,10 @@ fn print_header(title: &str) {
 }
 
 fn print_stats(label: &str, stats: &FpgaStats) {
-    println!("{:<30} {:>8.2}ns {:>8.1}LUT {:>8.1}DSP {:>8.0}MHz",
-        label, stats.delay_ns, stats.lut, stats.dsp, stats.fmax_mhz);
+    println!(
+        "{:<30} {:>8.2}ns {:>8.1}LUT {:>8.1}DSP {:>8.0}MHz",
+        label, stats.delay_ns, stats.lut, stats.dsp, stats.fmax_mhz
+    );
 }
 
 // ============================================================
@@ -48,8 +50,13 @@ fn bench_fft_butterfly() {
     eg.union(imag_gauss, imag);
 
     let root = eg.add(ENode::new(AtomOp::Concat, vec![real, imag], dt));
-    let t0 = Instant::now(); eg.saturate(50, 30000);
-    println!("E-graph: {}cls {:.3}s", eg.n_classes(), t0.elapsed().as_secs_f64());
+    let t0 = Instant::now();
+    eg.saturate(50, 30000);
+    println!(
+        "E-graph: {}cls {:.3}s",
+        eg.n_classes(),
+        t0.elapsed().as_secs_f64()
+    );
 
     // Baseline (no optimization): 4 MUL = 4 DSP
     let (_, bl) = eg.extract_optimal(root, ExtractMode::MinDelay);
@@ -97,8 +104,10 @@ fn bench_dot_product(n: usize) {
     let optimal_depth = count_depth(&best, &eg);
 
     println!("E-graph: {}cls {:.3}s", eg.n_classes(), dt.as_secs_f64());
-    println!("Serial depth: {serial_depth}lv -> Tree depth: {optimal_depth}lv ({:.1}x reduction)",
-        serial_depth as f64 / optimal_depth.max(1) as f64);
+    println!(
+        "Serial depth: {serial_depth}lv -> Tree depth: {optimal_depth}lv ({:.1}x reduction)",
+        serial_depth as f64 / optimal_depth.max(1) as f64
+    );
     print_stats("Optimal tree", &stats);
 
     let rtl = generate_rtl(&eg, serial_chain, &format!("bm_dot_{n}"), 16);
@@ -107,10 +116,15 @@ fn bench_dot_product(n: usize) {
 }
 
 fn count_depth(node: &ENode, eg: &EGraph) -> usize {
-    if node.children.is_empty() { return 0; }
-    1 + node.children.iter()
+    if node.children.is_empty() {
+        return 0;
+    }
+    1 + node
+        .children
+        .iter()
         .map(|&c| count_depth(&eg.extract_optimal(c, ExtractMode::MinDelay).0, eg))
-        .max().unwrap_or(0)
+        .max()
+        .unwrap_or(0)
 }
 
 // ============================================================
@@ -123,7 +137,7 @@ fn bench_stencil2d() {
     let dt = DataType::S16;
 
     // 3x3 stencil with typical smoothing weights: center=4, edges=2, corners=1
-    let weights = [1, 2, 1,  2, 4, 2,  1, 2, 1];
+    let weights = [1, 2, 1, 2, 4, 2, 1, 2, 1];
 
     let mut eg = EGraph::new();
     let mut pixels = Vec::new();
@@ -145,7 +159,11 @@ fn bench_stencil2d() {
 
     let t0 = Instant::now();
     eg.saturate(50, 30000);
-    println!("E-graph: {}cls {:.3}s", eg.n_classes(), t0.elapsed().as_secs_f64());
+    println!(
+        "E-graph: {}cls {:.3}s",
+        eg.n_classes(),
+        t0.elapsed().as_secs_f64()
+    );
 
     let (_, stats) = eg.extract_optimal(chain, ExtractMode::MinDelay);
     let (_, stats_shared) = eg.extract_shared_aware(chain, ExtractMode::MinDelay);
@@ -193,7 +211,11 @@ fn bench_dct8() {
 
     let t0 = Instant::now();
     eg.saturate(50, 30000);
-    println!("E-graph: {}cls {:.3}s", eg.n_classes(), t0.elapsed().as_secs_f64());
+    println!(
+        "E-graph: {}cls {:.3}s",
+        eg.n_classes(),
+        t0.elapsed().as_secs_f64()
+    );
 
     // Before saturation: measure naive cost
     let (_, stats_opt) = eg.extract_optimal(chain, ExtractMode::MinDelay);
@@ -220,5 +242,7 @@ fn main() {
     bench_dct8();
 
     println!("\n{:=^80}", " ALL BENCHMARKS COMPLETE ");
-    println!("RTL files: bm_fft_butterfly.sv, bm_dot_8.sv, bm_dot_32.sv, bm_stencil2d.sv, bm_dct8.sv");
+    println!(
+        "RTL files: bm_fft_butterfly.sv, bm_dot_8.sv, bm_dot_32.sv, bm_stencil2d.sv, bm_dct8.sv"
+    );
 }

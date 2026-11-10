@@ -1,458 +1,471 @@
-use std::collections::HashMap;
-use crate::egraph::EGraph;
-use crate::ir::DataType;
-use crate::ir::{AtomOp, ENode};
-use crate::cost::ExtractMode;
-use crate::error::{HwineError, HwineResult};
+//! Checked fixed-width integer RTL. See docs/RELIABILITY.md for the contract.
+use std::collections::{BTreeMap, HashMap, HashSet};
+use std::rc::Rc;
 
-/// SystemVerilog RTL generator from e-graph extraction
-pub struct RtlGen {
-    module_name: String,
-    data_width: usize,
-    wire_counter: u32,
-    wires: HashMap<u32, String>,
-    port_map: HashMap<String, (String, usize)>, // name → (dir, width)
-    port_order: Vec<String>,                    // insertion order
-    assign_lines: Vec<String>,
-    ff_lines: Vec<String>,
+use crate::cost::{ExtractMode, FpgaStats};
+use crate::egraph::EGraph;
+use crate::error::{HwineError, HwineResult};
+use crate::extract::Plan;
+use crate::ir::{AtomOp, DataType, ENode, OverflowMode};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Pipeline {
+    None,
+    /// One register at the output (replaces the old unbalanced coarse helper).
+    Output,
+    /// Register every arithmetic operation and balance all operand branches.
+    EveryOp,
+}
+
+#[derive(Debug, Clone)]
+pub struct RtlArtifact {
+    pub verilog: String,
+    /// Number L of register stages. Inputs before edge n appear after edge
+    /// n+L-1 (L=0 is combinational). Valid after L non-reset edges of fill.
+    pub latency: usize,
+    /// Abstract ranking estimates; not synthesis measurements.
+    pub estimated: FpgaStats,
+}
+
+fn supported(op: AtomOp) -> bool {
+    matches!(
+        op,
+        AtomOp::Var(_)
+            | AtomOp::Const(_)
+            | AtomOp::Zero
+            | AtomOp::One
+            | AtomOp::Add
+            | AtomOp::Sub
+            | AtomOp::Mul
+            | AtomOp::Mac
+            | AtomOp::Madd
+            | AtomOp::DspMul
+            | AtomOp::DspMac
+            | AtomOp::DspPreAdd
+            | AtomOp::Shl
+            | AtomOp::Shr
+            | AtomOp::ReduceAdd
+            | AtomOp::ReduceMin
+            | AtomOp::ReduceMax
+            | AtomOp::Pipe
+    )
+}
+
+/// Check every reachable alternative, so a cheap alternative cannot hide an
+/// unsupported atom, malformed arity, or mixed-width expression in its class.
+fn validate_graph(eg: &EGraph, root: u32) -> HwineResult<DataType> {
+    let mut seen = HashSet::new();
+    let mut todo = vec![root];
+    let mut var_types = HashMap::new();
+    while let Some(cid) = todo.pop() {
+        let nodes = eg.class_nodes(cid).ok_or(HwineError::InvalidClass(cid))?;
+        if !seen.insert(eg.canon(cid)) {
+            continue;
+        }
+        let dtype = nodes.first().ok_or(HwineError::DeletedClass(cid))?.dtype;
+        for node in nodes {
+            if !supported(node.op) {
+                return Err(HwineError::UnsupportedRtlOp(node.op));
+            }
+            if node.dtype != dtype {
+                return Err(HwineError::InvalidInput("mixed types in e-class"));
+            }
+            if !(1..=64).contains(&dtype.width) || dtype.overflow != OverflowMode::Wrap {
+                return Err(HwineError::InvalidInput(
+                    "RTL requires 1..=64 bit wrapping integers",
+                ));
+            }
+            if node.children.len() != node.op.arity() {
+                return Err(HwineError::InvalidInput("operation arity mismatch"));
+            }
+            if let AtomOp::Var(id) = node.op
+                && var_types.insert(id, dtype).is_some_and(|t| t != dtype)
+            {
+                return Err(HwineError::InvalidInput(
+                    "one variable has conflicting types",
+                ));
+            }
+            for (i, &c) in node.children.iter().enumerate() {
+                let cn = eg.class_nodes(c).ok_or(HwineError::InvalidClass(c))?;
+                for n in cn {
+                    let shift_count = matches!(node.op, AtomOp::Shl | AtomOp::Shr) && i == 1;
+                    if shift_count {
+                        if n.dtype.signed {
+                            return Err(HwineError::InvalidInput("shift count must be unsigned"));
+                        }
+                    } else if n.dtype != dtype {
+                        return Err(HwineError::InvalidInput(
+                            "operands and result must have the same integer type",
+                        ));
+                    }
+                }
+                todo.push(c);
+            }
+        }
+    }
+    Ok(eg.class_nodes(root).unwrap()[0].dtype)
+}
+
+fn identifier(s: &str) -> bool {
+    // Verilog/SystemVerilog keywords are not ordinary identifiers.
+    let keywords = "accept_on alias always always_comb always_ff always_latch and assert assign assume automatic before begin bind bins binsof bit break buf bufif0 bufif1 byte case casex casez cell chandle checker class clocking cmos config const constraint context continue cover covergroup coverpoint cross deassign default defparam design disable dist do edge else end endcase endchecker endclass endclocking endconfig endfunction endgenerate endgroup endinterface endmodule endpackage endprimitive endprogram endproperty endspecify endsequence endtable endtask enum event eventually expect export extends extern final first_match for force foreach forever fork forkjoin function generate genvar global highz0 highz1 if iff ifnone ignore_bins illegal_bins implements implies import incdir include initial inout input inside instance int integer interconnect interface intersect join join_any join_none large let liblist library local localparam logic longint macromodule matches medium modport module nand negedge nettype new nexttime nmos nor noshowcancelled not notif0 notif1 null or output package packed parameter pmos posedge primitive priority program property protected pull0 pull1 pulldown pullup pulsestyle_onevent pulsestyle_ondetect pure rand randc randcase randsequence rcmos real realtime ref reg reject_on release repeat restrict return rnmos rpmos rtran rtranif0 rtranif1 s_always s_eventually s_nexttime s_until s_until_with scalared sequence shortint shortreal showcancelled signed small soft solve specify specparam static string strong strong0 strong1 struct super supply0 supply1 sync_accept_on sync_reject_on table tagged task this throughout time timeprecision timeunit tran tranif0 tranif1 tri tri0 tri1 triand trior trireg type typedef union unique unique0 unsigned until until_with untyped use uwire var vectored virtual void wait wait_order wand weak weak0 weak1 while wildcard wire with within wone wor xnor xor";
+    let mut chars = s.chars();
+    matches!(chars.next(), Some(c) if c.is_ascii_alphabetic() || c == '_')
+        && chars.all(|c| c.is_ascii_alphanumeric() || c == '_')
+        && !keywords.split_whitespace().any(|k| k == s)
+}
+
+fn make_plan(op: AtomOp, dtype: DataType, children: Vec<Rc<Plan>>) -> Rc<Plan> {
+    let stats = FpgaStats::for_node(
+        op,
+        &children.iter().map(|c| c.stats.clone()).collect::<Vec<_>>(),
+        &dtype,
+    );
+    // Child IDs are no longer used after extraction; the actual children live here.
+    Rc::new(Plan {
+        node: ENode::new(op, vec![], dtype),
+        children,
+        stats,
+    })
+}
+
+fn register(p: Rc<Plan>) -> Rc<Plan> {
+    make_plan(AtomOp::Pipe, p.node.dtype, vec![p])
+}
+
+fn schedule(p: &Rc<Plan>, memo: &mut HashMap<usize, Rc<Plan>>) -> Rc<Plan> {
+    let key = Rc::as_ptr(p) as usize;
+    if let Some(v) = memo.get(&key) {
+        return v.clone();
+    }
+    let out = if p.children.is_empty() {
+        p.clone()
+    } else {
+        let mut children: Vec<_> = p.children.iter().map(|c| schedule(c, memo)).collect();
+        let level = children.iter().map(|c| c.stats.cycles).max().unwrap_or(0);
+        for c in &mut children {
+            while c.stats.cycles < level {
+                *c = register(c.clone());
+            }
+        }
+        register(make_plan(p.node.op, p.node.dtype, children))
+    };
+    memo.insert(key, out.clone());
+    out
+}
+
+fn validate_plan(p: &Rc<Plan>, seen: &mut HashSet<usize>) -> HwineResult<()> {
+    if !seen.insert(Rc::as_ptr(p) as usize) {
+        return Ok(());
+    }
+    if p.children
+        .windows(2)
+        .any(|pair| pair[0].stats.cycles != pair[1].stats.cycles)
+    {
+        return Err(HwineError::InvalidInput(
+            "operand cycle mismatch; align all branches with Pipe",
+        ));
+    }
+    for c in &p.children {
+        validate_plan(c, seen)?;
+    }
+    Ok(())
+}
+
+fn decl(dtype: DataType) -> String {
+    format!(
+        "logic {}[{}:0]",
+        if dtype.signed { "signed " } else { "" },
+        dtype.width - 1
+    )
+}
+
+struct Emitter {
+    wires: HashMap<usize, String>,
+    ports: BTreeMap<usize, (String, DataType)>,
+    names: HashMap<usize, String>,
+    lines: Vec<String>,
     has_clk: bool,
-    root_wire: String,
-    name_map: HashMap<u32, String>, // e-class ID → port name hint
+}
+
+impl Emitter {
+    fn emit(&mut self, p: &Rc<Plan>) -> HwineResult<String> {
+        let key = Rc::as_ptr(p) as usize;
+        if let Some(w) = self.wires.get(&key) {
+            return Ok(w.clone());
+        }
+        let children: Vec<_> = p
+            .children
+            .iter()
+            .map(|c| self.emit(c))
+            .collect::<HwineResult<_>>()?;
+        let w = format!("hwine_n{}", self.wires.len());
+        self.wires.insert(key, w.clone());
+        self.lines.push(format!("  {} {w};", decl(p.node.dtype)));
+        let expr = match p.node.op {
+            AtomOp::Var(id) => {
+                let name = self.names.get(&id).cloned().unwrap_or_else(|| {
+                    if id % 2 == 0 {
+                        format!("a{}", id / 2)
+                    } else {
+                        format!("w{}", id / 2)
+                    }
+                });
+                if !identifier(&name)
+                    || name.starts_with("hwine_")
+                    || ["result", "clk", "rst_n"].contains(&name.as_str())
+                {
+                    return Err(HwineError::InvalidInput("invalid or reserved input name"));
+                }
+                if self
+                    .ports
+                    .iter()
+                    .any(|(&other, (n, _))| other != id && n == &name)
+                {
+                    return Err(HwineError::PortConflict {
+                        name,
+                        declared_as: format!("Var({id})"),
+                        conflicting_as: "another input".into(),
+                    });
+                }
+                self.ports.insert(id, (name.clone(), p.node.dtype));
+                name
+            }
+            AtomOp::Const(v) => {
+                let mask = u64::MAX >> (64 - p.node.dtype.width);
+                format!("{}'h{:x}", p.node.dtype.width, (v as u64) & mask)
+            }
+            AtomOp::Zero => "'0".into(),
+            AtomOp::One => format!("{}'d1", p.node.dtype.width),
+            AtomOp::Add | AtomOp::ReduceAdd => format!("{} + {}", children[0], children[1]),
+            AtomOp::Sub => format!("{} - {}", children[0], children[1]),
+            AtomOp::Mul | AtomOp::DspMul => format!("{} * {}", children[0], children[1]),
+            AtomOp::Mac | AtomOp::Madd | AtomOp::DspMac => {
+                format!("({} * {}) + {}", children[0], children[1], children[2])
+            }
+            AtomOp::DspPreAdd => format!("({} + {}) * {}", children[0], children[1], children[2]),
+            AtomOp::Shl => format!("{} << {}", children[0], children[1]),
+            AtomOp::Shr => format!(
+                "{} {} {}",
+                children[0],
+                if p.node.dtype.signed { ">>>" } else { ">>" },
+                children[1]
+            ),
+            AtomOp::ReduceMin => format!("({0} < {1}) ? {0} : {1}", children[0], children[1]),
+            AtomOp::ReduceMax => format!("({0} > {1}) ? {0} : {1}", children[0], children[1]),
+            AtomOp::Pipe => {
+                self.has_clk = true;
+                self.lines.push(format!("  always_ff @(posedge clk) begin\n    if (!rst_n) {w} <= '0;\n    else {w} <= {};\n  end", children[0]));
+                return Ok(w);
+            }
+            op => return Err(HwineError::UnsupportedRtlOp(op)),
+        };
+        self.lines.push(format!("  assign {w} = {expr};"));
+        Ok(w)
+    }
+}
+
+fn generate_named(
+    eg: &EGraph,
+    root: u32,
+    module: &str,
+    width: usize,
+    mode: ExtractMode,
+    pipeline: Pipeline,
+    names: HashMap<usize, String>,
+) -> HwineResult<RtlArtifact> {
+    if !identifier(module) {
+        return Err(HwineError::InvalidInput("invalid module identifier"));
+    }
+    let dtype = validate_graph(eg, root)?;
+    if width != dtype.width as usize {
+        return Err(HwineError::InvalidInput(
+            "module width must equal root width",
+        ));
+    }
+    let mut plan = eg.extract_plan(root, mode)?;
+    validate_plan(&plan, &mut HashSet::new())?;
+    if pipeline != Pipeline::None && plan.stats.cycles != 0 {
+        return Err(HwineError::InvalidInput(
+            "automatic pipelining requires a combinational input plan",
+        ));
+    }
+    plan = match pipeline {
+        Pipeline::None => plan,
+        Pipeline::Output => register(plan),
+        Pipeline::EveryOp => schedule(&plan, &mut HashMap::new()),
+    };
+    validate_plan(&plan, &mut HashSet::new())?;
+    let mut emitter = Emitter {
+        wires: HashMap::new(),
+        ports: BTreeMap::new(),
+        names,
+        lines: vec![],
+        has_clk: false,
+    };
+    let result = emitter.emit(&plan)?;
+    let mut ports = vec![];
+    if emitter.has_clk {
+        ports.extend([
+            "  input  logic clk".to_string(),
+            "  input  logic rst_n".to_string(),
+        ]);
+    }
+    for (name, t) in emitter.ports.values() {
+        ports.push(format!("  input {} {name}", decl(*t)));
+    }
+    ports.push(format!("  output {} result", decl(dtype)));
+    let verilog = format!(
+        "// hwine fixed-width wrapping integer RTL; latency = {} cycles.\n// Synchronous active-low reset; accept a new input tuple every cycle.\n`default_nettype none\nmodule {module}(\n{}\n);\n{}\n  assign result = {result};\nendmodule\n`default_nettype wire\n",
+        plan.stats.cycles,
+        ports.join(",\n"),
+        emitter.lines.join("\n")
+    );
+    Ok(RtlArtifact {
+        verilog,
+        latency: plan.stats.cycles,
+        estimated: plan.stats.clone(),
+    })
+}
+
+/// Generate a checked implementation and its explicit latency contract.
+pub fn try_generate(
+    eg: &EGraph,
+    root: u32,
+    module: &str,
+    width: usize,
+    mode: ExtractMode,
+    pipeline: Pipeline,
+) -> HwineResult<RtlArtifact> {
+    generate_named(eg, root, module, width, mode, pipeline, HashMap::new())
+}
+
+/// Fallible default generation. Errors retain their specific variant.
+pub fn try_generate_rtl(eg: &EGraph, root: u32, module: &str, width: usize) -> HwineResult<String> {
+    Ok(try_generate(
+        eg,
+        root,
+        module,
+        width,
+        ExtractMode::MinDelay,
+        Pipeline::None,
+    )?
+    .verilog)
+}
+
+/// Convenience wrapper, panics on invalid or unsupported input.
+/// ```
+/// use hwine_rs::{egraph::EGraph, ir::{AtomOp, ENode, DataType}, rtl::generate_rtl};
+/// let mut eg = EGraph::new();
+/// let a = eg.add(ENode::leaf_typed(AtomOp::Var(0), DataType::S16));
+/// assert!(generate_rtl(&eg, a, "identity", 16).contains("module identity"));
+/// ```
+pub fn generate_rtl(eg: &EGraph, root: u32, module: &str, width: usize) -> String {
+    try_generate_rtl(eg, root, module, width).expect("RTL generation failed")
+}
+
+/// Output-register convenience wrapper. Use try_generate to obtain latency.
+pub fn generate_pipelined_rtl(eg: &EGraph, root: u32, module: &str, width: usize) -> String {
+    try_generate(
+        eg,
+        root,
+        module,
+        width,
+        ExtractMode::MinDelay,
+        Pipeline::Output,
+    )
+    .expect("RTL generation failed")
+    .verilog
+}
+
+/// Register each operation and align branches, including shared subexpressions.
+pub fn generate_fine_pipelined_rtl(eg: &EGraph, root: u32, module: &str, width: usize) -> String {
+    try_generate(
+        eg,
+        root,
+        module,
+        width,
+        ExtractMode::MinDelay,
+        Pipeline::EveryOp,
+    )
+    .expect("RTL generation failed")
+    .verilog
+}
+
+/// Legacy naming adapter. A single complete root is emitted atomically.
+pub struct RtlGen {
+    module: String,
+    width: usize,
+    names: HashMap<u32, String>,
+    output: Option<String>,
 }
 
 impl RtlGen {
-    pub fn new(module_name: &str, data_width: usize) -> Self {
+    pub fn new(module: &str, width: usize) -> Self {
         Self {
-            module_name: module_name.to_string(),
-            data_width,
-            wire_counter: 0,
-            wires: HashMap::new(),
-            port_map: HashMap::new(),
-            port_order: Vec::new(),
-            assign_lines: Vec::new(),
-            ff_lines: Vec::new(),
-            has_clk: false,
-            root_wire: String::new(),
-            name_map: HashMap::new(),
+            module: module.into(),
+            width,
+            names: HashMap::new(),
+            output: None,
         }
     }
-
-    /// Register a name for a specific Var node's e-class
     pub fn set_name(&mut self, cid: u32, name: &str) {
-        self.name_map.insert(cid, name.to_string());
+        self.names.insert(cid, name.into());
     }
-
-    /// Add a port with deduplication and conflict detection.
-    /// Returns Ok(()) on success.
-    /// Returns Err(PortConflict) if same-name port has different dir/width.
-    fn add_port(&mut self, name: String, dir: &str, width: usize) -> HwineResult<()> {
-        if let Some((existing_dir, existing_width)) = self.port_map.get(&name) {
-            if existing_dir != dir || *existing_width != width {
-                return Err(HwineError::PortConflict {
-                    name: name.clone(),
-                    declared_as: format!("{dir}_{width}b"),
-                    conflicting_as: format!("{existing_dir}_{existing_width}b"),
-                });
-            }
-            return Ok(()); // deduplicated — same name, dir, width
-        }
-        self.port_map.insert(name.clone(), (dir.to_string(), width));
-        self.port_order.push(name);
-        Ok(())
-    }
-
-    fn fresh_wire(&mut self, prefix: &str) -> String {
-        self.wire_counter += 1;
-        format!("{prefix}_{}", self.wire_counter)
-    }
-
-    pub fn emit_node(&mut self, eg: &EGraph, cid: u32, is_root: bool, visited: &mut HashMap<u32, bool>) -> HwineResult<String> {
-        let cid = eg.canon(cid);
-        if let Some(w) = self.wires.get(&cid) {
-            return Ok(w.clone());
-        }
-        // Cycle detection: this CID is already being processed higher in the call stack.
-        // For pipeline barriers (StreamFifo/Pipe), this is a valid retimed feedback
-        // structure — the register output feeds back as a forwarded dependency.
-        // We pre-allocate a wire and return it, allowing the caller to generate the
-        // feedback logic correctly.
-        if visited.contains_key(&cid) {
-            let w = self.fresh_wire("fb");
-            self.wires.insert(cid, w.clone());
-            return Ok(w);
-        }
-        visited.insert(cid, true);
-
-        let (best_node, _) = eg.extract_optimal(cid, ExtractMode::MinDelay);
-        // Pre-allocate wire name but DON'T insert into self.wires yet —
-        // children may canonicalize to the same CID, and inserting early
-        // would bypass cycle detection in child_wire.
-        let w = self.fresh_wire("node");
-        let result = self.emit_enode(eg, &best_node, cid, visited, &w)?;
-        // Insert AFTER children are emitted — valid now that no cycles exist
-        self.wires.insert(cid, w.clone());
-        if is_root {
-            self.root_wire = result.clone();
-        }
-        Ok(result)
-    }
-
-    fn emit_enode(
+    pub fn emit_node(
         &mut self,
         eg: &EGraph,
-        node: &ENode,
         cid: u32,
-        visited: &mut HashMap<u32, bool>,
-        wire_name: &str,
+        is_root: bool,
+        _visited: &mut HashMap<u32, bool>,
     ) -> HwineResult<String> {
-        let w = wire_name.to_string();
-
-        fn child_wire(
-            g: &mut RtlGen,
-            eg: &EGraph,
-            node: &ENode,
-            idx: usize,
-            visited: &mut HashMap<u32, bool>,
-        ) -> HwineResult<String> {
-            if idx < node.children.len() {
-                g.emit_node(eg, node.children[idx], false, visited)
-            } else {
-                Ok("0".to_string())
+        self.output = None;
+        if !is_root {
+            return Err(HwineError::InvalidInput(
+                "emit_node requires a complete root",
+            ));
+        }
+        let mut names = HashMap::new();
+        for (&id, name) in &self.names {
+            let nodes = eg.class_nodes(id).ok_or(HwineError::InvalidClass(id))?;
+            let var = nodes
+                .iter()
+                .find_map(|n| {
+                    if let AtomOp::Var(v) = n.op {
+                        Some(v)
+                    } else {
+                        None
+                    }
+                })
+                .ok_or(HwineError::InvalidInput(
+                    "set_name requires a variable class",
+                ))?;
+            if names
+                .insert(var, name.clone())
+                .is_some_and(|old| old != *name)
+            {
+                return Err(HwineError::InvalidInput(
+                    "conflicting names for one variable",
+                ));
             }
         }
-
-        let dw = node.dtype.width as usize;
-        let _signed = if node.dtype.signed { "signed " } else { "" };
-        match node.op {
-            AtomOp::Var(idx) => {
-                let name = self.name_map.get(&cid)
-                    .cloned()
-                    .unwrap_or_else(|| {
-                        // Auto-name: even idx → aX, odd idx → wX
-                        if idx % 2 == 0 {
-                            format!("a{}", idx / 2)
-                        } else {
-                            format!("w{}", idx / 2)
-                        }
-                    });
-                self.add_port(name.clone(), "input", dw).expect("port conflict");
-                self.assign_lines.push(format!("  assign {w} = {name};"));
-            }
-
-            AtomOp::Const(v) => {
-                if v < 0 {
-                    self.assign_lines.push(format!("  assign {w} = -{dw}'sd{};", (-v) as u64));
-                } else {
-                    self.assign_lines.push(format!("  assign {w} = {dw}'d{v};"));
-                }
-            }
-
-            AtomOp::Zero => {
-                self.assign_lines.push(format!("  assign {w} = {dw}'d0;"));
-            }
-
-            AtomOp::One => {
-                self.assign_lines.push(format!("  assign {w} = {dw}'d1;"));
-            }
-
-            AtomOp::Add | AtomOp::ReduceAdd => {
-                let a = child_wire(self, eg, node, 0, visited)?;
-                let b = child_wire(self, eg, node, 1, visited)?;
-                self.assign_lines.push(format!("  assign {w} = {a} + {b};  // LUT adder"));
-            }
-
-            AtomOp::DspPreAdd => {
-                let a = child_wire(self, eg, node, 0, visited)?;
-                let b = child_wire(self, eg, node, 1, visited)?;
-                let c = child_wire(self, eg, node, 2, visited)?;
-                self.assign_lines.push(format!("  assign {w} = ({a} + {b}) * {c};  // DSP48 pre-adder"));
-            }
-
-            AtomOp::Mul | AtomOp::DspMul => {
-                let a = child_wire(self, eg, node, 0, visited)?;
-                let b = child_wire(self, eg, node, 1, visited)?;
-                self.assign_lines.push(format!("  assign {w} = {a} * {b};  // DSP48 MUL"));
-            }
-
-            AtomOp::Mac | AtomOp::DspMac | AtomOp::Madd => {
-                let x = child_wire(self, eg, node, 0, visited)?;
-                let y = child_wire(self, eg, node, 1, visited)?;
-                let z = child_wire(self, eg, node, 2, visited)?;
-                self.assign_lines.push(format!("  assign {w} = ({x} * {y}) + {z};  // DSP48 MAC"));
-            }
-
-            AtomOp::Pipe => {
-                self.has_clk = true;
-                let inp = child_wire(self, eg, node, 0, visited)?;
-                let ff = format!("{w}_reg");
-                self.ff_lines.push(format!("  logic signed [{dw}-1:0] {ff};"));
-                self.ff_lines.push(format!("  always_ff @(posedge clk) begin"));
-                self.ff_lines.push(format!("    if (!rst_n) {ff} <= {dw}'d0;"));
-                self.ff_lines.push(format!("    else       {ff} <= {inp};"));
-                self.ff_lines.push(format!("  end"));
-                self.assign_lines.push(format!("  assign {w} = {ff};"));
-            }
-
-            AtomOp::AccStep => {
-                let prev = child_wire(self, eg, node, 0, visited)?;
-                let val = child_wire(self, eg, node, 1, visited)?;
-                self.assign_lines.push(format!("  assign {w} = {prev} + {val};  // acc step (combinational)"));
-            }
-
-            AtomOp::AccInit => {
-                let init = child_wire(self, eg, node, 0, visited)?;
-                self.assign_lines.push(format!("  assign {w} = {init};"));
-            }
-
-            AtomOp::ReduceMin => {
-                let a = child_wire(self, eg, node, 0, visited)?;
-                let b = child_wire(self, eg, node, 1, visited)?;
-                self.assign_lines.push(format!("  assign {w} = ({a} < {b}) ? {a} : {b};  // MIN"));
-            }
-
-            AtomOp::ReduceMax => {
-                let a = child_wire(self, eg, node, 0, visited)?;
-                let b = child_wire(self, eg, node, 1, visited)?;
-                self.assign_lines.push(format!("  assign {w} = ({a} > {b}) ? {a} : {b};  // MAX"));
-            }
-
-            AtomOp::Sub => {
-                let a = child_wire(self, eg, node, 0, visited)?;
-                let b = child_wire(self, eg, node, 1, visited)?;
-                self.assign_lines.push(format!("  assign {w} = {a} - {b};  // subtract"));
-            }
-
-            AtomOp::Shl => {
-                let a = child_wire(self, eg, node, 0, visited)?;
-                let b = child_wire(self, eg, node, 1, visited)?;
-                self.assign_lines.push(format!("  assign {w} = {a} << {b};  // shift left"));
-            }
-
-            AtomOp::Shr => {
-                let a = child_wire(self, eg, node, 0, visited)?;
-                let b = child_wire(self, eg, node, 1, visited)?;
-                self.assign_lines.push(format!("  assign {w} = {a} >> {b};  // shift right"));
-            }
-
-            AtomOp::StreamRead => {
-                let port_name = format!("stream_in_{}", self.wire_counter);
-                self.add_port(port_name.clone(), "input", dw).expect("port conflict");
-                self.assign_lines.push(format!("  assign {w} = {port_name};  // stream read"));
-            }
-
-            AtomOp::StreamWrite => {
-                let a = child_wire(self, eg, node, 0, visited)?;
-                let port_name = format!("stream_out_{}", self.wire_counter);
-                self.add_port(port_name.clone(), "output", dw).expect("port conflict");
-                self.assign_lines.push(format!("  assign {port_name} = {a};  // stream write"));
-            }
-
-            AtomOp::StreamFifo => {
-                self.has_clk = true;
-                let a = child_wire(self, eg, node, 0, visited)?;
-                let ff = format!("{w}_reg");
-                self.ff_lines.push(format!("  logic signed [{dw}-1:0] {ff};"));
-                self.ff_lines.push(format!("  always_ff @(posedge clk) {ff} <= {a};"));
-                self.assign_lines.push(format!("  assign {w} = {ff};"));
-            }
-
-            AtomOp::Concat => {
-                let a = child_wire(self, eg, node, 0, visited)?;
-                let b = child_wire(self, eg, node, 1, visited)?;
-                self.assign_lines.push(format!("  assign {w} = {{{a}, {b}}};  // concat"));
-            }
-
-            AtomOp::Slice | AtomOp::Extract => {
-                let a = child_wire(self, eg, node, 0, visited)?;
-                self.assign_lines.push(format!("  assign {w} = {a};  // slice/extract (passthrough)"));
-            }
-
-            AtomOp::Pack | AtomOp::Unpack | AtomOp::Quant | AtomOp::Dequant | AtomOp::DequantW => {
-                let a = child_wire(self, eg, node, 0, visited)?;
-                self.assign_lines.push(format!("  assign {w} = {a};  // {:?} (passthrough)", node.op));
-            }
-
-            AtomOp::Sat | AtomOp::Round | AtomOp::Route | AtomOp::Broadcast => {
-                let a = child_wire(self, eg, node, 0, visited)?;
-                self.assign_lines.push(format!("  assign {w} = {a};  // {:?} (passthrough)", node.op));
-            }
-
-            AtomOp::Div | AtomOp::Exp | AtomOp::Softmax
-            | AtomOp::StrLit | AtomOp::Scan | AtomOp::Delay | AtomOp::Buffer => {
-                return Err(HwineError::UnsupportedRtlOp(node.op));
-            }
-
-            _ => {
-                return Err(HwineError::UnsupportedRtlOp(node.op));
-            }
-        }
-
-        Ok(w)
+        self.output = Some(
+            generate_named(
+                eg,
+                cid,
+                &self.module,
+                self.width,
+                ExtractMode::MinDelay,
+                Pipeline::None,
+                names,
+            )?
+            .verilog,
+        );
+        Ok("result".into())
     }
-
     pub fn generate(&self) -> String {
-        let mut out = String::new();
-        let dw = self.data_width;
-        let mn = &self.module_name;
-
-        out.push_str(&format!(
-            "// Auto-generated by hwine-rs meta-op -> RTL generator\n"
-        ));
-        out.push_str(&format!("// Target: Xilinx 7-series / Intel Cyclone FPGA\n"));
-        out.push_str(&format!("// Data width: {dw} bits\n\n"));
-        out.push_str(&format!("module {mn} #(\n"));
-        out.push_str(&format!("  parameter DATA_WIDTH = {dw}\n"));
-        out.push_str(&format!(") (\n"));
-
-        if self.has_clk {
-            out.push_str("  input  logic clk,\n");
-            out.push_str("  input  logic rst_n,\n");
-        }
-
-        for name in &self.port_order {
-            let (dir, w) = &self.port_map[name];
-            out.push_str(&format!("  {dir} logic signed [{w}-1:0] {name},\n"));
-        }
-        out.push_str(&format!("  output logic signed [{dw}-1:0] result\n"));
-        out.push_str(");\n\n");
-
-        // Internal wires
-        let mut used: Vec<&String> = self.wires.values().collect();
-        used.sort();
-        for w in &used {
-            out.push_str(&format!("  logic signed [{dw}-1:0] {w};\n"));
-        }
-        out.push('\n');
-
-        // Sequential
-        if !self.ff_lines.is_empty() {
-            out.push_str("  // -- Sequential logic --\n");
-            for line in &self.ff_lines {
-                out.push_str(line);
-                out.push('\n');
-            }
-            out.push('\n');
-        }
-
-        // Combinational
-        out.push_str("  // -- Combinational logic --\n");
-        for line in &self.assign_lines {
-            out.push_str(line);
-            out.push('\n');
-        }
-        out.push('\n');
-
-        // Output
-        let root = if self.root_wire.is_empty() {
-            used.into_iter().next_back().map(|s| s.as_str()).unwrap_or("'0")
-        } else {
-            &self.root_wire
-        };
-        out.push_str(&format!("  assign result = {root};\n\n"));
-        out.push_str("endmodule\n");
-
-        out
+        self.output
+            .clone()
+            .expect("emit a valid root before generate")
     }
-}
-
-/// Generate RTL from e-graph extraction (fallible, catch_unwind for FFI safety)
-pub fn try_generate_rtl(eg: &EGraph, target_cid: u32, module_name: &str, data_width: usize) -> HwineResult<String> {
-    std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
-        generate_rtl(eg, target_cid, module_name, data_width)
-    }))
-    .map_err(|_| HwineError::ExtractionFailed("RTL generation panicked (unsupported op or cycle)".into()))
-}
-
-/// Generate RTL from e-graph extraction (convenience, panics on errors)
-///
-/// # Examples
-///
-/// ```
-/// use hwine_rs::egraph::EGraph;
-/// use hwine_rs::ir::{AtomOp, ENode, DataType};
-/// use hwine_rs::rtl::generate_rtl;
-///
-/// let mut eg = EGraph::new();
-/// let a = eg.add(ENode::leaf_typed(AtomOp::Var(0), DataType::S16));
-/// let b = eg.add(ENode::leaf_typed(AtomOp::Var(1), DataType::S16));
-/// let add = eg.add(ENode::new(AtomOp::Add, vec![a, b], DataType::S16));
-/// let rtl = generate_rtl(&eg, add, "adder", 16);
-/// assert!(rtl.contains("module adder"));
-/// assert!(rtl.contains("input"));
-/// assert!(rtl.contains("output"));
-/// ```
-pub fn generate_rtl(eg: &EGraph, target_cid: u32, module_name: &str, data_width: usize) -> String {
-    let mut rtl_gen = RtlGen::new(module_name, data_width);
-    let mut visited = HashMap::new();
-    rtl_gen.emit_node(eg, target_cid, true, &mut visited)
-        .expect("RTL generation failed");
-    rtl_gen.generate()
-}
-
-/// Generate pipelined RTL by walking the original e-graph's extraction result
-/// and inserting Pipe nodes at each computation level.
-/// Level 0: only wrap non-leaf children (input-side pipelining)
-/// Level 1: also wrap parent node (full pipelining)
-pub fn generate_pipelined_rtl(eg: &EGraph, target_cid: u32, module_name: &str, data_width: usize) -> String {
-    generate_pipelined_rtl_level(eg, target_cid, module_name, data_width, 0)
-}
-
-/// Fine-grained pipeline: register after EVERY arithmetic operation
-pub fn generate_fine_pipelined_rtl(eg: &EGraph, target_cid: u32, module_name: &str, data_width: usize) -> String {
-    generate_pipelined_rtl_level(eg, target_cid, module_name, data_width, 1)
-}
-
-fn generate_pipelined_rtl_level(eg: &EGraph, target_cid: u32, module_name: &str, data_width: usize, level: usize) -> String {
-    fn walk_tree(
-        eg: &EGraph,
-        cid: u32,
-        pipe_eg: &mut EGraph,
-        visited: &mut std::collections::HashMap<u32, u32>,
-        in_progress: &mut std::collections::HashSet<u32>,
-        level: usize,
-    ) -> u32 {
-        if let Some(&pc) = visited.get(&cid) {
-            return pc;
-        }
-        let (node, _) = eg.extract_optimal(cid, ExtractMode::MinDelay);
-        if node.children.is_empty() {
-            let pc = pipe_eg.add(node.clone());
-            visited.insert(cid, pc);
-            return pc;
-        }
-        // Mark as in-progress before recursing into children
-        in_progress.insert(cid);
-        let mut wrapped: Vec<u32> = Vec::with_capacity(node.children.len());
-        for &c in node.children.iter() {
-            if in_progress.contains(&c) {
-                continue; // cycle detected, skip this child
-            }
-            let pid = walk_tree(eg, c, pipe_eg, visited, in_progress, level);
-            let (child_node, _) = eg.extract_optimal(c, ExtractMode::MinDelay);
-            if child_node.children.is_empty() {
-                wrapped.push(pid);
-            } else {
-                wrapped.push(pipe_eg.add(ENode::new(AtomOp::Pipe, vec![pid], DataType::default())));
-            }
-        }
-        in_progress.remove(&cid);
-        let pc = pipe_eg.add(ENode::new(node.op, wrapped, node.dtype));
-        visited.insert(cid, pc);
-        // Fine-grained: also register the output of this node (if not root)
-        if level >= 1 {
-            pipe_eg.add(ENode::new(AtomOp::Pipe, vec![pc], DataType::default()))
-        } else {
-            pc
-        }
-    }
-
-    let mut pipe_eg = EGraph::new();
-    let mut visited = std::collections::HashMap::new();
-    let mut in_progress = std::collections::HashSet::new();
-    let piped_cid = walk_tree(eg, target_cid, &mut pipe_eg, &mut visited, &mut in_progress, level);
-    let mut rtl_gen = RtlGen::new(module_name, data_width);
-    let mut v2 = std::collections::HashMap::new();
-    rtl_gen.emit_node(&pipe_eg, piped_cid, true, &mut v2)
-        .expect("RTL generation failed");
-    rtl_gen.generate()
 }

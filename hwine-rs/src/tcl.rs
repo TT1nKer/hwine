@@ -59,7 +59,7 @@ puts "DONE — results in {report}"
 /// Generate a batch synthesis TCL that synthesizes multiple designs
 /// and appends results to a CSV file.
 pub fn generate_batch_tcl(
-    designs: &[(&str, &str)],  // (module_name, sv_file_path)
+    designs: &[(&str, &str)], // (module_name, sv_file_path)
     part: &str,
     csv_out: &str,
 ) -> String {
@@ -109,7 +109,10 @@ close $fp
         tcl.push_str(&block);
     }
 
-    tcl.push_str(&format!("\nputs \"DONE — all designs in {csv}\"\n", csv = csv_out));
+    tcl.push_str(&format!(
+        "\nputs \"DONE — all designs in {csv}\"\n",
+        csv = csv_out
+    ));
     tcl
 }
 

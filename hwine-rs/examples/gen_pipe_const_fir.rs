@@ -1,7 +1,7 @@
 use hwine_rs::egraph::EGraph;
 use hwine_rs::ir::DataType;
 use hwine_rs::ir::{AtomOp, ENode};
-use hwine_rs::rtl::{generate_rtl, generate_pipelined_rtl};
+use hwine_rs::rtl::generate_pipelined_rtl;
 use std::fs;
 
 fn main() {
@@ -15,10 +15,16 @@ fn main() {
         terms.push(mul);
     }
     let mut chain = terms[0];
-    for i in 1..terms.len() { chain = eg.add(ENode::new(AtomOp::Add, vec![chain, terms[i]], DataType::default())); }
-    
+    for i in 1..terms.len() {
+        chain = eg.add(ENode::new(
+            AtomOp::Add,
+            vec![chain, terms[i]],
+            DataType::default(),
+        ));
+    }
+
     eg.saturate_with_config(30, 5000, 15, 10, false);
-    
+
     let rtl_pipe = generate_pipelined_rtl(&eg, chain, "hwine_const_fir6_pipe", 16);
     fs::write("hwine_const_fir6_pipe.sv", &rtl_pipe).unwrap();
     println!("Pipelined: {} lines", rtl_pipe.lines().count());

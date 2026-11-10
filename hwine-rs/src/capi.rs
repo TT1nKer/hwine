@@ -2,10 +2,10 @@
 use std::ffi::CString;
 use std::os::raw::c_char;
 
+use crate::cost::ExtractMode;
 use crate::egraph::EGraph;
 use crate::ir::DataType;
 use crate::ir::{AtomOp, ENode};
-use crate::cost::ExtractMode;
 
 /// Result of a hwine optimization pass
 #[repr(C)]
@@ -44,8 +44,12 @@ pub unsafe extern "C" fn hwine_optimize_add_chain(
         vars.push(eg.add(ENode::leaf(AtomOp::Var(i))));
     }
     let mut chain = vars[0];
-    for i in 1..n {
-        chain = eg.add(ENode::new(AtomOp::Add, vec![chain, vars[i]], DataType::default()));
+    for &value in vars.iter().skip(1) {
+        chain = eg.add(ENode::new(
+            AtomOp::Add,
+            vec![chain, value],
+            DataType::default(),
+        ));
     }
 
     let nl = if loose { 30 } else { 10 };
@@ -73,6 +77,9 @@ pub unsafe extern "C" fn hwine_optimize_add_chain(
 /// Optimize a Yosys-style netlist described as an edge list.
 /// `edges`: array of [parent, child] pairs, length `n_edges`
 /// Returns 0 on success, -1 on error.
+/// # Safety
+/// `edges` must reference `n_edges` readable pairs; `result` must be writable,
+/// aligned storage for one HwineResult. These regions must not overlap.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn hwine_optimize_graph(
     edges: *const [u32; 2],
@@ -94,8 +101,8 @@ pub unsafe extern "C" fn hwine_optimize_graph(
     let mut eg = EGraph::new();
     let mut node_to_cid: Vec<u32> = vec![0; n_nodes];
 
-    for i in 0..n_nodes {
-        node_to_cid[i] = eg.add(ENode::leaf(AtomOp::Var(i)));
+    for (i, cid) in node_to_cid.iter_mut().enumerate() {
+        *cid = eg.add(ENode::leaf(AtomOp::Var(i)));
     }
 
     // Parse edges: [parent, child] means parent = ADD(child_a, child_b)
@@ -141,7 +148,8 @@ fn depth_of(node: &ENode, eg: &EGraph) -> usize {
     if node.children.is_empty() {
         return 0;
     }
-    1 + node.children
+    1 + node
+        .children
         .iter()
         .map(|&c| depth_of(&eg.extract_optimal(c, ExtractMode::MinDelay).0, eg))
         .max()
@@ -149,6 +157,8 @@ fn depth_of(node: &ENode, eg: &EGraph) -> usize {
 }
 
 /// Get version string. Caller must free with hwine_free_string.
+/// # Safety
+/// The returned pointer must be freed once, using hwine_free_string only.
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn hwine_version() -> *mut c_char {
     let s = CString::new("hwine-rs 0.1.0").unwrap();
@@ -156,9 +166,14 @@ pub unsafe extern "C" fn hwine_version() -> *mut c_char {
 }
 
 /// Free a string returned by hwine_version.
+/// # Safety
+/// `s` must be null or an unmodified pointer from hwine_version that has not
+/// already been freed. No other code may use it after this call.
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn hwine_free_string(s: *mut c_char) { unsafe {
-    if !s.is_null() {
-        drop(CString::from_raw(s));
+pub unsafe extern "C" fn hwine_free_string(s: *mut c_char) {
+    unsafe {
+        if !s.is_null() {
+            drop(CString::from_raw(s));
+        }
     }
-}}
+}

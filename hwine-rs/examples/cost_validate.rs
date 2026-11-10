@@ -1,8 +1,8 @@
 // Cost model validation: compare hwine's predicted resource costs
 // against Vivado 2026.1 synthesis results for all benchmarks.
-use hwine_rs::egraph::EGraph;
-use hwine_rs::ir::{AtomOp, ENode, DataType};
 use hwine_rs::cost::{ExtractMode, FpgaStats};
+use hwine_rs::egraph::EGraph;
+use hwine_rs::ir::{AtomOp, DataType, ENode};
 
 fn main() {
     // Actual Vivado synthesis results (from parents-pc, 2026-06-29)
@@ -14,10 +14,13 @@ fn main() {
     ];
 
     // Predicted from hwine cost model
-    let dt = DataType::S16;
+    let _dt = DataType::S16;
 
     println!("{:=^70}", " COST MODEL VALIDATION ");
-    println!("{:<20} {:>10} {:>10} {:>10} {:>10}", "Benchmark", "Pred LUT", "Actual LUT", "Pred DSP", "Actual DSP");
+    println!(
+        "{:<20} {:>10} {:>10} {:>10} {:>10}",
+        "Benchmark", "Pred LUT", "Actual LUT", "Pred DSP", "Actual DSP"
+    );
     println!("{:-<70}", "");
 
     // DCT 8-point
@@ -40,12 +43,18 @@ fn main() {
     let pred_dsps = [dct.dsp, stencil.dsp, dot.dsp, fft.dsp];
     let actual_dsps = [0.0, 0.0, 8.0, 2.0];
 
-    let lut_mape: f64 = pred_luts.iter().zip(actual_luts.iter())
+    let lut_mape: f64 = pred_luts
+        .iter()
+        .zip(actual_luts.iter())
         .filter(|(_, a)| **a > 0.0)
         .map(|(p, a)| ((p - a) / a).abs())
-        .sum::<f64>() / 4.0 * 100.0;
+        .sum::<f64>()
+        / 4.0
+        * 100.0;
 
-    let dsp_match = pred_dsps.iter().zip(actual_dsps.iter())
+    let dsp_match = pred_dsps
+        .iter()
+        .zip(actual_dsps.iter())
         .filter(|(p, a)| p == a)
         .count();
 
@@ -57,8 +66,10 @@ fn main() {
 }
 
 fn print_row(name: &str, stats: &FpgaStats, actual_lut: f64, actual_dsp: f64) {
-    println!("{:<20} {:>10.1} {:>10.0} {:>10.1} {:>10.0}",
-        name, stats.lut, actual_lut, stats.dsp, actual_dsp);
+    println!(
+        "{:<20} {:>10.1} {:>10.0} {:>10.1} {:>10.0}",
+        name, stats.lut, actual_lut, stats.dsp, actual_dsp
+    );
 }
 
 fn bench_dct8() -> (EGraph, FpgaStats) {
@@ -66,14 +77,18 @@ fn bench_dct8() -> (EGraph, FpgaStats) {
     let coeffs: [i64; 8] = [181, 251, 213, 142, 256, 107, 71, 25];
     let mut eg = EGraph::new();
     let mut inputs = Vec::new();
-    for i in 0..8 { inputs.push(eg.add(ENode::leaf_typed(AtomOp::Var(i), dt))); }
+    for i in 0..8 {
+        inputs.push(eg.add(ENode::leaf_typed(AtomOp::Var(i), dt)));
+    }
     let mut terms = Vec::new();
     for i in 0..8 {
         let c = eg.add(ENode::leaf_typed(AtomOp::Const(coeffs[i]), dt));
         terms.push(eg.add(ENode::new(AtomOp::Mul, vec![inputs[i], c], dt)));
     }
     let mut chain = terms[0];
-    for i in 1..8 { chain = eg.add(ENode::new(AtomOp::Add, vec![chain, terms[i]], dt)); }
+    for i in 1..8 {
+        chain = eg.add(ENode::new(AtomOp::Add, vec![chain, terms[i]], dt));
+    }
     eg.saturate(50, 30000);
     let (_, stats) = eg.extract_optimal(chain, ExtractMode::MinDelay);
     (eg, stats)
@@ -84,14 +99,18 @@ fn bench_stencil() -> (EGraph, FpgaStats) {
     let weights = [1, 2, 1, 2, 4, 2, 1, 2, 1];
     let mut eg = EGraph::new();
     let mut pixels = Vec::new();
-    for i in 0..9 { pixels.push(eg.add(ENode::leaf_typed(AtomOp::Var(i), dt))); }
+    for i in 0..9 {
+        pixels.push(eg.add(ENode::leaf_typed(AtomOp::Var(i), dt)));
+    }
     let mut terms = Vec::new();
     for i in 0..9 {
         let w = eg.add(ENode::leaf_typed(AtomOp::Const(weights[i]), dt));
         terms.push(eg.add(ENode::new(AtomOp::Mul, vec![pixels[i], w], dt)));
     }
     let mut chain = terms[0];
-    for i in 1..9 { chain = eg.add(ENode::new(AtomOp::Add, vec![chain, terms[i]], dt)); }
+    for i in 1..9 {
+        chain = eg.add(ENode::new(AtomOp::Add, vec![chain, terms[i]], dt));
+    }
     eg.saturate(50, 30000);
     let (_, stats) = eg.extract_optimal(chain, ExtractMode::MinDelay);
     (eg, stats)
@@ -102,12 +121,14 @@ fn bench_dot(n: usize) -> (EGraph, FpgaStats) {
     let mut eg = EGraph::new();
     let mut products = Vec::new();
     for i in 0..n {
-        let a = eg.add(ENode::leaf_typed(AtomOp::Var(i*2), dt));
-        let b = eg.add(ENode::leaf_typed(AtomOp::Var(i*2+1), dt));
+        let a = eg.add(ENode::leaf_typed(AtomOp::Var(i * 2), dt));
+        let b = eg.add(ENode::leaf_typed(AtomOp::Var(i * 2 + 1), dt));
         products.push(eg.add(ENode::new(AtomOp::Mul, vec![a, b], dt)));
     }
     let mut chain = products[0];
-    for i in 1..n { chain = eg.add(ENode::new(AtomOp::Add, vec![chain, products[i]], dt)); }
+    for i in 1..n {
+        chain = eg.add(ENode::new(AtomOp::Add, vec![chain, products[i]], dt));
+    }
     eg.saturate(50, 30000);
     let (_, stats) = eg.extract_optimal(chain, ExtractMode::MinDelay);
     (eg, stats)
@@ -116,7 +137,9 @@ fn bench_dot(n: usize) -> (EGraph, FpgaStats) {
 fn bench_fft() -> (EGraph, FpgaStats) {
     let dt = DataType::S16;
     let mut eg = EGraph::new();
-    let inputs: Vec<u32> = (0..4).map(|i| eg.add(ENode::leaf_typed(AtomOp::Var(i), dt))).collect();
+    let inputs: Vec<u32> = (0..4)
+        .map(|i| eg.add(ENode::leaf_typed(AtomOp::Var(i), dt)))
+        .collect();
     let ac = eg.add(ENode::new(AtomOp::Mul, vec![inputs[0], inputs[2]], dt));
     let bd = eg.add(ENode::new(AtomOp::Mul, vec![inputs[1], inputs[3]], dt));
     let real = eg.add(ENode::new(AtomOp::Sub, vec![ac, bd], dt));

@@ -2,9 +2,9 @@
 // Before e-graph union, show raw resource comparison.
 // After union, show that the e-graph preserves both forms.
 
-use hwine_rs::egraph::EGraph;
-use hwine_rs::ir::{AtomOp, ENode, DataType};
 use hwine_rs::cost::{ExtractMode, FpgaStats};
+use hwine_rs::egraph::EGraph;
+use hwine_rs::ir::{AtomOp, DataType, ENode};
 use std::time::Instant;
 
 fn build_direct(eg: &mut EGraph, a: u32, b: u32, c: u32, d: u32, dt: DataType) -> u32 {
@@ -30,8 +30,10 @@ fn build_gauss(eg: &mut EGraph, a: u32, b: u32, c: u32, d: u32, dt: DataType) ->
 }
 
 fn print_stats(label: &str, stats: &FpgaStats) {
-    println!("{:<20} {:>8.2} {:>8.1} {:>8.1} {:>10.1} {:>10.0}",
-        label, stats.delay_ns, stats.lut, stats.dsp, stats.ff, stats.fmax_mhz);
+    println!(
+        "{:<20} {:>8.2} {:>8.1} {:>8.1} {:>10.1} {:>10.0}",
+        label, stats.delay_ns, stats.lut, stats.dsp, stats.ff, stats.fmax_mhz
+    );
 }
 
 fn main() {
@@ -39,7 +41,10 @@ fn main() {
 
     // ---- Before union: compare raw forms ----
     println!("===== RAW FORMS (before e-graph union) =====\n");
-    println!("{:<20} {:>8} {:>8} {:>8} {:>10} {:>10}", "Form", "Delay(ns)", "LUT", "DSP", "FF", "Fmax(MHz)");
+    println!(
+        "{:<20} {:>8} {:>8} {:>8} {:>10} {:>10}",
+        "Form", "Delay(ns)", "LUT", "DSP", "FF", "Fmax(MHz)"
+    );
     println!("{:-<70}", "");
 
     let mut eg1 = EGraph::new();
@@ -60,9 +65,24 @@ fn main() {
     let (_, sg) = eg2.extract_optimal(root_g, ExtractMode::MinDelay);
     print_stats("Gauss (3-MUL)", &sg);
 
-    println!("\n  MUL tradeoff: {} → {} (Gauss saves {} MUL)", sd.dsp, sg.dsp, sd.dsp - sg.dsp);
-    println!("  LUT tradeoff: {} → {} (Gauss adds {} LUT for ADD/SUB)", sd.lut, sg.lut, sg.lut - sd.lut);
-    println!("  Delay: {:.2} → {:.2} ns (Gauss adds {:.2} ns)", sd.delay_ns, sg.delay_ns, sg.delay_ns - sd.delay_ns);
+    println!(
+        "\n  MUL tradeoff: {} → {} (Gauss saves {} MUL)",
+        sd.dsp,
+        sg.dsp,
+        sd.dsp - sg.dsp
+    );
+    println!(
+        "  LUT tradeoff: {} → {} (Gauss adds {} LUT for ADD/SUB)",
+        sd.lut,
+        sg.lut,
+        sg.lut - sd.lut
+    );
+    println!(
+        "  Delay: {:.2} → {:.2} ns (Gauss adds {:.2} ns)",
+        sd.delay_ns,
+        sg.delay_ns,
+        sg.delay_ns - sd.delay_ns
+    );
 
     // ---- After union: e-graph discovers both ----
     println!("\n===== AFTER E-GRAPH UNION =====\n");
@@ -79,18 +99,51 @@ fn main() {
 
     let t0 = Instant::now();
     let iters = eg.saturate(50, 30000);
-    println!("E-graph: {iters} iters, {} classes, {:.3}s\n", eg.n_classes(), t0.elapsed().as_secs_f64());
+    println!(
+        "E-graph: {iters} iters, {} classes, {:.3}s\n",
+        eg.n_classes(),
+        t0.elapsed().as_secs_f64()
+    );
 
-    println!("{:<25} {:>8} {:>8} {:>8} {:>10} {:>10} {:>8}", "Extraction Mode", "Delay(ns)", "LUT", "DSP", "FF", "Fmax(MHz)", "Shared?");
+    println!(
+        "{:<25} {:>8} {:>8} {:>8} {:>10} {:>10} {:>8}",
+        "Extraction Mode", "Delay(ns)", "LUT", "DSP", "FF", "Fmax(MHz)", "Shared?"
+    );
     println!("{:-<88}", "");
 
     let modes = [
         ("MinDelay (DP)", ExtractMode::MinDelay, false),
         ("MinDelay (shared)", ExtractMode::MinDelay, true),
-        ("MinDsp@6ns (DP)", ExtractMode::MinDsp { max_delay_ns: 6.0 }, false),
-        ("MinDsp@6ns (shared)", ExtractMode::MinDsp { max_delay_ns: 6.0 }, true),
-        ("DSP*10 (DP)", ExtractMode::Weighted { w_delay: 0.0, w_lut: 0.0, w_dsp: 10.0, w_ff: 0.0 }, false),
-        ("DSP*10 (shared)", ExtractMode::Weighted { w_delay: 0.0, w_lut: 0.0, w_dsp: 10.0, w_ff: 0.0 }, true),
+        (
+            "MinDsp@6ns (DP)",
+            ExtractMode::MinDsp { max_delay_ns: 6.0 },
+            false,
+        ),
+        (
+            "MinDsp@6ns (shared)",
+            ExtractMode::MinDsp { max_delay_ns: 6.0 },
+            true,
+        ),
+        (
+            "DSP*10 (DP)",
+            ExtractMode::Weighted {
+                w_delay: 0.0,
+                w_lut: 0.0,
+                w_dsp: 10.0,
+                w_ff: 0.0,
+            },
+            false,
+        ),
+        (
+            "DSP*10 (shared)",
+            ExtractMode::Weighted {
+                w_delay: 0.0,
+                w_lut: 0.0,
+                w_dsp: 10.0,
+                w_ff: 0.0,
+            },
+            true,
+        ),
     ];
 
     for (name, mode, shared_aware) in &modes {
@@ -99,8 +152,16 @@ fn main() {
         } else {
             eg.extract_optimal(root_direct, *mode)
         };
-        println!("{:<25} {:>8.2} {:>8.1} {:>8.1} {:>10.1} {:>10.0} {:>8}",
-            name, s.delay_ns, s.lut, s.dsp, s.ff, s.fmax_mhz, if *shared_aware { "✓" } else { "" });
+        println!(
+            "{:<25} {:>8.2} {:>8.1} {:>8.1} {:>10.1} {:>10.0} {:>8}",
+            name,
+            s.delay_ns,
+            s.lut,
+            s.dsp,
+            s.ff,
+            s.fmax_mhz,
+            if *shared_aware { "✓" } else { "" }
+        );
     }
 
     // Also show raw forms with sharing-aware
@@ -108,8 +169,12 @@ fn main() {
     println!("  Raw form comparison (sharing-aware):");
     let (_, sd_s) = eg1.extract_shared_aware(root_d, ExtractMode::MinDelay);
     let (_, sg_s) = eg2.extract_shared_aware(root_g, ExtractMode::MinDelay);
-    println!("    Direct: {:.1} DSP | Gauss: {:.1} DSP | Gauss saves {:.1} DSP",
-        sd_s.dsp, sg_s.dsp, sd_s.dsp - sg_s.dsp);
+    println!(
+        "    Direct: {:.1} DSP | Gauss: {:.1} DSP | Gauss saves {:.1} DSP",
+        sd_s.dsp,
+        sg_s.dsp,
+        sd_s.dsp - sg_s.dsp
+    );
     println!("    ⚠ After union, DP picks Direct (3.70ns) because it can't see sharing benefit.");
     println!("    ILP extraction (ROVER/e-boost) would correctly pick Gauss under DSP constraint.");
 
@@ -117,8 +182,15 @@ fn main() {
     let pareto = eg.extract_pareto(root_direct);
     println!("\nPareto frontier (DP): {} alternatives", pareto.len());
     for (i, (n, s)) in pareto.iter().enumerate() {
-        println!("  {}. {:?} | {:.2}ns | LUT={:.1} DSP={:.1} | {:.0}MHz",
-            i+1, n.op, s.delay_ns, s.lut, s.dsp, s.fmax_mhz);
+        println!(
+            "  {}. {:?} | {:.2}ns | LUT={:.1} DSP={:.1} | {:.0}MHz",
+            i + 1,
+            n.op,
+            s.delay_ns,
+            s.lut,
+            s.dsp,
+            s.fmax_mhz
+        );
     }
 
     // Show sharing-aware cost for Pareto entries
@@ -126,17 +198,31 @@ fn main() {
     for (i, (n, _)) in pareto.iter().enumerate() {
         let mut shared = std::collections::HashSet::new();
         let s = compute_shared_dedup(&eg, root_direct, n, &mut shared);
-        println!("    {}. {:?} | {:.2}ns | LUT={:.1} DSP={:.1} | {:.0}MHz",
-            i+1, n.op, s.delay_ns, s.lut, s.dsp, s.fmax_mhz);
+        println!(
+            "    {}. {:?} | {:.2}ns | LUT={:.1} DSP={:.1} | {:.0}MHz",
+            i + 1,
+            n.op,
+            s.delay_ns,
+            s.lut,
+            s.dsp,
+            s.fmax_mhz
+        );
     }
 }
 
-fn compute_shared_dedup(eg: &EGraph, cid: u32, node: &ENode, shared: &mut std::collections::HashSet<u32>) -> FpgaStats {
+fn compute_shared_dedup(
+    eg: &EGraph,
+    cid: u32,
+    node: &ENode,
+    shared: &mut std::collections::HashSet<u32>,
+) -> FpgaStats {
     let canonical = eg.canon(cid);
     if !shared.insert(canonical) {
         return FpgaStats::empty();
     }
-    let child_stats: Vec<FpgaStats> = node.children.iter()
+    let child_stats: Vec<FpgaStats> = node
+        .children
+        .iter()
         .map(|&ch_cid| {
             let (child_node, _) = eg.extract_optimal(ch_cid, ExtractMode::MinDelay);
             compute_shared_dedup(eg, ch_cid, &child_node, shared)

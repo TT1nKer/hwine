@@ -2,105 +2,84 @@
   <img src="docs/readme-cover.svg" alt="hwine — hardware-synthesis experiment" width="100%">
 </p>
 
-<p align="center">
-  <a href="https://ttinker.net">ttinker.net</a> ·
-  <a href="hwine-rs/ARCHITECTURE.md">architecture</a>
-</p>
-
 # hwine
 
-**hardware is not enough** — and neither is hwine.
+**hardware is not enough** — an experimental FPGA datapath optimizer using
+an e-graph to explore integer arithmetic implementations.
 
-A declarative FPGA datapath-optimization experiment built around e-graph
-equality saturation. Ten algebraic rewrite rules explore equivalent structures;
-an FPGA-aware extractor chooses among them. Checked-in experiments include
-Vivado 2026.1 synthesis data and limited Yosys equivalence work.
+The supported engineering path is deliberately small: **fixed-width wrapping
+integer arithmetic and FIR dot products**, with checked SystemVerilog generation
+and explicit, balanced pipelines. Unsupported operations return errors. This is
+not a general HLS compiler or a proven optimizer for every IR atom.
 
-| State | Evidence | Current boundary |
-| --- | --- | --- |
-| Experiment | 25 Rust unit tests + 4 doctests pass locally | Several RTL atoms remain passthrough stubs; latest GitHub CI is red on formatting, and deep RTL equivalence is incomplete |
+The reproducible validation suite compares generated RTL with independently
+written Python arithmetic, checks RTL against separate specifications using
+Yosys SAT / temporal induction, and records Yosys xc7 synthesis counts. Cost-model
+numbers are estimates; they are never presented as measured LUTs, DSPs or Fmax.
+See the [semantics and validation contract](docs/RELIABILITY.md) and
+[recorded local results](docs/VALIDATION.md).
 
-## Key Results
+## Reproduce
 
-On the UCSD Kastner FIR benchmark suite (Xilinx 7-series, Vivado 2026.1):
-
-- **Identical Fmax (308 MHz)** at all 10 sizes, **fewer LUTs on 6/10**
-- **DCT 8-point**: 8 DSP → 78 LUT shift-add trees via CSD decomposition
-- **GEMM (N=32)**: 31 adder levels → 5 (6.2×) via associativity
-- **DSP Pre-adder**: `(a+b)*c` → 1 DSP48E1 slice (verified)
-- **Streaming FIR**: Pareto-optimal pipeline retiming (0.30ns–4.50ns)
-- **25 unit tests + 4 doctests** pass locally; example targets currently emit
-  compiler warnings, and the repository's formatting gate needs cleanup
-
-## Quick Start
+On Linux x86_64 with Rustup, Python 3, curl and tar:
 
 ```bash
 git clone https://github.com/TT1nKer/hwine.git
-cd hwine/hwine-rs
-
-# Run all tests
-cargo test
-
-# Run real kernel benchmarks (DCT, FFT, GEMM, Stencil)
-cargo run --release --example bench_real
-
-# Run streaming FIR with pipeline retiming
-cargo run --release --example stream_fir_bench
-
-# Run formal equivalence verification (requires Yosys)
-cargo run --release --example formal_equiv
-
-# Build all examples
-cargo build --examples --release
+cd hwine
+# Check out the commit/branch containing this README before running these steps.
+cargo fmt --manifest-path hwine-rs/Cargo.toml --check
+cargo clippy --manifest-path hwine-rs/Cargo.toml --lib --locked -- -D warnings
+cargo test --manifest-path hwine-rs/Cargo.toml --all-targets --locked
+cargo test --manifest-path hwine-rs/Cargo.toml --doc --locked
+tools/with_eda.sh python3 tools/validate.py
 ```
 
-## Project Structure
+Rust is pinned to 1.96.0. The last command downloads a checksum-pinned OSS CAD
+Suite (2026-11-09, about 715 MiB compressed) to the user cache on first use; it
+requires no sudo, Vivado or license. Existing tools can be used with
+`HWINE_EDA_DIR=/absolute/path/to/oss-cad-suite tools/with_eda.sh ...`.
 
-```
-hwine/
-├── hwine-rs/          # Rust e-graph engine (core)
-│   ├── src/           # Library + CLI source
-│   ├── examples/      # FIR, DCT, FFT, GEMM benchmarks
-│   └── ARCHITECTURE.md
-├── paper/             # Paper source (typst) + compiled PDF
-│   ├── main.typ       # Paper text
-│   ├── refs.bib       # Citations (14 entries)
-│   ├── data/          # Synthesis result CSVs
-│   └── figures/       # Paper figures (PDF)
-├── benchmarks/        # Vivado HLS baseline kernels
-├── tools/             # Python analysis scripts
-├── legacy/            # Archived old code (Python era, old RTL)
-├── vivado_pack/       # Vivado reference designs
-└── yosys-plugin/      # Yosys RTLIL integration
-```
+Evidence is written to `build/validation/`: generated RTL, stimulus vectors,
+reference miters, tool commands, logs, synthesis JSON and `summary.json`.
+Missing tools, simulation mismatches, failed proofs and unexpected timeouts in
+the required suite fail the command. Two optional 64-bit CSD cases are explicitly
+outside the default proof scope; they still require simulation. Use
+`--extended-formal` to attempt their known expensive proofs as well.
 
-## How It Works
+## Generate a small pipelined FIR
 
-1. **E-graph saturation** — 10 algebraic rewrite rules (associativity, CSD decomposition, MAC fuse/decompose, DSP pre-adder, pipeline retiming, distributivity, identities) explore equivalent micro-architectures
-2. **Multi-objective FPGA-aware extraction** — Delay/LUT/DSP/FF cost model with pipeline barrier semantics selects optimal implementation
-3. **Automated pipeline retiming** — StreamFifo options created at every operation; extraction chooses Pareto-optimal pipeline depth
-4. **RTL generation** — Synthesizable SystemVerilog targeting Xilinx 7-series; supports 22+ atom operations
-5. **Formal equivalence** — Yosys equiv_induct for associativity/MAC patterns; e-graph union for CSD decomposition
-
-## Citation
-
-```bibtex
-@misc{yang2026hwine,
-  title = {Minimal Equality Saturation for FPGA Datapath Optimization},
-  author = {Yang, Zhenghao},
-  year = {2026},
-  note = {arXiv preprint},
-  url = {https://github.com/TT1nKer/hwine}
-}
+```bash
+cd hwine-rs
+cargo run --locked --example stream_fir_bench
+# Produces fir3.sv and prints the exact pipeline latency.
 ```
 
-## Known Limitations
+This computes `7*x0 + 13*x1 - 5*x2` modulo 2^16, consuming one **tap tuple** per
+cycle. A caller supplies the three samples; the example does not implement a
+sample-history delay line or a ready/valid interface.
 
-- **RTL generation**: Some atom operations (Slice, Extract, Quant, Dequant, Sat, Round, Route, Broadcast) are emitted as passthrough stubs rather than semantically correct hardware. Division, exponentiation, softmax, delay/buffer/scan are not supported.
-- **Formal equivalence**: DCT8/Stencil2D/streaming FIR are proven at the e-graph algebraic level (same equivalence class). Full RTL-level SAT proofs via Yosys currently time out for deeply restructured designs (444 e-classes).
-- **Cost model**: LUT predictions use abstract units (~20× scaling factor vs Vivado LUT6 counts). DSP predictions are exact (1:1 with DSP48E1 slices).
-- **HLS baseline**: Vivado HLS baseline comparison is automated via `benchmarks/hls_baseline/run_hls.py` but requires Vivado HLS installation at runtime.
+The library entry point is `rtl::try_generate`, which returns the RTL, latency,
+and clearly labeled estimates. `Pipeline::None`, `Output`, and `EveryOp` choose
+combinational logic, a single output register, or a balanced operation pipeline.
+See [architecture](hwine-rs/ARCHITECTURE.md) for a minimal API example.
 
-## License
+## Evidence boundaries
 
-MIT
+- No passthrough stubs: quantization, slicing, packing, streams, accumulators and
+  other operations without a checked implementation are rejected.
+- E-class membership records assumed rewrite equalities. It is **not** a proof
+  of the rules, finite-width behavior, or generated RTL. Proof claims refer only
+  to named cases in the validation report.
+- Pipeline insertion is a separate scheduling pass. A value is never unioned
+  with its one-cycle-delayed value; unequal operand latencies are rejected.
+- LUT/DSP/FF and delay estimates guide search. Yosys technology-mapped cell counts
+  are synthesis measurements for its xc7 mapping, not Vivado results, placement,
+  routing, measured clock frequency, or board validation.
+- `paper/`, `vivado_pack/`, older examples, Python tools and the Yosys plugin are
+  historical experiments outside the current acceptance scope. Their old
+  performance/proof claims have not been revalidated by this work.
+
+The historical [CI run 30323356376](https://github.com/TT1nKer/hwine/actions/runs/30323356376)
+failed at formatting; later checks did not run. The current workflow includes
+the Rust checks and required RTL suite, retaining evidence even on failure.
+Local results do not imply this unpushed branch has passed GitHub Actions.

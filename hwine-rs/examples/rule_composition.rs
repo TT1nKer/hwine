@@ -1,5 +1,5 @@
-use hwine_rs::egraph::EGraph;
 use hwine_rs::cost::ExtractMode;
+use hwine_rs::egraph::EGraph;
 use hwine_rs::ir::DataType;
 use hwine_rs::ir::{AtomOp, ENode};
 use std::time::Instant;
@@ -15,14 +15,26 @@ fn main() {
     let mut ws = Vec::with_capacity(n);
     let mut ag = Vec::with_capacity(n);
     for i in 0..n {
-        ws.push(eg.add(ENode::leaf(AtomOp::Var(i*2))));
-        ag.push(eg.add(ENode::leaf(AtomOp::Var(i*2+1))));
+        ws.push(eg.add(ENode::leaf(AtomOp::Var(i * 2))));
+        ag.push(eg.add(ENode::leaf(AtomOp::Var(i * 2 + 1))));
     }
 
     for i in 0..n {
-        let m = eg.add(ENode::new(AtomOp::Mul, vec![ws[i], ag[i]], DataType::default()));
-        acc = eg.add(ENode::new(AtomOp::AccStep, vec![acc, m], DataType::default()));
-        mc = eg.add(ENode::new(AtomOp::Mac, vec![ws[i], ag[i], mc], DataType::default()));
+        let m = eg.add(ENode::new(
+            AtomOp::Mul,
+            vec![ws[i], ag[i]],
+            DataType::default(),
+        ));
+        acc = eg.add(ENode::new(
+            AtomOp::AccStep,
+            vec![acc, m],
+            DataType::default(),
+        ));
+        mc = eg.add(ENode::new(
+            AtomOp::Mac,
+            vec![ws[i], ag[i], mc],
+            DataType::default(),
+        ));
     }
     eg.union(acc, mc);
     let cid = eg.canon(acc);
@@ -40,35 +52,62 @@ fn main() {
     let dt = t0.elapsed();
 
     let cls = eg.class_nodes(cid).unwrap();
-    println!("E-graph saturated: {iters} iterations, {} classes, {:.3}s", eg.n_classes(), dt.as_secs_f64());
-    println!("Final e-class: {} equivalent structures found.\n", cls.len());
+    println!(
+        "E-graph saturated: {iters} iterations, {} classes, {:.3}s",
+        eg.n_classes(),
+        dt.as_secs_f64()
+    );
+    println!(
+        "Final e-class: {} equivalent structures found.\n",
+        cls.len()
+    );
 
     // Categorize structures
-    let mut categories: std::collections::HashMap<String, Vec<String>> = std::collections::HashMap::new();
+    let mut categories: std::collections::HashMap<String, Vec<String>> =
+        std::collections::HashMap::new();
 
     fn fmt_subtree(node: &ENode, eg: &EGraph, depth: usize) -> String {
-        if depth > 3 { return "...".to_string(); }
+        if depth > 3 {
+            return "...".to_string();
+        }
         match node.op {
             AtomOp::Mac => {
                 let (w, _) = eg.extract_optimal(node.children[0], ExtractMode::MinDelay);
                 let (a, _) = eg.extract_optimal(node.children[1], ExtractMode::MinDelay);
                 let (acc, _) = eg.extract_optimal(node.children[2], ExtractMode::MinDelay);
-                format!("MAC({},{},{})", fmt_subtree(&w, eg, depth+1), fmt_subtree(&a, eg, depth+1), fmt_subtree(&acc, eg, depth+1))
+                format!(
+                    "MAC({},{},{})",
+                    fmt_subtree(&w, eg, depth + 1),
+                    fmt_subtree(&a, eg, depth + 1),
+                    fmt_subtree(&acc, eg, depth + 1)
+                )
             }
             AtomOp::Mul => {
                 let (a, _) = eg.extract_optimal(node.children[0], ExtractMode::MinDelay);
                 let (b, _) = eg.extract_optimal(node.children[1], ExtractMode::MinDelay);
-                format!("MUL({},{})", fmt_subtree(&a, eg, depth+1), fmt_subtree(&b, eg, depth+1))
+                format!(
+                    "MUL({},{})",
+                    fmt_subtree(&a, eg, depth + 1),
+                    fmt_subtree(&b, eg, depth + 1)
+                )
             }
             AtomOp::Add => {
                 let (a, _) = eg.extract_optimal(node.children[0], ExtractMode::MinDelay);
                 let (b, _) = eg.extract_optimal(node.children[1], ExtractMode::MinDelay);
-                format!("ADD({},{})", fmt_subtree(&a, eg, depth+1), fmt_subtree(&b, eg, depth+1))
+                format!(
+                    "ADD({},{})",
+                    fmt_subtree(&a, eg, depth + 1),
+                    fmt_subtree(&b, eg, depth + 1)
+                )
             }
             AtomOp::AccStep => {
                 let (p, _) = eg.extract_optimal(node.children[0], ExtractMode::MinDelay);
                 let (v, _) = eg.extract_optimal(node.children[1], ExtractMode::MinDelay);
-                format!("ACC({},{})", fmt_subtree(&p, eg, depth+1), fmt_subtree(&v, eg, depth+1))
+                format!(
+                    "ACC({},{})",
+                    fmt_subtree(&p, eg, depth + 1),
+                    fmt_subtree(&v, eg, depth + 1)
+                )
             }
             AtomOp::AccInit => "ACC_INIT".to_string(),
             AtomOp::Zero => "0".to_string(),
@@ -79,12 +118,19 @@ fn main() {
 
     for node in cls.iter() {
         let s = fmt_subtree(node, &eg, 0);
-        let cat = if s.contains("MAC") && s.contains("MUL") { "MAC+MUL cross" }
-            else if s.contains("MAC") { "MAC chain" }
-            else if s.contains("ACC") { "ACC chain" }
-            else if s.contains("ADD") { "ADD tree" }
-            else if s.contains("MUL") { "MUL only" }
-            else { "other" };
+        let cat = if s.contains("MAC") && s.contains("MUL") {
+            "MAC+MUL cross"
+        } else if s.contains("MAC") {
+            "MAC chain"
+        } else if s.contains("ACC") {
+            "ACC chain"
+        } else if s.contains("ADD") {
+            "ADD tree"
+        } else if s.contains("MUL") {
+            "MUL only"
+        } else {
+            "other"
+        };
         categories.entry(cat.to_string()).or_default().push(s);
     }
 
@@ -92,10 +138,16 @@ fn main() {
         let d = items.len();
         println!("{cat} ({d} variants):");
         for item in items.iter().take(3) {
-            let truncated = if item.len() > 120 { format!("{}...", &item[..117]) } else { item.clone() };
+            let truncated = if item.len() > 120 {
+                format!("{}...", &item[..117])
+            } else {
+                item.clone()
+            };
             println!("  {}", truncated);
         }
-        if items.len() > 3 { println!("  ... and {} more", items.len() - 3); }
+        if items.len() > 3 {
+            println!("  ... and {} more", items.len() - 3);
+        }
     }
 
     println!("\n── Non-obvious insight ──");

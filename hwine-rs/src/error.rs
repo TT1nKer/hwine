@@ -24,8 +24,16 @@ impl std::fmt::Display for HwineError {
             Self::DeletedClass(cid) => write!(f, "deleted e-class: {}", cid),
             Self::CycleDetected(cid) => write!(f, "cycle detected at e-class {}", cid),
             Self::UnsupportedRtlOp(op) => write!(f, "RTL generation unsupported for {:?}", op),
-            Self::PortConflict { name, declared_as, conflicting_as } => {
-                write!(f, "port conflict: '{}' declared as {} but already {}", name, declared_as, conflicting_as)
+            Self::PortConflict {
+                name,
+                declared_as,
+                conflicting_as,
+            } => {
+                write!(
+                    f,
+                    "port conflict: '{}' declared as {} but already {}",
+                    name, declared_as, conflicting_as
+                )
             }
             Self::InvalidInput(msg) => write!(f, "invalid input: {}", msg),
             Self::ExtractionFailed(msg) => write!(f, "extraction failed: {}", msg),

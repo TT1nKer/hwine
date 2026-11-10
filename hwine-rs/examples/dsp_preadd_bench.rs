@@ -1,9 +1,9 @@
 // DSP48E1 pre-adder verification
 // Builds Mul(Add(a,b), c) pattern, runs saturation with DSP pre-adder rule,
 // generates RTL, and shows that hwine maps it to a single DSP slice.
-use hwine_rs::egraph::EGraph;
-use hwine_rs::ir::{AtomOp, ENode, DataType};
 use hwine_rs::cost::ExtractMode;
+use hwine_rs::egraph::EGraph;
+use hwine_rs::ir::{AtomOp, DataType, ENode};
 use hwine_rs::rtl::generate_rtl;
 
 fn main() {
@@ -25,13 +25,20 @@ fn main() {
 
     let (node, stats) = eg.extract_optimal(mul, ExtractMode::MinDelay);
     println!("  Extracted op: {:?}", node.op);
-    println!("  Resources: LUT={:.1} DSP={:.1} delay={:.2}ns Fmax={:.0}MHz",
-        stats.lut, stats.dsp, stats.delay_ns, stats.fmax_mhz);
+    println!(
+        "  Resources: LUT={:.1} DSP={:.1} delay={:.2}ns Fmax={:.0}MHz",
+        stats.lut, stats.dsp, stats.delay_ns, stats.fmax_mhz
+    );
 
     let is_preadd = matches!(node.op, AtomOp::DspPreAdd);
-    println!("  DSP pre-adder mapped: {}",
-        if is_preadd { "✓ YES — single DSP slice with pre-adder" }
-        else { "✗ NOT mapped — Mul(Add(...)) kept as separate ops" });
+    println!(
+        "  DSP pre-adder mapped: {}",
+        if is_preadd {
+            "✓ YES — single DSP slice with pre-adder"
+        } else {
+            "✗ NOT mapped — Mul(Add(...)) kept as separate ops"
+        }
+    );
 
     let rtl = generate_rtl(&eg, mul, "bm_dsp_preadd", 16);
     std::fs::write("bm_dsp_preadd.sv", &rtl).unwrap();
@@ -62,13 +69,25 @@ fn main() {
     let (n1, s1) = eg2.extract_optimal(form1, ExtractMode::MinDelay);
     let (n2, s2) = eg2.extract_optimal(form1, ExtractMode::MinDsp { max_delay_ns: 5.0 });
 
-    println!("  MinDelay: {:?} op, {:.1} DSP, {:.2}ns", n1.op, s1.dsp, s1.delay_ns);
-    println!("  MinDsp:   {:?} op, {:.1} DSP, {:.2}ns", n2.op, s2.dsp, s2.delay_ns);
+    println!(
+        "  MinDelay: {:?} op, {:.1} DSP, {:.2}ns",
+        n1.op, s1.dsp, s1.delay_ns
+    );
+    println!(
+        "  MinDsp:   {:?} op, {:.1} DSP, {:.2}ns",
+        n2.op, s2.dsp, s2.delay_ns
+    );
 
     // Pareto
     let pareto = eg2.extract_pareto(form1);
     println!("  Pareto frontier: {} alternatives", pareto.len());
     for (i, (n, s)) in pareto.iter().enumerate() {
-        println!("    {}. {:?} | {:.1}DSP {:.2}ns", i+1, n.op, s.dsp, s.delay_ns);
+        println!(
+            "    {}. {:?} | {:.1}DSP {:.2}ns",
+            i + 1,
+            n.op,
+            s.dsp,
+            s.delay_ns
+        );
     }
 }

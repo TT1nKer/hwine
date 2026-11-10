@@ -1,6 +1,6 @@
-use crate::ir::{AtomOp, ENode, DataType};
+use crate::ir::{AtomOp, DataType, ENode};
 
-/// FPGA cost model — calibrated for Xilinx 7-series, width-aware
+/// Heuristic ranking model, NOT measured FPGA resources or timing.
 /// Width scaling factor: cost multiplier relative to 16-bit baseline
 fn width_scale(dtype: &DataType) -> f64 {
     (dtype.width as f64 / 16.0).max(0.25)
@@ -9,9 +9,20 @@ fn width_scale(dtype: &DataType) -> f64 {
 pub fn lut_cost(op: AtomOp, dtype: &DataType) -> f64 {
     let base = match op {
         AtomOp::Add => 0.5,
-        AtomOp::Mul | AtomOp::Mac | AtomOp::DspMul | AtomOp::DspMac | AtomOp::DspPreAdd | AtomOp::Madd => 0.0, // DSP
-        AtomOp::Shl | AtomOp::Shr | AtomOp::Pack | AtomOp::Unpack | AtomOp::Concat
-        | AtomOp::Slice | AtomOp::Extract | AtomOp::Broadcast => 0.0, // wiring
+        AtomOp::Mul
+        | AtomOp::Mac
+        | AtomOp::DspMul
+        | AtomOp::DspMac
+        | AtomOp::DspPreAdd
+        | AtomOp::Madd => 0.0, // DSP
+        AtomOp::Shl
+        | AtomOp::Shr
+        | AtomOp::Pack
+        | AtomOp::Unpack
+        | AtomOp::Concat
+        | AtomOp::Slice
+        | AtomOp::Extract
+        | AtomOp::Broadcast => 0.0, // wiring
         AtomOp::Sat | AtomOp::Round => 1.0,
         AtomOp::ReduceAdd | AtomOp::ReduceMax | AtomOp::ReduceMin => 0.5,
         AtomOp::Scan => 2.0,
@@ -31,39 +42,58 @@ pub fn lut_cost(op: AtomOp, dtype: &DataType) -> f64 {
         AtomOp::StreamFifo => 0.0, // pipeline register (no LUT)
     };
     // Width scaling for arithmetic ops only
-    if op.is_arithmetic() { base * width_scale(dtype) } else { base }
+    if op.is_arithmetic() {
+        base * width_scale(dtype)
+    } else {
+        base
+    }
 }
 
 pub fn dsp_cost(op: AtomOp, dtype: &DataType) -> f64 {
-    let base = match op {
-        AtomOp::Mul | AtomOp::Mac | AtomOp::Madd | AtomOp::DspMul | AtomOp::DspMac | AtomOp::DspPreAdd => {
+    match op {
+        AtomOp::Mul
+        | AtomOp::Mac
+        | AtomOp::Madd
+        | AtomOp::DspMul
+        | AtomOp::DspMac
+        | AtomOp::DspPreAdd => {
             // Wide multipliers may use multiple DSP slices
-            if dtype.width > 25 { (dtype.width as f64 / 25.0).ceil()  } else { 1.0 }
+            (dtype.width as f64 / if dtype.signed { 25.0 } else { 24.0 }).ceil()
+                * (dtype.width as f64 / if dtype.signed { 18.0 } else { 17.0 }).ceil()
         }
         _ => 0.0,
-    };
-    base
+    }
 }
 
 pub fn ff_cost(op: AtomOp, dtype: &DataType) -> f64 {
     let bits = dtype.width as f64;
     match op {
-        AtomOp::Pipe | AtomOp::AccInit => bits,
+        AtomOp::Pipe => bits,
         AtomOp::Delay => bits,
-        AtomOp::AccStep => bits * 2.0,
+        AtomOp::AccInit | AtomOp::AccStep => 0.0,
         AtomOp::Buffer => bits * 2.0,
-        AtomOp::StreamFifo => bits,  // pipeline register: one FF per bit
+        AtomOp::StreamFifo => bits, // pipeline register: one FF per bit
         _ => 0.0,
     }
 }
 
-/// Critical path delay in nanoseconds (width-aware: wider adders have longer CARRY4 chains)
+/// Assumed operation delay for ranking; not a device timing measurement.
 pub fn delay_ns(op: AtomOp, dtype: &DataType) -> f64 {
     let base = match op {
         AtomOp::Add => 0.8,
-        AtomOp::Mul | AtomOp::Mac | AtomOp::Madd | AtomOp::DspMul | AtomOp::DspMac | AtomOp::DspPreAdd => 2.5,
-        AtomOp::Shl | AtomOp::Shr | AtomOp::Pack | AtomOp::Unpack | AtomOp::Concat
-        | AtomOp::Slice | AtomOp::Extract => 0.3,
+        AtomOp::Mul
+        | AtomOp::Mac
+        | AtomOp::Madd
+        | AtomOp::DspMul
+        | AtomOp::DspMac
+        | AtomOp::DspPreAdd => 2.5,
+        AtomOp::Shl
+        | AtomOp::Shr
+        | AtomOp::Pack
+        | AtomOp::Unpack
+        | AtomOp::Concat
+        | AtomOp::Slice
+        | AtomOp::Extract => 0.3,
         AtomOp::Sat | AtomOp::Round => 0.8,
         AtomOp::ReduceAdd | AtomOp::ReduceMax | AtomOp::ReduceMin => 0.8,
         AtomOp::Scan => 1.5,
@@ -91,7 +121,7 @@ pub fn delay_ns(op: AtomOp, dtype: &DataType) -> f64 {
 /// Pipeline cycle latency
 pub fn cycle_latency(op: AtomOp) -> usize {
     match op {
-        AtomOp::Pipe | AtomOp::Delay | AtomOp::AccStep | AtomOp::StreamFifo => 1,
+        AtomOp::Pipe | AtomOp::Delay | AtomOp::StreamFifo => 1,
         AtomOp::Buffer => 2,
         _ => 0,
     }
@@ -103,7 +133,10 @@ pub struct FpgaStats {
     pub lut: f64,
     pub dsp: f64,
     pub ff: f64,
+    /// Longest path, including all stages before registers. Heuristic only.
     pub delay_ns: f64,
+    /// Path from the last register (or input) to this output.
+    pub output_delay_ns: f64,
     pub cycles: usize,
     pub fmax_mhz: f64,
 }
@@ -120,7 +153,12 @@ pub enum ExtractMode {
     /// Minimize FF usage under max_delay_ns constraint
     MinFf { max_delay_ns: f64 },
     /// Weighted sum: w_delay*delay + w_lut*lut + w_dsp*dsp + w_ff*ff
-    Weighted { w_delay: f64, w_lut: f64, w_dsp: f64, w_ff: f64 },
+    Weighted {
+        w_delay: f64,
+        w_lut: f64,
+        w_dsp: f64,
+        w_ff: f64,
+    },
     /// Pareto frontier: return all non-dominated alternatives
     Pareto,
 }
@@ -133,29 +171,57 @@ impl FpgaStats {
         let max_child_delay: f64 = child_stats.iter().map(|s| s.delay_ns).fold(0.0, f64::max);
         let max_child_cycles: usize = child_stats.iter().map(|s| s.cycles).max().unwrap_or(0);
 
-        // Pipeline registers reset delay: children's combinational paths are
-        // captured by the register, so output delay = register clk-to-q only.
-        let is_pipeline_barrier = matches!(op, AtomOp::Pipe | AtomOp::StreamFifo | AtomOp::AccInit);
-        let prev_delay = if is_pipeline_barrier { 0.0 } else { max_child_delay };
-        let delay = delay_ns(op, dtype) + prev_delay;
-        let fmax = if delay > 0.0 { (1000.0 / delay).min(500.0) } else { 500.0 };
+        let max_child_output = child_stats
+            .iter()
+            .map(|s| s.output_delay_ns)
+            .fold(0.0, f64::max);
+        let is_pipeline_barrier = matches!(op, AtomOp::Pipe | AtomOp::StreamFifo);
+        let output_delay = delay_ns(op, dtype)
+            + if is_pipeline_barrier {
+                0.0
+            } else {
+                max_child_output
+            };
+        let delay = max_child_delay.max(output_delay);
+        let fmax = if delay > 0.0 {
+            (1000.0 / delay).min(500.0)
+        } else {
+            500.0
+        };
 
         Self {
             lut: lut_cost(op, dtype) + child_lut,
             dsp: dsp_cost(op, dtype) + child_dsp,
             ff: ff_cost(op, dtype) + child_ff,
             delay_ns: delay,
+            output_delay_ns: output_delay,
             cycles: cycle_latency(op) + max_child_cycles,
             fmax_mhz: fmax,
         }
     }
 
     pub fn empty() -> Self {
-        Self { lut: 0.0, dsp: 0.0, ff: 0.0, delay_ns: 0.0, cycles: 0, fmax_mhz: 500.0 }
+        Self {
+            lut: 0.0,
+            dsp: 0.0,
+            ff: 0.0,
+            delay_ns: 0.0,
+            output_delay_ns: 0.0,
+            cycles: 0,
+            fmax_mhz: 500.0,
+        }
     }
 
     pub fn infinite() -> Self {
-        Self { lut: 1e10, dsp: 1e10, ff: 1e10, delay_ns: 1e10, cycles: 0, fmax_mhz: 0.0 }
+        Self {
+            lut: 1e10,
+            dsp: 1e10,
+            ff: 1e10,
+            delay_ns: f64::INFINITY,
+            output_delay_ns: f64::INFINITY,
+            cycles: 0,
+            fmax_mhz: 0.0,
+        }
     }
 
     /// Returns true if `self` dominates `other` (better or equal in all dimensions, strictly better in at least one).
@@ -165,8 +231,8 @@ impl FpgaStats {
     ///
     /// ```
     /// use hwine_rs::cost::FpgaStats;
-    /// let a = FpgaStats { lut: 5.0, dsp: 1.0, ff: 10.0, delay_ns: 3.0, cycles: 2, fmax_mhz: 333.0 };
-    /// let b = FpgaStats { lut: 6.0, dsp: 2.0, ff: 12.0, delay_ns: 3.0, cycles: 3, fmax_mhz: 333.0 };
+    /// let a = FpgaStats { lut: 5.0, dsp: 1.0, ff: 10.0, delay_ns: 3.0, output_delay_ns: 3.0, cycles: 2, fmax_mhz: 333.0 };
+    /// let b = FpgaStats { lut: 6.0, dsp: 2.0, ff: 12.0, delay_ns: 3.0, output_delay_ns: 3.0, cycles: 3, fmax_mhz: 333.0 };
     /// assert!(a.dominates(&b));   // a is strictly better in LUT/DSP/FF/cycles
     /// assert!(!b.dominates(&a));  // b is worse in all dimensions
     /// ```
@@ -175,11 +241,13 @@ impl FpgaStats {
             && self.dsp <= other.dsp
             && self.ff <= other.ff
             && self.delay_ns <= other.delay_ns
+            && self.output_delay_ns <= other.output_delay_ns
             && self.cycles <= other.cycles;
         let strictly_better = self.lut < other.lut
             || self.dsp < other.dsp
             || self.ff < other.ff
             || self.delay_ns < other.delay_ns
+            || self.output_delay_ns < other.output_delay_ns
             || self.cycles < other.cycles;
         not_worse && strictly_better
     }
@@ -190,21 +258,33 @@ impl FpgaStats {
         match mode {
             ExtractMode::MinDelay => self.delay_ns,
             ExtractMode::MinLut { max_delay_ns } => {
-                if self.delay_ns > max_delay_ns { f64::INFINITY }
-                else { self.lut + self.delay_ns * 0.001 } // slight delay tiebreaker
+                if self.delay_ns > max_delay_ns {
+                    f64::INFINITY
+                } else {
+                    self.lut + self.delay_ns * 0.001
+                } // slight delay tiebreaker
             }
             ExtractMode::MinDsp { max_delay_ns } => {
-                if self.delay_ns > max_delay_ns { f64::INFINITY }
-                else { self.dsp + self.delay_ns * 0.001 }
+                if self.delay_ns > max_delay_ns {
+                    f64::INFINITY
+                } else {
+                    self.dsp + self.delay_ns * 0.001
+                }
             }
             ExtractMode::MinFf { max_delay_ns } => {
-                if self.delay_ns > max_delay_ns { f64::INFINITY }
-                else { self.ff + self.delay_ns * 0.001 }
+                if self.delay_ns > max_delay_ns {
+                    f64::INFINITY
+                } else {
+                    self.ff + self.delay_ns * 0.001
+                }
             }
-            ExtractMode::Weighted { w_delay, w_lut, w_dsp, w_ff } => {
-                w_delay * self.delay_ns + w_lut * self.lut + w_dsp * self.dsp + w_ff * self.ff
-            }
-            ExtractMode::Pareto => self.delay_ns * self.lut.max(1.0) * self.dsp.max(1.0).ln(), // fallback scalar for memo
+            ExtractMode::Weighted {
+                w_delay,
+                w_lut,
+                w_dsp,
+                w_ff,
+            } => w_delay * self.delay_ns + w_lut * self.lut + w_dsp * self.dsp + w_ff * self.ff,
+            ExtractMode::Pareto => self.delay_ns + 0.001 * (self.lut + self.dsp + self.ff), // fallback scalar for memo
         }
     }
 
@@ -215,7 +295,9 @@ impl FpgaStats {
         let mut seen: Vec<FpgaStats> = Vec::new();
         for cand in candidates {
             // Skip duplicates
-            if seen.iter().any(|s| s == &cand.1) { continue; }
+            if seen.iter().any(|s| s == &cand.1) {
+                continue;
+            }
             seen.push(cand.1.clone());
             // Skip if dominated by an existing result
             if result.iter().any(|(_, s)| s.dominates(&cand.1)) {

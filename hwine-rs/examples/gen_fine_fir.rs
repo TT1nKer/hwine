@@ -1,7 +1,7 @@
 use hwine_rs::egraph::EGraph;
 use hwine_rs::ir::DataType;
 use hwine_rs::ir::{AtomOp, ENode};
-use hwine_rs::rtl::{generate_fine_pipelined_rtl, generate_rtl};
+use hwine_rs::rtl::generate_fine_pipelined_rtl;
 use std::fs;
 
 fn main() {
@@ -16,20 +16,30 @@ fn main() {
         terms.push(mul);
     }
     let mut chain = terms[0];
-    for i in 1..terms.len() { chain = eg.add(ENode::new(AtomOp::Add, vec![chain, terms[i]], DataType::default())); }
+    for i in 1..terms.len() {
+        chain = eg.add(ENode::new(
+            AtomOp::Add,
+            vec![chain, terms[i]],
+            DataType::default(),
+        ));
+    }
     eg.saturate_with_config(30, 5000, 15, 10, false);
-    
+
     let rtl = generate_fine_pipelined_rtl(&eg, chain, "hwine_fine_fir6", 16);
     fs::write("hwine_fine_fir6.sv", &rtl).unwrap();
     println!("Fine FIR6: {} lines", rtl.lines().count());
-    
+
     // Also build one with same coeffs as Kastner? Let's check Kastner FIR
     // Generate generic add-tree fine pipelined for 6-tap too
     let mut eg_add = EGraph::new();
     let mut vs = Vec::new();
-    for i in 0..6 { vs.push(eg_add.add(ENode::leaf(AtomOp::Var(i)))); }
+    for i in 0..6 {
+        vs.push(eg_add.add(ENode::leaf(AtomOp::Var(i))));
+    }
     let mut c = vs[0];
-    for i in 1..6 { c = eg_add.add(ENode::new(AtomOp::Add, vec![c, vs[i]], DataType::default())); }
+    for i in 1..6 {
+        c = eg_add.add(ENode::new(AtomOp::Add, vec![c, vs[i]], DataType::default()));
+    }
     eg_add.saturate_with_config(30, 5000, 15, 10, false);
     let rtl_add = generate_fine_pipelined_rtl(&eg_add, c, "hwine_fine_add6", 16);
     fs::write("hwine_fine_add6.sv", &rtl_add).unwrap();

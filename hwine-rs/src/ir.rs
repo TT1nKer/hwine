@@ -21,21 +21,43 @@ pub struct DataType {
 }
 
 impl DataType {
-    pub const U8: DataType = DataType { width: 8, signed: false, overflow: OverflowMode::Wrap };
-    pub const U16: DataType = DataType { width: 16, signed: false, overflow: OverflowMode::Wrap };
-    pub const U32: DataType = DataType { width: 32, signed: false, overflow: OverflowMode::Wrap };
-    pub const S16: DataType = DataType { width: 16, signed: true, overflow: OverflowMode::Wrap };
-    pub const S32: DataType = DataType { width: 32, signed: true, overflow: OverflowMode::Wrap };
+    pub const U8: DataType = DataType {
+        width: 8,
+        signed: false,
+        overflow: OverflowMode::Wrap,
+    };
+    pub const U16: DataType = DataType {
+        width: 16,
+        signed: false,
+        overflow: OverflowMode::Wrap,
+    };
+    pub const U32: DataType = DataType {
+        width: 32,
+        signed: false,
+        overflow: OverflowMode::Wrap,
+    };
+    pub const S16: DataType = DataType {
+        width: 16,
+        signed: true,
+        overflow: OverflowMode::Wrap,
+    };
+    pub const S32: DataType = DataType {
+        width: 32,
+        signed: true,
+        overflow: OverflowMode::Wrap,
+    };
 }
 
 impl Default for DataType {
-    fn default() -> Self { DataType::U16 }
+    fn default() -> Self {
+        DataType::U16
+    }
 }
 
 impl DataType {
-    /// Check if two types are compatible for binary arithmetic (same width + signedness)
+    /// Check if two types are compatible for binary arithmetic (same width, signedness and overflow mode)
     pub fn compatible(&self, other: &DataType) -> bool {
-        self.width == other.width && self.signed == other.signed
+        self == other
     }
 
     /// Output type for binary arithmetic: wider ops produce wider result
@@ -44,7 +66,11 @@ impl DataType {
             OverflowMode::Wide => self.width.max(other.width) + 1,
             _ => self.width.max(other.width),
         };
-        DataType { width: out_width, signed: self.signed || other.signed, overflow: op_overflow }
+        DataType {
+            width: out_width,
+            signed: self.signed || other.signed,
+            overflow: op_overflow,
+        }
     }
 
     /// LUT cost for an adder of this width (rough: ~1 LUT per 4 bits per operator)
@@ -54,7 +80,7 @@ impl DataType {
 
     /// DSP cost: fits in a single DSP48E1 slice? (25×18 multiplier)
     pub fn fits_dsp_mul(&self) -> bool {
-        self.width <= 25
+        self.width <= if self.signed { 18 } else { 17 }
     }
 }
 
@@ -98,7 +124,7 @@ pub enum AtomOp {
     // FPGA DSP
     DspMul,
     DspMac,
-    DspPreAdd,  // DSP48 pre-adder: (a ± b) × c in 1 slice
+    DspPreAdd, // DSP48 pre-adder: (a ± b) × c in 1 slice
 
     // Quantization
     Quant,
@@ -125,9 +151,9 @@ pub enum AtomOp {
     AccReset,
 
     // Streaming / FIFO (for pipeline kernels)
-    StreamRead,   // read from input stream
-    StreamWrite,  // write to output stream
-    StreamFifo,   // FIFO buffer with depth
+    StreamRead,  // read from input stream
+    StreamWrite, // write to output stream
+    StreamFifo,  // legacy atom; unsupported by the reliable RTL backend
 }
 
 impl fmt::Display for AtomOp {
@@ -177,7 +203,7 @@ impl AtomOp {
     pub fn is_associative(&self) -> bool {
         matches!(
             self,
-            Self::Add | Self::Mul | Self::Madd | Self::ReduceAdd | Self::ReduceMax | Self::ReduceMin | Self::Scan
+            Self::Add | Self::Mul | Self::ReduceAdd | Self::ReduceMax | Self::ReduceMin
         )
     }
 
@@ -187,18 +213,37 @@ impl AtomOp {
 
     /// Whether this op produces an arithmetic result (has a meaningful output type)
     pub fn is_arithmetic(&self) -> bool {
-        matches!(self,
-            Self::Add | Self::Sub | Self::Mul | Self::Mac | Self::Madd |
-            Self::DspMul | Self::DspMac | Self::DspPreAdd | Self::Shl | Self::Shr |
-            Self::ReduceAdd | Self::ReduceMax | Self::ReduceMin |
-            Self::Sat | Self::Round | Self::Div | Self::Exp |
-            Self::Quant | Self::Dequant | Self::DequantW
+        matches!(
+            self,
+            Self::Add
+                | Self::Sub
+                | Self::Mul
+                | Self::Mac
+                | Self::Madd
+                | Self::DspMul
+                | Self::DspMac
+                | Self::DspPreAdd
+                | Self::Shl
+                | Self::Shr
+                | Self::ReduceAdd
+                | Self::ReduceMax
+                | Self::ReduceMin
+                | Self::Sat
+                | Self::Round
+                | Self::Div
+                | Self::Exp
+                | Self::Quant
+                | Self::Dequant
+                | Self::DequantW
         )
     }
 
     /// Returns true if two ops can be reassociated (same op, compatible types)
     pub fn can_reassociate(&self, other: &AtomOp, t1: &DataType, t2: &DataType) -> bool {
-        self == other && self.is_associative() && t1.compatible(t2)
+        self == other
+            && self.is_associative()
+            && t1.compatible(t2)
+            && t1.overflow == OverflowMode::Wrap
     }
 }
 
@@ -206,8 +251,8 @@ impl AtomOp {
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct ENode {
     pub op: AtomOp,
-    pub children: Box<[u32]>,  // e-class IDs
-    pub dtype: DataType,       // output data type
+    pub children: Box<[u32]>, // e-class IDs
+    pub dtype: DataType,      // output data type
 }
 
 impl ENode {
@@ -230,7 +275,11 @@ impl ENode {
 
     /// Create leaf with specific data type
     pub fn leaf_typed(op: AtomOp, dtype: DataType) -> Self {
-        Self { op, children: Box::new([]), dtype }
+        Self {
+            op,
+            children: Box::new([]),
+            dtype,
+        }
     }
 
     /// Unify types of children — returns the common result type for this op
@@ -242,11 +291,19 @@ impl ENode {
         // Find the widest child type
         let mut base = child_dtypes[0];
         for ct in &child_dtypes[1..] {
-            if !base.compatible(ct) { return None; }
-            if ct.width > base.width { base.width = ct.width; }
+            if !base.compatible(ct) {
+                return None;
+            }
+            if ct.width > base.width {
+                base.width = ct.width;
+            }
         }
         // Result type depends on op and overflow
-        let ov = if op == AtomOp::Sat { OverflowMode::Sat } else { OverflowMode::Wrap };
+        let ov = if op == AtomOp::Sat {
+            OverflowMode::Sat
+        } else {
+            OverflowMode::Wrap
+        };
         Some(if child_dtypes.len() >= 2 {
             base.result_type(&child_dtypes[1], ov)
         } else {
