@@ -21,6 +21,7 @@ jobs:
           toolchain: "1.96.0"
           components: rustfmt, clippy
       - run: cargo fmt --manifest-path hwine-rs/Cargo.toml --check
+      - run: bash -n tools/slurm_explore.sbatch
       - run: cargo clippy --manifest-path hwine-rs/Cargo.toml --lib --locked -- -D warnings
       - run: cargo test --manifest-path hwine-rs/Cargo.toml --all-targets --locked
       - run: cargo test --manifest-path hwine-rs/Cargo.toml --doc --locked
