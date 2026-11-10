@@ -52,10 +52,23 @@ tail -40 "$HOME/hwine/logs/pilot-JOB_ID.err"
 
 After completion, retrieve the run directory with rsync/scp. Compare actual
 RTL, proof status, resources, and all routed seeds with the existing local
-`build/ecp5-expanded-csd-example` run before treating the environment as
-validated. Do not mix a new remote run into the frozen holdout record.
+`build/ecp5-expanded-csd-example` run. Do not mix a new remote run into the
+frozen holdout record. The comparison tool audits both retained evidence sets
+and compares their configurations, fixture files, proof outcomes, measured
+resources/timing, and netlist JSON. The only netlist normalization replaces
+the explicitly supplied installation root in `attributes.src`; source line
+numbers, cells, connections, parameters, and other attributes remain checked.
 
-## Initial migration status — 2026-11-10
+```bash
+python3 tools/compare_explorations.py \
+  build/ecp5-expanded-csd-example/summary.json \
+  build/frontenac-pilot-20261110/summary.json \
+  --left-eda-root "$LOCAL_OSS_CAD_SUITE" \
+  --right-eda-root "$REMOTE_OSS_CAD_SUITE" \
+  --out build/frontenac-pilot-check/comparison.json
+```
+
+## Verified pilot — 2026-11-10
 
 SSH access and the user's CPU association were checked live. A fixed source
 checkout at `76c7462717c45d1d77cb3b6f0ae5f83387067500` was placed under
@@ -64,9 +77,37 @@ without a Slurm allocation, and passed `sbatch --test-only`.
 
 Pilot job **12446758** was submitted for `random3_0_s16` with
 `--balanced-digits`, three route seeds, and the bounds above. Its output is
-`$HOME/hwine/runs/pilot-20261110-r1`. At 20:50 UTC it was `PENDING` for
-`Priority`, with no allocated resources or actual start time; toolchain
-compatibility and cross-machine reproducibility remain unverified.
+`$HOME/hwine/runs/pilot-20261110-r1`. It **completed successfully** on `frnt201`
+at 21:06:02 UTC, with exit code `0:0`. Queue time was 2 minutes 30 seconds;
+the job ran for 14 minutes 13 seconds including first-time toolchain setup.
+The experiment step itself ran for 3 minutes 17 seconds. These are observations
+for this run, not predicted queue times or a controlled workstation speedup.
+
+All **22 distinct RTL implementations, 45,518 simulation comparisons, nine
+source certificates, and 22 pipeline proofs** passed, with no proof timeouts.
+There were 44 synthesis mappings and 108 distinct routing runs. The remote
+evidence audit passed and was independently repeated on the downloaded files.
+
+Cross-machine comparison passed:
+
+- Experiment configurations and all 1,309 generated fixture files match exactly.
+  Generation covers the manifest; physical evaluation selects only this one case.
+- Proof outcomes, synthesis cell counts, and all per-seed routed resources and
+  Fmax estimates match the local expanded-template run exactly.
+- All 44 raw synthesis netlist hashes differ because the Yosys installation
+  directory appears in source-location attributes. After replacing only that
+  directory prefix, all 44 netlist JSON objects match. Original hashes and
+  evidence are retained; this is not a claim of byte-identical raw netlists.
+- The same 150-MHz selection uses 255 combinational cells, 169 fabric FFs,
+  zero DSPs, and a worst-seed estimate of 182.18 MHz. At 200 MHz the selection
+  remains 289 cells, 179 FFs, zero DSPs, and 205.17 MHz.
+
+See the [machine-readable result](frontenac-pilot-2026-11-10.json) for original
+summary hashes, audit/comparison records, accounting, and selection tuples.
+Comparison controls confirmed that cell-type, parameter, source-line, and
+routed-timing changes remain detectable. The Slurm runner commit also passed
+[GitHub CI](https://github.com/TT1nKer/hwine/actions/runs/42899507749).
+
 The scheduler changed the requested `cpubase_6hrs` partition to `gpu-rgrant`.
 Its recorded resource request is still CPU/memory only (no GPU GRES).
 Use `squeue -a` or `scontrol show job JOB_ID`: the ordinary queue listing did
@@ -75,7 +116,7 @@ actual allocation or a guarantee.
 The wrapper SHA-256 for this submission is
 `070f00bbcb7fe48f8a40291ae9e818a31d48d76045a30d4895f13b7d017d08d8`.
 
-The intended split is local editing and small checks, with expensive experiment
-batches on Slurm. Once this pilot passes, independent coefficient cases can be
-split into bounded jobs with separate outputs and a concurrency cap. That
-larger migration has not been submitted by this pilot.
+The supported split is local editing and small checks, with expensive experiment
+batches on Slurm. Independent coefficient cases can be split into bounded jobs
+with separate outputs and a concurrency cap. This pilot verifies one case on
+one compute node; a larger expanded-template sweep has not yet been submitted.

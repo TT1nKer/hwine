@@ -1,0 +1,202 @@
+{
+  "date": "2026-11-10",
+  "scope": "One-case Frontenac compatibility/reproduction pilot; not an expanded 24-case experiment",
+  "job": {
+    "job_id": "12446758",
+    "host": "frnt201.frontenac.local",
+    "cpus": 2,
+    "source_commit": "76c7462717c45d1d77cb3b6f0ae5f83387067500",
+    "wrapper_sha256": "070f00bbcb7fe48f8a40291ae9e818a31d48d76045a30d4895f13b7d017d08d8",
+    "python": "3.11.5 (main, Oct 28 2026, 12:46:40) [GCC 12.3.1 20230526]",
+    "started_at_utc": "2026-11-10T21:02:44.160407+00:00"
+  },
+  "accounting_timezone": "UTC",
+  "accounting": [
+    {
+      "JobID": "12446758",
+      "State": "COMPLETED",
+      "ExitCode": "0:0",
+      "Submit": "2026-11-10T20:49:19",
+      "Start": "2026-11-10T20:51:49",
+      "End": "2026-11-10T21:06:02",
+      "Elapsed": "00:14:13",
+      "MaxRSS": "",
+      "AllocCPUS": "2",
+      "NodeList": "frnt201"
+    },
+    {
+      "JobID": "12446758.batch",
+      "State": "COMPLETED",
+      "ExitCode": "0:0",
+      "Submit": "2026-11-10T20:51:49",
+      "Start": "2026-11-10T20:51:49",
+      "End": "2026-11-10T21:06:02",
+      "Elapsed": "00:14:13",
+      "MaxRSS": "143644K",
+      "AllocCPUS": "2",
+      "NodeList": "frnt201"
+    },
+    {
+      "JobID": "12446758.extern",
+      "State": "COMPLETED",
+      "ExitCode": "0:0",
+      "Submit": "2026-11-10T20:51:49",
+      "Start": "2026-11-10T20:51:49",
+      "End": "2026-11-10T21:06:02",
+      "Elapsed": "00:14:13",
+      "MaxRSS": "",
+      "AllocCPUS": "2",
+      "NodeList": "frnt201"
+    },
+    {
+      "JobID": "12446758.0",
+      "State": "COMPLETED",
+      "ExitCode": "0:0",
+      "Submit": "2026-11-10T21:02:44",
+      "Start": "2026-11-10T21:02:44",
+      "End": "2026-11-10T21:06:01",
+      "Elapsed": "00:03:17",
+      "MaxRSS": "415044K",
+      "AllocCPUS": "2",
+      "NodeList": "frnt201"
+    }
+  ],
+  "queue_seconds": 150,
+  "job_elapsed_seconds": 853,
+  "experiment_step_seconds": 197,
+  "remote_evidence_audit": {
+    "status": "passed",
+    "current_source_hashes_checked": true,
+    "source_commit_checked": null,
+    "rtl_records": 22,
+    "proved": 22,
+    "timeouts": 0,
+    "simulation_comparisons": 45518,
+    "source_certificates_rechecked": 9,
+    "synthesis_records": 44,
+    "routing_records": 108,
+    "summary_sha256": "353326217d107eb3c84eb4072309f3606348ad1c5b07e3a27e4f8c5ce635d6c4",
+    "audit_script_sha256": "6cab245028d275fe72fe5739e6f7601a9835ad4da75c32307799e0a90447c9e6"
+  },
+  "cross_machine_comparison": {
+    "status": "passed",
+    "left_audit": {
+      "status": "passed",
+      "current_source_hashes_checked": false,
+      "source_commit_checked": null,
+      "rtl_records": 22,
+      "proved": 22,
+      "timeouts": 0,
+      "simulation_comparisons": 45518,
+      "source_certificates_rechecked": 9,
+      "synthesis_records": 44,
+      "routing_records": 108
+    },
+    "right_audit": {
+      "status": "passed",
+      "current_source_hashes_checked": false,
+      "source_commit_checked": null,
+      "rtl_records": 22,
+      "proved": 22,
+      "timeouts": 0,
+      "simulation_comparisons": 45518,
+      "source_certificates_rechecked": 9,
+      "synthesis_records": 44,
+      "routing_records": 108
+    },
+    "configurations_identical": true,
+    "generated_files_byte_identical": 1309,
+    "proof_results_and_all_per_seed_resources_and_fmax_identical": true,
+    "synthesis_netlists_compared": 44,
+    "raw_netlists_byte_identical": 0,
+    "netlists_identical_after_explicit_eda_source_prefix_normalization": true,
+    "normalization": {
+      "only_field": "attributes.src",
+      "left_eda_root": "/home/hostsjim/.local/opt/hwine-eda-20261109/oss-cad-suite",
+      "right_eda_root": "/global/teaching-home/sa6079074/hwine/runtime/cache/hwine-eda/2026-11-09/oss-cad-suite",
+      "replacement": "$OSS_CAD_SUITE"
+    },
+    "excluded_from_summary_comparison": [
+      "wall seconds",
+      "artifact paths",
+      "individually audited netlist hashes"
+    ],
+    "summary_sha256": {
+      "left": "aa958d37a7cbfb69e03fd9feb5a6a9e68568f0580ea648d334226daa33852ede",
+      "right": "353326217d107eb3c84eb4072309f3606348ad1c5b07e3a27e4f8c5ce635d6c4"
+    },
+    "comparison_script_sha256": "b0010f801cfe6a7fa8a02343e46a390fe160008179a040779ade4dc2344ea78b"
+  },
+  "comparison_controls": [
+    {
+      "mutation": "cell_type",
+      "normalized_content": "different"
+    },
+    {
+      "mutation": "cell_parameter",
+      "normalized_content": "different"
+    },
+    {
+      "mutation": "source_line",
+      "normalized_content": "different"
+    },
+    {
+      "mutation": "routed_fmax",
+      "measured_content": "different"
+    }
+  ],
+  "selections": {
+    "150": {
+      "case": "random3_0_s16",
+      "width": 16,
+      "coefficients": [
+        -632,
+        -30963,
+        8920
+      ],
+      "rtl_sha256": "dde8a25114504cb9befffd0c1d73e01cbf5cc586a4e58f431f51db70c7bee83f",
+      "mapping": "auto",
+      "comb": 255,
+      "ff": 169,
+      "dsp": 0,
+      "fmax_mhz": 182.18255615234375,
+      "seed_fmax_mhz": [
+        192.4557342529297,
+        187.12574768066406,
+        182.18255615234375
+      ]
+    },
+    "200": {
+      "case": "random3_0_s16",
+      "width": 16,
+      "coefficients": [
+        -632,
+        -30963,
+        8920
+      ],
+      "rtl_sha256": "3adc47e6a20d935b874ecfc3380c6fce59c70449d41d5b79bf52906883571c3c",
+      "mapping": "auto",
+      "comb": 289,
+      "ff": 179,
+      "dsp": 0,
+      "fmax_mhz": 205.1702880859375,
+      "seed_fmax_mhz": [
+        205.1702880859375,
+        210.12818908691406,
+        216.966796875
+      ]
+    }
+  },
+  "runtime_boundaries": "Internal routed timing estimates, fixed-width wrapping arithmetic, four-cycle external latency, II=1. No board measurements.",
+  "local_raw_evidence": "build/frontenac-pilot-20261110",
+  "local_checks": "build/frontenac-pilot-check",
+  "raw_logs_sha256": {
+    "pilot-12446758.err": "ecc979d8004e581b74ed29cd4f945170f63230bbf49c93c4fb9d680ac65985a3",
+    "pilot-12446758.out": "8aa3826f3a84ade17b8f39d46847eb6eca01f6cd0e5905a0f00b44378e467033"
+  },
+  "runner_ci": {
+    "commit": "59e5c38a517477bc8d6a50cf512192fe61c0c155",
+    "conclusion": "success",
+    "url": "https://github.com/TT1nKer/hwine/actions/runs/42899507749"
+  }
+}

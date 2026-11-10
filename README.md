@@ -24,7 +24,8 @@ template/e-graph comparisons, grouped pipelines, hybrid DSP/CSD candidates,
 and nextpnr placement/routing. Its constraint selector exports a measured
 implementation with the associated verification evidence.
 The [Frontenac Slurm runner](docs/FRONTENAC.md) moves these CPU experiments to
-the cluster; the initial compatibility/reproduction pilot has been submitted.
+the cluster; its first 22-implementation pilot passed verification and reproduced
+the local resource/timing results across all three routing seeds.
 The completed 18-instance experiment verified all 417 distinct RTL candidates.
 Template search reduced combinational resources on 11 instances and made one
 more feasible at zero DSP / 150 MHz; the current e-graph extractor added no
