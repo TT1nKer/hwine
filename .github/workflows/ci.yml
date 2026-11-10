@@ -30,10 +30,19 @@ jobs:
           key: oss-cad-suite-linux-x64-20261109-256b113c
       - name: Simulate, prove and synthesize RTL
         run: tools/with_eda.sh python3 tools/validate.py
+      - name: Cross-check the restricted linear verifier
+        run: tools/with_eda.sh python3 tools/check_linear.py --out build/linear-check
+      - name: Check experiment pipeline proofs and negative controls
+        run: |
+          cargo run --manifest-path hwine-rs/Cargo.toml --locked --example explore_fixtures -- build/explore-fixtures
+          tools/with_eda.sh python3 tools/check_explore.py --rtl-dir build/explore-fixtures --out build/explore-check
       - name: Retain evidence, including failed proofs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: integer-rtl-validation
-          path: build/validation/
+          path: |
+            build/validation/
+            build/linear-check/
+            build/explore-check/
           retention-days: 14

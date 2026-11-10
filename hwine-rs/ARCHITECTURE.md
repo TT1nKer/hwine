@@ -53,6 +53,12 @@ register; `None` permits already explicitly aligned Pipe nodes. Automatic
 scheduling of an already sequential plan is rejected. There is no feedback,
 stalling, ready/valid handshake, FIFO or sample-history inference.
 
+`Pipeline::EveryN(n)` generalizes EveryOp with cuts at multiples of operation
+depth n and a registered final partial stage. The recursive scheduler retains
+both the scheduled plan and original operation depth; it pads operands to
+floor((depth-1)/n) cycles before each operation. This is a bounded structural
+candidate generator, not a device-aware timing optimizer. Zero n is rejected.
+
 ```rust
 use hwine_rs::{
     cost::ExtractMode,
@@ -80,3 +86,13 @@ seeds, simulation scoreboard, formal commands, negative controls and measurement
 collection. The fixture generator only builds IR and emits implementations; it
 does not compute reference answers. All generated proof obligations and logs
 are retained for inspection.
+
+`examples/explore_fixtures.rs` declares the small experiment's template and
+e-graph candidates. `tools/explore.py` pads them to a common four-cycle contract,
+checks independent arithmetic and pipeline obligations, and runs ECP5 synthesis
+and three placement/routing seeds. `tools/linear_check.py` normalizes only
+equal-width add/subtract, constant multiply, and constant left shift modulo
+2^W, consuming frontend JSON rather than the compiler IR. It rejects other
+operations and partial-vector wiring. Its Python code and Yosys's frontend
+are trusted; the checker is not mechanically verified. `tools/explore_report.py`
+selects from proven measured candidates and exports the implementation/evidence.

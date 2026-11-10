@@ -142,6 +142,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 "opt_dsp",
                 "pipe_output",
                 "pipe_every",
+                "pipe_group2",
+                "pipe_group3",
             ]
         } else {
             vec!["baseline", "opt_dsp"]
@@ -160,6 +162,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let pipeline = match variant {
                 "pipe_output" => Pipeline::Output,
                 "pipe_every" => Pipeline::EveryOp,
+                "pipe_group2" => Pipeline::EveryN(2),
+                "pipe_group3" => Pipeline::EveryN(3),
                 _ => Pipeline::None,
             };
             let name = format!("{kind}_{}{width}_{variant}", if signed { "s" } else { "u" });

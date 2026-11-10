@@ -15,6 +15,10 @@ pub enum Pipeline {
     Output,
     /// Register every arithmetic operation and balance all operand branches.
     EveryOp,
+    /// Cut at every N operation-depth levels and register the final partial
+    /// stage. N must be positive. Counts IR operations, not physical delay;
+    /// constants/variables have depth zero. Branches are cycle-aligned.
+    EveryN(usize),
 }
 
 #[derive(Debug, Clone)]
@@ -133,22 +137,36 @@ fn register(p: Rc<Plan>) -> Rc<Plan> {
     make_plan(AtomOp::Pipe, p.node.dtype, vec![p])
 }
 
-fn schedule(p: &Rc<Plan>, memo: &mut HashMap<usize, Rc<Plan>>) -> Rc<Plan> {
+fn schedule(
+    p: &Rc<Plan>,
+    interval: usize,
+    memo: &mut HashMap<usize, (Rc<Plan>, usize)>,
+) -> (Rc<Plan>, usize) {
     let key = Rc::as_ptr(p) as usize;
     if let Some(v) = memo.get(&key) {
         return v.clone();
     }
     let out = if p.children.is_empty() {
-        p.clone()
+        (p.clone(), 0)
     } else {
-        let mut children: Vec<_> = p.children.iter().map(|c| schedule(c, memo)).collect();
-        let level = children.iter().map(|c| c.stats.cycles).max().unwrap_or(0);
+        let scheduled: Vec<_> = p
+            .children
+            .iter()
+            .map(|c| schedule(c, interval, memo))
+            .collect();
+        let depth = 1 + scheduled.iter().map(|(_, d)| *d).max().unwrap_or(0);
+        let level = (depth - 1) / interval;
+        let mut children: Vec<_> = scheduled.into_iter().map(|(c, _)| c).collect();
         for c in &mut children {
             while c.stats.cycles < level {
                 *c = register(c.clone());
             }
         }
-        register(make_plan(p.node.op, p.node.dtype, children))
+        let mut node = make_plan(p.node.op, p.node.dtype, children);
+        if depth % interval == 0 {
+            node = register(node);
+        }
+        (node, depth)
     };
     memo.insert(key, out.clone());
     out
@@ -293,7 +311,22 @@ fn generate_named(
     plan = match pipeline {
         Pipeline::None => plan,
         Pipeline::Output => register(plan),
-        Pipeline::EveryOp => schedule(&plan, &mut HashMap::new()),
+        Pipeline::EveryOp | Pipeline::EveryN(_) => {
+            let interval = match pipeline {
+                Pipeline::EveryN(0) => {
+                    return Err(HwineError::InvalidInput(
+                        "pipeline interval must be positive",
+                    ));
+                }
+                Pipeline::EveryN(n) => n,
+                _ => 1,
+            };
+            let (mut scheduled, depth) = schedule(&plan, interval, &mut HashMap::new());
+            if depth % interval != 0 {
+                scheduled = register(scheduled);
+            }
+            scheduled
+        }
     };
     validate_plan(&plan, &mut HashSet::new())?;
     let mut emitter = Emitter {

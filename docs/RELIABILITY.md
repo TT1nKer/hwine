@@ -43,13 +43,18 @@ constant operands. There is no automatic alignment in this mode.
 
 `Pipeline::Output` adds one output register to a combinational plan.
 `Pipeline::EveryOp` registers every operation and explicitly delays shorter
-branches. The returned `RtlArtifact.latency` is the number L of register stages.
+branches. `Pipeline::EveryN(n)` cuts at operation depths n, 2n, etc., aligns
+branches at each cut, and registers the final partial stage. `n=0` is rejected.
+Operation depth counts IR operations (including shifts), not physical delay.
+For an operation depth D, its latency is ceil(D/n). A leaf-only plan remains
+combinational under EveryOp/EveryN; Output explicitly registers even a leaf.
+The returned `RtlArtifact.latency` is the number L of register stages.
 For inputs presented before edge n, the result is available after edge n+L−1;
 L=0 is combinational. A new tuple can be presented each cycle. All registers
 reset on a rising edge with `rst_n=0`. Ignore results until L non-reset edges
 have filled the pipeline after startup/reset; no valid signal is generated.
-The output of the two automatic pipeline modes is itself registered and zero
-on reset. Explicit Pipe graphs can have combinational logic after registers.
+An automatic pipeline with L>0 has a registered output, zero on reset.
+Explicit Pipe graphs can have combinational logic after registers.
 
 Automatic pipelining accepts only combinational extracted plans. It is not
 retiming, and does not claim to preserve the original cycle latency. The old
@@ -95,7 +100,7 @@ The test layers are separate:
 4. Deliberate arithmetic, signed-shift, latency and reset mutations must fail
    both simulation and proof. A deliberately wrong Python oracle must also fail.
    This detects several ways a checker could pass without checking useful behavior.
-5. Fifteen 16-bit arithmetic/FIR implementations go through Yosys xc7 technology
+5. Twenty-one 16-bit arithmetic/FIR implementations go through Yosys xc7 technology
    mapping. The report separates mapped cell counts from estimated cost fields.
 
 The default suite explicitly excludes the two signed/unsigned 64-bit CSD
@@ -127,3 +132,9 @@ mapping flow. It does not run Vivado, place-and-route, timing closure or hardwar
 No Vivado or FPGA board validation is claimed for this branch. Historical
 Vivado CSVs and paper conclusions have not been revalidated and cannot establish
 the correctness or performance of the changed pipeline backend.
+
+The separate [ECP5 experiment](ECP5_EXPLORATION.md) measures placed-and-routed
+arithmetic kernels. Its combinational proof uses an independent, restricted
+modular-linear checker on Yosys frontend JSON; its sequential proof uses
+Yosys SMTBMC/Bitwuzla base checking and temporal induction. These proof methods and their trusted bases are
+reported separately. They do not replace the SAT-based integer acceptance suite.

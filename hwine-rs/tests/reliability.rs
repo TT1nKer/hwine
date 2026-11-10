@@ -251,3 +251,37 @@ fn name_conflicts_return_errors_without_panics_or_partial_output() {
         );
     }
 }
+
+#[test]
+fn grouped_pipeline_handles_shared_and_uneven_paths_and_rejects_zero() {
+    let mut eg = EGraph::new();
+    let dt = DataType::S16;
+    let a = var(&mut eg, 0, dt);
+    let b = var(&mut eg, 1, dt);
+    let ab = eg.add(ENode::new(AtomOp::Mul, vec![a, b], dt));
+    let sum = eg.add(ENode::new(AtomOp::Add, vec![ab, a], dt));
+    let root = eg.add(ENode::new(AtomOp::Sub, vec![sum, ab], dt));
+    for (n, latency) in [(1, 3), (2, 2), (3, 1), (usize::MAX, 1)] {
+        let rtl = try_generate(
+            &eg,
+            root,
+            "dut",
+            16,
+            ExtractMode::MinDelay,
+            Pipeline::EveryN(n),
+        )
+        .unwrap();
+        assert_eq!(rtl.latency, latency);
+    }
+    assert!(
+        try_generate(
+            &eg,
+            root,
+            "dut",
+            16,
+            ExtractMode::MinDelay,
+            Pipeline::EveryN(0)
+        )
+        .is_err()
+    );
+}

@@ -1,5 +1,10 @@
 # Local validation record — 2026-11-10
 
+This is the historical first reliable-integer record. The later grouped-pipeline
+regression and ECP5 placement/routing experiment are recorded separately in
+[ECP5_EXPLORATION.md](ECP5_EXPLORATION.md); the results below remain tied to their
+original source commit and have not been overwritten.
+
 Source implementation: `4b626c714fcf8c8a004972d3fbc6ae75554725ff`, based on
 `0fb591aefbf7aa9263e6ecb19f8fd04b89a2c40f`. Branch: `fix/reliable-integer-rtl`.
 These results were reproduced from a clean detached checkout with a fresh Cargo
