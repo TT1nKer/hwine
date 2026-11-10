@@ -66,7 +66,8 @@ Two pre-existing 64-bit CSD cases remain simulation-only. The original 249 RTL
 fixtures are byte-identical after adding grouped pipelines. Rust validation
 passed 26 unit, 12 integration, and 4 doc tests; the library and the two relevant
 examples passed Clippy with warnings denied. See the
-[regression record](grouped-validation-2026-11-10.json). Remote CI was not run.
+[regression record](grouped-validation-2026-11-10.json). After integration into
+`main`, [remote CI passed on b08b643](https://github.com/TT1nKer/hwine/actions/runs/42887132733).
 
 ### What this supports
 
@@ -202,6 +203,19 @@ uniformly uses the word-level SMT flow and records its actual per-case times.
 
 Use the pinned tools described in [RELIABILITY.md](RELIABILITY.md). Python tooling
 uses the standard library; plotting, when requested, additionally uses matplotlib.
+
+Custom independent-input dot products are accepted with `--cases kernels.tsv`.
+The TSV header is `case`, `width`, `coefficients` separated by tabs. Each row has
+a unique ASCII name starting with a letter, width 2..16, and 2..8 comma-separated
+signed coefficients representable at that width. Zero coefficients are allowed;
+the all-zero vector is rejected. Inputs and output all have the declared width
+and wrap modulo 2^W. Invalid manifests fail before fixture output is written.
+
+For example, one data row can be `my_dot`, `16`, `32767,-32768,0,-1` (tab-separated).
+Run the normal experiment with `--cases kernels.tsv`, then select it with
+`--case my_dot`. The input manifest snapshot/hash, exact coefficients, and width
+are retained in run/export metadata. See the frozen
+[arbitrary-coefficient holdout protocol](../experiments/HOLDOUT_V1.md).
 
 ```bash
 tools/with_eda.sh python3 tools/validate.py

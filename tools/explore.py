@@ -10,6 +10,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import csv
 import hashlib
 import json
+import math
+import os
 from pathlib import Path
 import random
 import re
@@ -79,8 +81,9 @@ def wrapper(case):
     for i in range(n):
         lines.extend([f'reg signed [{w-1}:0] q{i};',
                       f'always @(posedge clk) if (!rst_n) q{i} <= 0; else q{i} <= x{i};'])
+    clocks = '.clk(clk), .rst_n(rst_n), ' if core_latency else ''
     lines.extend([f'wire [{w-1}:0] raw;',
-                  f'kernel core(.clk(clk), .rst_n(rst_n), {core_connections(n, "q")}, .result(raw));'])
+                  f'kernel core({clocks}{core_connections(n, "q")}, .result(raw));'])
     signal = 'raw'
     for i in range(3 - core_latency):
         lines.extend([f'reg [{w-1}:0] pad{i};',
@@ -274,7 +277,14 @@ def measure(case, core, top, out, config, mapping):
         route_key = digest([synthesis['netlist_sha256'], config['device'], config['frequency_mhz'], seed, config['tools']])
 
         def route(work):
-            shutil.copyfile(netlist, work / 'netlist.json')
+            # Route inputs are immutable. Sharing their inode avoids storing
+            # the same mapped netlist once per seed; replay inputs remain local.
+            target = work / 'netlist.json'
+            target.unlink(missing_ok=True)
+            try:
+                os.link(netlist, target)
+            except OSError:
+                shutil.copyfile(netlist, target)
             cmd = ['nextpnr-ecp5', '--25k', '--package', 'CABGA381', '--speed', '6',
                    '--json', 'netlist.json', '--seed', str(seed), '--freq', str(config['frequency_mhz']),
                    '--lpf-allow-unconstrained', '--timing-allow-fail', '--report', 'timing.json']
@@ -329,11 +339,18 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out', type=Path, default=ROOT / 'build' / 'explore')
     parser.add_argument('--filter', default='')
+    parser.add_argument('--cases', type=Path, help='custom TSV: case, width, coefficients')
     parser.add_argument('--jobs', type=int, default=2)
     parser.add_argument('--seeds', default='1,2,3')
     parser.add_argument('--formal-timeout', type=int, default=45)
     parser.add_argument('--frequency', type=float, default=150.0)
     args = parser.parse_args()
+    seeds = list(map(int, args.seeds.split(',')))
+    if (args.jobs < 1 or args.formal_timeout < 1 or not math.isfinite(args.frequency)
+            or args.frequency <= 0 or len(set(seeds)) != len(seeds)
+            or not seeds or any(s < 0 or s >= 2**32 for s in seeds)):
+        parser.error('require positive jobs/timeout/frequency and distinct unsigned 32-bit seeds')
+    case_data = args.cases.read_bytes() if args.cases else None
     out = args.out.resolve()
     out.mkdir(parents=True, exist_ok=True)
     tools = {}
@@ -341,10 +358,12 @@ def main():
         text, _ = checked([exe, opt], out, f'version-{exe}.log')
         tools[exe] = text.strip().splitlines()[0]
     sources = sorted((ROOT / 'hwine-rs/src').glob('*.rs')) + [ROOT / p for p in
-              ['tools/explore.py', 'tools/linear_check.py', 'hwine-rs/examples/explore_fixtures.rs']]
+              ['tools/explore.py', 'tools/linear_check.py', 'hwine-rs/examples/explore_fixtures.rs',
+               'hwine-rs/Cargo.toml', 'hwine-rs/Cargo.lock', 'rust-toolchain.toml']]
     config = {'device': 'LFE5U-25F-6 CABGA381', 'frequency_mhz': args.frequency,
-              'pnr_seeds': list(map(int, args.seeds.split(','))), 'formal_timeout': args.formal_timeout,
+              'pnr_seeds': seeds, 'formal_timeout': args.formal_timeout,
               'simulation_seed': SEED, 'tools': tools, 'scope_filter': args.filter,
+              'case_manifest': {'filename': args.cases.name, 'sha256': digest(case_data)} if case_data is not None else None,
               'latency': 4, 'initiation_interval': 1,
               'source_sha256': {str(p.relative_to(ROOT)): digest(p.read_bytes()) for p in sources}}
     # Driver changes invalidate result caches rather than silently reusing old
@@ -353,8 +372,12 @@ def main():
                                                         for p in ['tools/explore.py', 'tools/linear_check.py']])
     (out / 'summary.json').unlink(missing_ok=True)
     dump(out / 'config.json', config)
+    custom = []
+    if case_data is not None:
+        (out / 'cases.tsv').write_bytes(case_data)
+        custom = [str(out / 'cases.tsv')]
     checked(['cargo', 'run', '--locked', '--manifest-path', str(ROOT / 'hwine-rs/Cargo.toml'),
-             '--example', 'explore_fixtures', '--', str(out / 'rtl')], ROOT, str(out / 'generation.log'))
+             '--example', 'explore_fixtures', '--', str(out / 'rtl'), *custom], ROOT, str(out / 'generation.log'))
     manifest = list(csv.DictReader((out / 'rtl/manifest.tsv').open(), delimiter='\t'))
     unique = {}
     for c in manifest:

@@ -16,7 +16,8 @@ def points(summary):
             def used(resource):
                 return max(x['utilization'][resource]['used'] for x in m['routes'])
             result.append({
-                'case': r['case'], 'rtl_sha256': r['rtl_sha256'],
+                'case': r['case'], 'width': r['width'], 'coefficients': r['coefficients'],
+                'rtl_sha256': r['rtl_sha256'],
                 'aliases': r['aliases'], 'mapping': m['mapping'],
                 'comb': used('TRELLIS_COMB'), 'ff': used('TRELLIS_FF'),
                 'dsp': used('MULT18X18D'), 'fmax_mhz': m['worst_fmax_mhz'],
@@ -139,6 +140,8 @@ def export_design(point, summary_path, summary, out):
     (out / 'README.md').write_text(
         '# Measured arithmetic kernel\n\n'
         f"Case: `{point['case']}`. Top module: `dut` (`top.sv` + `kernel.sv`).\n\n"
+        f"Input/output width: {point['width']} bits. Coefficients in `x0`, `x1`, ... order: "
+        f"`{point['coefficients']}`.\n\n"
         'Signed fixed-width wrapping result; independent input tuple each cycle. '
         'Synchronous active-low reset. Latency 4, initiation interval 1. '
         'No ready/valid, stalls, FIR sample history, saturation, or full-precision output.\n\n'

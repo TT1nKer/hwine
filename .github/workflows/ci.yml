@@ -36,6 +36,8 @@ jobs:
         run: |
           cargo run --manifest-path hwine-rs/Cargo.toml --locked --example explore_fixtures -- build/explore-fixtures
           tools/with_eda.sh python3 tools/check_explore.py --rtl-dir build/explore-fixtures --out build/explore-check
+      - name: Check custom kernel inputs and eliminated ports
+        run: tools/with_eda.sh python3 tools/check_custom_cases.py --out build/custom-case-check
       - name: Retain evidence, including failed proofs
         if: always()
         uses: actions/upload-artifact@v4
@@ -45,4 +47,5 @@ jobs:
             build/validation/
             build/linear-check/
             build/explore-check/
+            build/custom-case-check/
           retention-days: 14

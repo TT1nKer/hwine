@@ -27,6 +27,10 @@ The completed 18-instance experiment verified all 417 distinct RTL candidates.
 Template search reduced combinational resources on 11 instances and made one
 more feasible at zero DSP / 150 MHz; the current e-graph extractor added no
 resource benefit over that template baseline under the measured constraints.
+Custom 2–8-input signed dot products at widths 2–16 are accepted through
+`tools/explore.py --cases kernels.tsv`; the
+[input format and experiment contract](docs/ECP5_EXPLORATION.md#reproduce-and-export)
+include explicit coefficient ranges, latency, and wrapping semantics.
 
 ## Reproduce
 
@@ -92,7 +96,7 @@ See [architecture](hwine-rs/ARCHITECTURE.md) for a minimal API example.
   historical experiments outside the current acceptance scope. Their old
   performance/proof claims have not been revalidated by this work.
 
-The historical [CI run 30323356376](https://github.com/TT1nKer/hwine/actions/runs/30323356376)
-failed at formatting; later checks did not run. The current workflow includes
-the Rust checks and required RTL suite, retaining evidence even on failure.
-Local results do not imply this unpushed branch has passed GitHub Actions.
+[CI run 42887132733](https://github.com/TT1nKer/hwine/actions/runs/42887132733)
+passed on `main` at `b08b643`, including Rust checks, the required RTL suite,
+and the experiment verifier controls. The workflow retains evidence even on
+failure. That recorded success applies to that commit, not untested later edits.
