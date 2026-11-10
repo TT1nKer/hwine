@@ -27,6 +27,14 @@ The completed 18-instance experiment verified all 417 distinct RTL candidates.
 Template search reduced combinational resources on 11 instances and made one
 more feasible at zero DSP / 150 MHz; the current e-graph extractor added no
 resource benefit over that template baseline under the measured constraints.
+
+The subsequent [24-case arbitrary-coefficient holdout](docs/ECP5_HOLDOUT.md)
+verified 551 distinct implementations. At zero DSP / 150 MHz, templates expanded
+feasibility from 6 to 20 cases. E-graph extraction further reduced cells on three
+cases and contributed nine resource-Pareto points across eight cases. A later
+balanced-digit template reduced cells by 11.8% on one examined 16-bit case; this
+post-hoc result is separate from the frozen comparison.
+
 Custom 2–8-input signed dot products at widths 2–16 are accepted through
 `tools/explore.py --cases kernels.tsv`; the
 [input format and experiment contract](docs/ECP5_EXPLORATION.md#reproduce-and-export)
@@ -99,7 +107,8 @@ See [architecture](hwine-rs/ARCHITECTURE.md) for a minimal API example.
   historical experiments outside the current acceptance scope. Their old
   performance/proof claims have not been revalidated by this work.
 
-[CI run 42887132733](https://github.com/TT1nKer/hwine/actions/runs/42887132733)
-passed on `main` at `b08b643`, including Rust checks, the required RTL suite,
-and the experiment verifier controls. The workflow retains evidence even on
-failure. That recorded success applies to that commit, not untested later edits.
+[CI run 42892784450](https://github.com/TT1nKer/hwine/actions/runs/42892784450)
+passed on `main` at `c65d2aa`, including Rust checks, the required RTL suite,
+experiment verifier controls, and custom-input boundary checks. The workflow
+retains evidence even on failure. That recorded success applies to that commit,
+not untested later edits.

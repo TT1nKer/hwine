@@ -185,11 +185,18 @@ def export_design(point, summary_path, summary, out):
         shutil.copyfile(out / 'verification' / filename, out / filename)
     shutil.copyfile(checker, out / 'source_proof/linear_check.py')
     (out / 'selection.json').write_text(json.dumps({'config': summary['config'], 'selected': point}, indent=2) + '\n')
+    request = point.get('requested_constraints')
+    request_text = ''
+    if request:
+        limits = [f'{label} <= {request[key]}' if request[key] is not None else f'{label} unrestricted'
+                  for key, label in [('max_comb', 'combinational cells'), ('max_ff', 'fabric FFs'), ('max_dsp', 'DSPs')]]
+        request_text = f"Selection request: worst-seed internal Fmax >= {request['min_mhz']:g} MHz; " + ', '.join(limits) + '.\n\n'
     (out / 'README.md').write_text(
         '# Measured arithmetic kernel\n\n'
         f"Case: `{point['case']}`. Top module: `dut` (`top.sv` + `kernel.sv`).\n\n"
         f"Input/output width: {point['width']} bits. Coefficients in `x0`, `x1`, ... order: "
         f"`{point['coefficients']}`.\n\n"
+        + request_text +
         'Signed fixed-width wrapping result; independent input tuple each cycle. '
         'Synchronous active-low reset. Latency 4, initiation interval 1. '
         'No ready/valid, stalls, FIR sample history, saturation, or full-precision output.\n\n'
@@ -228,6 +235,8 @@ def main():
                         mhz=args.min_mhz, max_comb=args.max_comb, max_ff=args.max_ff)
         if selected is None:
             raise SystemExit('No proven measured candidate satisfies these constraints.')
+        selected = {**selected, 'requested_constraints': {'min_mhz': args.min_mhz, 'max_dsp': args.max_dsp,
+                                                         'max_comb': args.max_comb, 'max_ff': args.max_ff}}
         if args.export:
             export_design(selected, args.summary.resolve(), summary, args.export.resolve())
         report = selected

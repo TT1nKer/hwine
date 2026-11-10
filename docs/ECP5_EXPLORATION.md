@@ -263,6 +263,11 @@ exercise opportunities favorable to CSD and pre-addition. They are not a random
 sample of signal-processing workloads; arbitrary coefficients and full-precision
 FIR implementations need separate evaluation.
 
+The subsequent [24-case frozen holdout](ECP5_HOLDOUT.md) evaluates full-width
+arbitrary coefficients with the same wrapping contract and reports the optional
+balanced-digit extension separately. Full-precision arithmetic remains outside
+both experiments.
+
 An e-graph contribution must improve over the template group under the same
 constraints. Merely beating direct RTL, selecting a different resource tradeoff,
 or improving the heuristic cost does not establish that contribution.
