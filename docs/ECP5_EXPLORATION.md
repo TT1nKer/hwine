@@ -5,6 +5,86 @@ It compares direct RTL structure, ordinary structural templates, and hwine's
 current e-graph extraction using actual synthesis and placement/routing.
 The cost model is not used as a substitute for measured resource/timing data.
 
+## Results — 2026-11-10
+
+**Measured search is useful on this corpus; the current e-graph extractor has
+not demonstrated an independent resource benefit over the template baseline.**
+The completed run used source commit
+`7832b68e5109aef524468f36a535c0017830fa33` and the pinned tool versions recorded in
+[the machine-readable results](ecp5-exploration-2026-11-10.json).
+
+- 18 kernel instances, 543 generated variants, 417 distinct RTL implementations.
+- All 417 passed simulation and the source/pipeline checks described below:
+  866,877 simulated comparisons, 141 distinct modular-linear source certificates,
+  and 417 SMT base-plus-induction proofs. No candidate remained unproved.
+- 834 synthesis options (automatic DSP mapping and `-nodsp`), with 2,115 distinct
+  routing runs after exact-netlist deduplication, using three seeds each.
+- At zero DSP and >=150 MHz, templates reduced combinational cells for 11 of
+  18 instances versus the basic baseline, by **16.9%–57.0%**. One additional
+  instance became feasible; the six pure-addition instances were unchanged.
+- Adding the e-graph candidates improved resources in **0 of 72** primary
+  case/budget comparisons. At >=150 MHz, they also added **no resource-Pareto
+  point** in the joint combinational-cell / fabric-FF / DSP space. The absence
+  of benefit is therefore not just a consequence of minimizing cells first.
+  The 100- and 200-MHz sensitivity queries likewise gave no resource improvement
+  under the stated selection objective. These reuse the 150-MHz-targeted routes.
+
+The following table shows all six **16-bit** families at zero DSP and >=150 MHz.
+Each entry is `combinational cells / fabric FFs / worst-seed MHz`. A candidate
+with fewer combinational cells can use more FFs or have a lower Fmax estimate.
+
+| Kernel | Basic | Template | E-graph |
+| --- | ---: | ---: | ---: |
+| dot3 | 225 / 144 / 217.30 | **155 / 154 / 224.72** | 175 / 154 / 225.68 |
+| dot4 | 296 / 176 / 221.78 | **199 / 190 / 224.16** | 244 / 144 / 191.46 |
+| sym4 | 293 / 176 / 210.04 | **126 / 138 / 189.18** | 231 / 196 / 226.50 |
+| sym6 | Infeasible | **170 / 176 / 195.50** | 303 / 240 / 213.08 |
+| sum4 | 61 / 128 / 300.12 | 61 / 128 / 300.12 | 61 / 128 / 300.12 |
+| sum8 | 141 / 240 / 298.60 | 141 / 240 / 298.60 | 141 / 240 / 298.60 |
+
+![Resource comparison and a measured tradeoff example](figures/ecp5-exploration-2026-11-10.png)
+
+For the exported `dot3_s16_csd_balanced_p2`, combinational cells decrease from
+225 to 155 (**31.1%**) while fabric FFs increase from 144 to 154. Both use zero
+DSP, latency four, and II=1. Its three routed Fmax estimates are 226.86, 224.72,
+and 230.84 MHz. These are internal timing estimates, not board measurements.
+The local export is `build/selected-dot3-s16.tar.gz` and contains RTL, proof and
+simulation inputs, commands, synthesis results, and all three route reports.
+Simulation, symbolic source checking, and SMT base/induction were rerun from
+the exported bundle and passed.
+
+A clean checkout of the recorded commit separately regenerated all 21 distinct
+`dot3_s16` implementations. RTL hashes, aliases, simulation counts, proof status,
+synthesis cell maps, and every seed's timing and utilization matched the main
+run exactly. An evidence audit checked all 417 RTL/proof records, rechecked all
+141 source certificates, and matched synthesis/routing reports to their input
+netlist hashes. A cached full replay also completed successfully.
+
+The wider integer regression remains separate: **267 RTL implementations,
+2,061,851 simulation comparisons, 265 SAT proofs, and 21 xc7 synthesis checks**.
+Two pre-existing 64-bit CSD cases remain simulation-only. The original 249 RTL
+fixtures are byte-identical after adding grouped pipelines. Rust validation
+passed 26 unit, 12 integration, and 4 doc tests; the library and the two relevant
+examples passed Clippy with warnings denied. See the
+[regression record](grouped-validation-2026-11-10.json). Remote CI was not run.
+
+### What this supports
+
+The concrete deliverable is a **verified, measured constraint explorer**:
+choose a kernel and resource/timing constraints, then receive feasible RTL with
+replayable evidence, or an explicit infeasible result. Keep e-graph extraction
+as one candidate source until it earns its additional complexity against strong
+templates. This experiment does not establish a new optimization algorithm or
+an advantage over existing research and vendor tools.
+
+The next decision-changing work is to evaluate a held-out set of wider,
+arbitrary coefficients; support explicit full-precision or rounding/saturation
+contracts; and validate one selected implementation on a board. For an
+e-graph-specific research claim, first require repeatable resource or feasibility
+improvements beyond templates on held-out kernels with the same verification
+and timing contract. Larger search spaces or a richer cost model alone would
+not satisfy that criterion.
+
 ## Fixed workload and comparison contract
 
 There are 18 instances: each of the following coefficient vectors at signed
@@ -96,7 +176,9 @@ guarantee. Sensitivity queries at other frequency requirements reuse these same
    pipeline equivalence. Both the six-step base check (with assumption
    consistency checks) and k-induction with maximum depth six must pass. This
    establishes an unbounded property, not just six-cycle simulation. A timeout
-   is unproved and excluded from selection.
+   is unproved and excluded from selection. See the
+   [YosysHQ engine reference](https://yosyshq.readthedocs.io/projects/sby/en/latest/reference.html)
+   for the distinction between bounded checking and unbounded proving.
 4. Wrong oracle, off-by-one latency, and disabled reset controls must fail both
    simulation and the relevant formal engine (SAT for the combinational oracle,
    SMTBMC for pipeline/reset mutants). Seven restricted-verifier examples are independently
@@ -154,6 +236,11 @@ primitive instantiation, commercial HLS, ASIC synthesis, ROVER, or other FPGA
 families. There is no board experiment, power estimate, post-synthesis equivalence
 check, global DAG extraction, or globally optimal register placement. Synthesis,
 technology mapping, and nextpnr remain trusted downstream tools.
+
+The chosen small constants and symmetric coefficient vectors deliberately
+exercise opportunities favorable to CSD and pre-addition. They are not a random
+sample of signal-processing workloads; arbitrary coefficients and full-precision
+FIR implementations need separate evaluation.
 
 An e-graph contribution must improve over the template group under the same
 constraints. Merely beating direct RTL, selecting a different resource tradeoff,

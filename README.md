@@ -23,6 +23,10 @@ The [ECP5 design-space experiment](docs/ECP5_EXPLORATION.md) adds verified
 template/e-graph comparisons, grouped pipelines, hybrid DSP/CSD candidates,
 and nextpnr placement/routing. Its constraint selector exports a measured
 implementation with the associated verification evidence.
+The completed 18-instance experiment verified all 417 distinct RTL candidates.
+Template search reduced combinational resources on 11 instances and made one
+more feasible at zero DSP / 150 MHz; the current e-graph extractor added no
+resource benefit over that template baseline under the measured constraints.
 
 ## Reproduce
 

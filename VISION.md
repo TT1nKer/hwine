@@ -1,5 +1,10 @@
 # hwine 长期愿景
 
+> 本文保留早期研究设想；其中的性能、创新性和功能成熟度描述不作为当前验证结论。
+> 当前实现边界见 [RELIABILITY.md](docs/RELIABILITY.md)，最新方向判断与可复现实测见
+> [ECP5_EXPLORATION.md](docs/ECP5_EXPLORATION.md)。尤其是重定时、完整 Pareto 提取和
+> 通用 HLS 能力，均不能从下面的愿景图推断为已经实现。
+
 ## 三层架构
 
 ```

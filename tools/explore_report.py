@@ -61,8 +61,24 @@ def analyze(summary):
     candidates = points(summary)
     rows = []
     sensitivity = []
+    frontier_additions = []
     for case in sorted({r['case'] for r in summary['results']}):
         cs = [p for p in candidates if p['case'] == case]
+        feasible = [p for p in cs if p['fmax_mhz'] >= summary['config']['frequency_mhz']]
+        templates = [p for p in feasible if belongs(p, 'template')]
+        extra = {}
+        for point in feasible:
+            if not belongs(point, 'egraph'):
+                continue
+            # Covering equality also excludes an already available template.
+            if any(all(t[k] <= point[k] for k in ['comb', 'ff', 'dsp']) for t in templates):
+                continue
+            if any(all(t[k] <= point[k] for k in ['comb', 'ff', 'dsp'])
+                   and any(t[k] < point[k] for k in ['comb', 'ff', 'dsp']) for t in feasible):
+                continue
+            extra[resources(point)] = compact(point)
+        frontier_additions.append({'case': case, 'min_mhz': summary['config']['frequency_mhz'],
+                                   'egraph_additions': list(extra.values())})
         for mhz in sorted({100, summary['config']['frequency_mhz'], 200}):
             for dsp in [0, 1, 2, None]:
                 choices = {g: best(cs, g, dsp, mhz)
@@ -95,6 +111,7 @@ def analyze(summary):
                      for r in summary['results'] if r['status'] != 'proved'],
         'comparisons': rows,
         'frequency_sensitivity': sensitivity,
+        'resource_frontier_additions': frontier_additions,
     }
 
 
