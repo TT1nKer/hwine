@@ -1,0 +1,9 @@
+{
+  "job_id": "12448218",
+  "host": "frnt201.frontenac.local",
+  "cpus": 4,
+  "source_commit": "5b49848c6c5129ee400ed0fad8dcb5b9036ae28e",
+  "wrapper_sha256": "070f00bbcb7fe48f8a40291ae9e818a31d48d76045a30d4895f13b7d017d08d8",
+  "python": "3.11.5 (main, Oct 28 2026, 12:46:40) [GCC 12.3.1 20230526]",
+  "started_at_utc": "2026-11-11T00:36:06.672197+00:00"
+}

@@ -8,7 +8,7 @@
 an e-graph to explore integer arithmetic implementations.
 
 See the [current project status and next decision gates](docs/PROJECT_STATUS.md)
-for implemented capabilities, verified results, queued experiments and limits.
+for implemented capabilities, verified results, campaign outcomes and the revised investment decision.
 
 The supported engineering path is deliberately small: **fixed-width wrapping
 integer arithmetic and FIR dot products**, with checked SystemVerilog generation
@@ -37,9 +37,13 @@ resource benefit over that template baseline under the measured constraints.
 The subsequent [24-case arbitrary-coefficient holdout](docs/ECP5_HOLDOUT.md)
 verified 551 distinct implementations. At zero DSP / 150 MHz, templates expanded
 feasibility from 6 to 20 cases. E-graph extraction further reduced cells on three
-cases and contributed nine resource-Pareto points across eight cases. A later
-balanced-digit template reduced cells by 11.8% on one examined 16-bit case; this
-post-hoc result is separate from the frozen comparison.
+cases and contributed nine resource-Pareto points across eight cases.
+The [complete post-hoc balanced-digit extension](docs/ECP5_BALANCED_DIGITS.md)
+proves 612 implementations and raises template feasibility to **23/24**, absorbing
+all selected e-graph gains at 150 MHz. Three resource-Pareto points remain across
+two cases. The six-cycle follow-up failed on solver unknown; eight cycles were
+cancelled without running. See the [investment reassessment](docs/PROJECT_REASSESSMENT.md)
+for why further compiler expansion is no longer the automatic next step.
 
 Custom 2–8-input signed dot products at widths 2–16 are accepted through
 `tools/explore.py --cases kernels.tsv`; the

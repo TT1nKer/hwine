@@ -13,6 +13,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('summary', type=Path)
     parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--title', help='explicit experiment label; use post-hoc for reused cases')
     args = parser.parse_args()
     summary = json.loads(args.summary.read_text())
     if summary.get('status') != 'complete':
@@ -56,7 +57,7 @@ def main():
         ax.set_visible(False)
     handles = [plt.Rectangle((0, 0), 1, 1, color=color) for _, _, color in groups]
     fig.legend(handles, [label for _, label, _ in groups], ncol=3, loc='upper center', bbox_to_anchor=(0.5, 0.95), frameon=False)
-    fig.suptitle(f'Arbitrary-coefficient holdout: all {len(shapes)} instances', x=0.065, ha='left', fontsize=18, fontweight='bold')
+    fig.suptitle(args.title or f'Arbitrary-coefficient holdout: all {len(shapes)} instances', x=0.065, ha='left', fontsize=18, fontweight='bold')
     seeds = '/'.join(map(str, summary['config']['pnr_seeds']))
     fig.text(0.065, 0.018, f'0 DSP, worst-seed Fmax >= {mhz:g} MHz | latency={summary["config"]["latency"]}, II=1 | ECP5 LFE5U-25F-6 | nextpnr seeds {seeds}\n'
              'N/A: no proved candidate meets the timing constraint. FF tradeoffs are reported separately.\n'

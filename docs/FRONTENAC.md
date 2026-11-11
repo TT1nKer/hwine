@@ -1,5 +1,12 @@
 # Running hwine on Frontenac
 
+Latest campaign outcome: full24 job 12448218 completed and passed local evidence
+and shared-RTL audits; six-cycle job 12448265 failed on solver `unknown`, and
+eight-cycle job 12448266 was cancelled by dependency failure. No resubmission.
+See the [complete report](ECP5_BALANCED_DIGITS.md) and
+[machine-readable outcome](frontenac-campaign-outcome-2026-11-10.json).
+
+
 The experiment does not require the local workstation. Candidate generation,
 Icarus simulation, Yosys/Bitwuzla proofs, synthesis, and nextpnr routing are CPU
 workloads. They can run in a Slurm allocation on Frontenac. A GPU allocation is

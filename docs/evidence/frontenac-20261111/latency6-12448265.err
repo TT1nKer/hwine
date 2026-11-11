@@ -1,0 +1,32 @@
+Traceback (most recent call last):
+  File "/global/teaching-home/sa6079074/hwine/checkouts/latency-v1-74991c2/tools/explore.py", line 430, in <module>
+    main()
+  File "/global/teaching-home/sa6079074/hwine/checkouts/latency-v1-74991c2/tools/explore.py", line 420, in main
+    record = future.result()
+             ^^^^^^^^^^^^^^^
+  File "/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/python/3.11.5/lib/python3.11/concurrent/futures/_base.py", line 449, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/python/3.11.5/lib/python3.11/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/cvmfs/soft.computecanada.ca/easybuild/software/2023/x86-64-v3/Compiler/gcccore/python/3.11.5/lib/python3.11/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/global/teaching-home/sa6079074/hwine/checkouts/latency-v1-74991c2/tools/explore.py", line 329, in evaluate
+    verification = cached(out, 'verification', rtl_key, verify)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/global/teaching-home/sa6079074/hwine/checkouts/latency-v1-74991c2/tools/explore.py", line 257, in cached
+    result = {**task(work), 'artifact': str(work.relative_to(out))}
+                ^^^^^^^^^^
+  File "/global/teaching-home/sa6079074/hwine/checkouts/latency-v1-74991c2/tools/explore.py", line 326, in verify
+    proof = formal(case, work, True, config['formal_timeout'], latency)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/global/teaching-home/sa6079074/hwine/checkouts/latency-v1-74991c2/tools/explore.py", line 152, in formal
+    raise RuntimeError(f'Formal failure (not a timeout): {work / "formal.log"}\n{output[-1800:]}')
+RuntimeError: Formal failure (not a timeout): /global/teaching-home/sa6079074/hwine/runs/latency6-wide-20261111-r1/verification/263301bb5eed3385cf8c4cf09f459d5db5e9482753c2b1cb17ca7860d41a24ed/formal.log
+ds) -\|/-\|/-\                (22 seconds) |/-\|/-\|               ##   0:00:23  Checking assumptions in step 7..
+##   0:00:23  Checking assertions in step 7..
+ (2 seconds) /-\|/               (3 seconds) -\|/-\|/-\               (4 seconds) |/-\|/-\|/               (5 seconds) -\|/-\|/-\               (6 seconds) |/-\|/-\|/               (7 seconds) -\|/-\|/-\               (8 seconds) |/-\|/-\|/               (9 seconds) -\|/-\|/-\               (10 seconds) |/-\|/-\|/                (11 seconds) -\|/-\|/-\                (12 seconds) |/-\|/-\|/                (13 seconds) -\|/-\|/-\                (14 seconds) |/-\|/-\|/                (15 seconds) -\|/-\|/-\                (16 seconds) |/-\|/-\|/                (17 seconds) -\|/-\|/-\                (18 seconds) |/-\|/-\|/                (19 seconds) -\|/-\|/-\                (20 seconds) |/-\|/-\|/                (21 seconds) -\|/-               ##   0:00:45  Unexpected response from solver: unknown
+
+srun: error: frnt201: task 0: Exited with exit code 1
+srun: Terminating StepId=12448265.0

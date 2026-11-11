@@ -1,0 +1,14 @@
+{
+  "status": "passed",
+  "current_source_hashes_checked": false,
+  "source_commit_checked": "5b49848c6c5129ee400ed0fad8dcb5b9036ae28e",
+  "rtl_records": 612,
+  "proved": 612,
+  "timeouts": 0,
+  "simulation_comparisons": 1272060,
+  "source_certificates_rechecked": 248,
+  "synthesis_records": 1224,
+  "routing_records": 3138,
+  "summary_sha256": "829f747a1415aef9bda3e89756b487a6683e9a550b8b0bc7375a4b9f3b9f28e0",
+  "audit_script_sha256": "28032738e115d65a165323ad22088538293738f67f4dac6cef28e9f0e3ade3b2"
+}

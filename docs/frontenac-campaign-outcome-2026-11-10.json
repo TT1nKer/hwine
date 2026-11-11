@@ -1,0 +1,105 @@
+{
+  "status": "closed-with-incomplete-latency-experiments",
+  "accounting_timezone": "UTC",
+  "jobs": [
+    {
+      "JobID": "12448218",
+      "JobName": "hwine-balanced24",
+      "State": "COMPLETED",
+      "ExitCode": "0:0",
+      "Start": "2026-11-11T00:36:06",
+      "End": "2026-11-11T01:23:16",
+      "Elapsed": "00:47:10",
+      "AllocCPUS": "4",
+      "ReqMem": "8G",
+      "MaxRSS": "",
+      "NodeList": "frnt201"
+    },
+    {
+      "JobID": "12448265",
+      "JobName": "hwine-latency6",
+      "State": "FAILED",
+      "ExitCode": "1:0",
+      "Start": "2026-11-11T01:23:17",
+      "End": "2026-11-11T02:29:40",
+      "Elapsed": "01:06:23",
+      "AllocCPUS": "2",
+      "ReqMem": "8G",
+      "MaxRSS": "",
+      "NodeList": "frnt201"
+    },
+    {
+      "JobID": "12448266",
+      "JobName": "hwine-latency8",
+      "State": "CANCELLED",
+      "ExitCode": "0:0",
+      "Start": "None",
+      "End": "2026-11-11T02:29:42",
+      "Elapsed": "00:00:00",
+      "AllocCPUS": "0",
+      "ReqMem": "8G",
+      "MaxRSS": "",
+      "NodeList": "None assigned"
+    }
+  ],
+  "balanced24": {
+    "source_commit": "5b49848c6c5129ee400ed0fad8dcb5b9036ae28e",
+    "local_raw_evidence": "build/frontenac-balanced24-20261111",
+    "remote_raw_evidence": "$HOME/hwine/runs/balanced24-20261111-r1",
+    "source_and_wrapper_checked_against_commit": true,
+    "audit_record": "docs/frontenac-balanced24-audit-2026-11-10.json",
+    "candidate_comparison_record": "docs/frontenac-balanced24-comparison-2026-11-10.json"
+  },
+  "latency6": {
+    "source_commit": "74991c282d8853a7f47da7555b24ffe358f14189",
+    "source_hashes_and_wrapper_checked_against_commit": true,
+    "local_raw_evidence": "build/frontenac-latency6-20261111",
+    "remote_raw_evidence": "$HOME/hwine/runs/latency6-wide-20261111-r1",
+    "generated_distinct_rtl": 148,
+    "progress_records": 79,
+    "complete_summary": false,
+    "full_evidence_audit": "not-applicable-incomplete-run",
+    "unknown_proofs": [
+      {
+        "artifact": "verification/263301bb5eed3385cf8c4cf09f459d5db5e9482753c2b1cb17ca7860d41a24ed/formal.log",
+        "aliases": [
+          "random6_2_s16_csd_balanced_p2.sv"
+        ],
+        "formal_log_sha256": "612ab7bc7188786522bdf6ae7602555afa1e8a6859e644e724372d3c0882521a",
+        "retained_log": "docs/evidence/frontenac-20261111/random6_2_s16_csd_balanced_p2-formal-unknown.log"
+      },
+      {
+        "artifact": "verification/6b423e4656b712b49f77c7bb7c6097f2df3fe760fc330a23da269770ce4c2123/formal.log",
+        "aliases": [
+          "random6_2_s16_mixed_2_p2.sv"
+        ],
+        "formal_log_sha256": "df051bde21dce5013e08511d490db20d4a0fec2a55ea007ff60baa29b81e0a90",
+        "retained_log": "docs/evidence/frontenac-20261111/random6_2_s16_mixed_2_p2-formal-unknown.log"
+      }
+    ],
+    "counterexample_failed_status_markers": 0,
+    "formal_logs_with_both_phases_passed": 146,
+    "formal_timeout_seconds": 45,
+    "diagnosis": "Both unknown replies occurred at 45 seconds. The pinned smtio adapter passes --time-limit 45000 to Bitwuzla. This is consistent with solver time exhaustion, not a found counterexample; unknown is not proved. The driver recognizes timeout text but not unknown, raises RuntimeError, and does not assemble a complete summary. Worker tasks continue during executor shutdown, so cached proof counts exceed progress records. Partial caches are not used as a complete latency comparison."
+  },
+  "latency8": {
+    "source_commit": "74991c282d8853a7f47da7555b24ffe358f14189",
+    "started": false,
+    "reason": "afterok dependency on failed 12448265; kill-on-invalid-dep=yes",
+    "reason_basis": "Inference from recorded afterok dependency, kill-on-invalid-dep=yes, no start, and cancellation two seconds after the six-cycle failure; sacct Reason is None."
+  },
+  "resubmitted": false,
+  "new_experiments": 0,
+  "retained_evidence_sha256": {
+    "docs/evidence/frontenac-20261111/balanced24-12448218.err": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/evidence/frontenac-20261111/balanced24-12448218.out": "c274a2f49e4f36ad860cc73c7a1076f9c37113eeeb4e21950dedcd507b92b9e8",
+    "docs/evidence/frontenac-20261111/balanced24-slurm.json": "3b0d93f9ebdce6c3c70d08246910cc4ab81502451052fd1001af55cb2cf0772d",
+    "docs/evidence/frontenac-20261111/latency6-12448265.err": "c8a623c828b9a0dc8582c0fa23172f20188a6cc9989196375ea139a31c02766c",
+    "docs/evidence/frontenac-20261111/latency6-12448265.out": "ce6e29d32ec2794a9407731765f96a9a0517856eb0c7a33b64dea3c41d385e19",
+    "docs/evidence/frontenac-20261111/latency6-slurm.json": "2d562887fe6a2047af9c90aafb747e917e2747b9db01fdf369bdae6546c05b19",
+    "docs/evidence/frontenac-20261111/random6_2_s16_csd_balanced_p2-formal-unknown.log": "612ab7bc7188786522bdf6ae7602555afa1e8a6859e644e724372d3c0882521a",
+    "docs/evidence/frontenac-20261111/random6_2_s16_mixed_2_p2-formal-unknown.log": "df051bde21dce5013e08511d490db20d4a0fec2a55ea007ff60baa29b81e0a90",
+    "docs/evidence/frontenac-20261111/sacct-utc.txt": "ba098b62d78ffe16dcf182a00a9bbdf55a49e562ba37b82e25510592459716c4",
+    "docs/evidence/frontenac-20261111/sacct-reasons.txt": "ed13dfac2236bfc4d49f30c7f0eab460496b08ec8aca78d4a108d444aba88a2e"
+  }
+}
