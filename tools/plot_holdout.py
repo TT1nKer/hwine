@@ -58,7 +58,7 @@ def main():
     fig.legend(handles, [label for _, label, _ in groups], ncol=3, loc='upper center', bbox_to_anchor=(0.5, 0.95), frameon=False)
     fig.suptitle(f'Arbitrary-coefficient holdout: all {len(shapes)} instances', x=0.065, ha='left', fontsize=18, fontweight='bold')
     seeds = '/'.join(map(str, summary['config']['pnr_seeds']))
-    fig.text(0.065, 0.018, f'0 DSP, worst-seed Fmax >= {mhz:g} MHz | latency=4, II=1 | ECP5 LFE5U-25F-6 | nextpnr seeds {seeds}\n'
+    fig.text(0.065, 0.018, f'0 DSP, worst-seed Fmax >= {mhz:g} MHz | latency={summary["config"]["latency"]}, II=1 | ECP5 LFE5U-25F-6 | nextpnr seeds {seeds}\n'
              'N/A: no proved candidate meets the timing constraint. FF tradeoffs are reported separately.\n'
              'Internal routed timing estimates; no board measurement. Coefficients and all resource tuples are in the report.',
              fontsize=9, color='#555555')

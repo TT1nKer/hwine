@@ -45,6 +45,10 @@ include explicit coefficient ranges, latency, and wrapping semantics.
 The optional `--balanced-digits` flag also searches multipliers built from
 balanced positive/negative signed-digit sums. It is a later template extension,
 separate from the frozen holdout comparison.
+`--latency N` sets an external latency of 2–16 cycles (default 4), including
+the input register and output padding, while retaining II=1. The proof and
+simulation check that declared cycle count. See the
+[latency contract and bounded follow-up](experiments/LATENCY_V1.md).
 
 ## Reproduce
 

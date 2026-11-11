@@ -39,6 +39,8 @@ jobs:
           tools/with_eda.sh python3 tools/check_explore.py --rtl-dir build/explore-fixtures --out build/explore-check
       - name: Check custom kernel inputs and eliminated ports
         run: tools/with_eda.sh python3 tools/check_custom_cases.py --out build/custom-case-check
+      - name: Check configurable pipeline latency and negative controls
+        run: tools/with_eda.sh python3 tools/check_latency.py --out build/latency-check
       - name: Retain evidence, including failed proofs
         if: always()
         uses: actions/upload-artifact@v4
@@ -49,4 +51,5 @@ jobs:
             build/linear-check/
             build/explore-check/
             build/custom-case-check/
+            build/latency-check/
           retention-days: 14

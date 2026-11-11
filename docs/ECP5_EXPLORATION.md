@@ -204,6 +204,15 @@ uniformly uses the word-level SMT flow and records its actual per-case times.
 Use the pinned tools described in [RELIABILITY.md](RELIABILITY.md). Python tooling
 uses the standard library; plotting, when requested, additionally uses matplotlib.
 
+The frozen experiments above use four external cycles. New runs accept
+`--latency N` for 2–16 cycles, including one input register. The generator keeps
+only cores shorter than N and pads their outputs to N cycles. II=1, wrapping
+arithmetic and synchronous reset remain the contract. Simulation follows N
+cycles; sequential proof uses a base check and induction limit of N+2. Every
+selected implementation must still be proved. Timing/resource comparisons
+across different N are latency tradeoffs, not equal-latency improvements.
+See the [separate latency experiment](../experiments/LATENCY_V1.md).
+
 Custom independent-input dot products are accepted with `--cases kernels.tsv`.
 The TSV header is `case`, `width`, `coefficients` separated by tabs. Each row has
 a unique ASCII name starting with a letter, width 2..16, and 2..8 comma-separated

@@ -243,14 +243,27 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let out = PathBuf::from(args.next().ok_or("output directory required")?);
     let mut custom = None;
     let mut balanced_digits = false;
-    for arg in args {
+    let mut latency = None;
+    while let Some(arg) = args.next() {
         if arg == "--balanced-digits" && !balanced_digits {
             balanced_digits = true;
+        } else if arg == "--latency" && latency.is_none() {
+            latency = Some(
+                args.next()
+                    .ok_or("latency value required")?
+                    .parse::<usize>()?,
+            );
         } else if !arg.starts_with('-') && custom.is_none() {
             custom = Some(arg);
         } else {
-            return Err("usage: explore_fixtures OUT [CASES.tsv] [--balanced-digits]".into());
+            return Err(
+                "usage: explore_fixtures OUT [CASES.tsv] [--balanced-digits] [--latency N]".into(),
+            );
         }
+    }
+    let latency = latency.unwrap_or(4);
+    if !(2..=16).contains(&latency) {
+        return Err("external latency must be 2..16 cycles, including the input register".into());
     }
     let builtin: [(&str, &[i64]); 6] = [
         ("dot3", &[7, 13, -5]),
@@ -327,9 +340,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     Pipeline::EveryN(interval)
                 };
                 let rtl = try_generate(&eg, root, "kernel", width as usize, mode, pipeline)?;
-                // One common input register + at most 3 core cycles; pad
-                // the output so every measured design has total latency 4.
-                if rtl.latency > 3 {
+                // Reserve one input register; the driver pads shorter cores
+                // so every measured implementation has the requested latency.
+                if rtl.latency >= latency {
                     continue;
                 }
                 let name = format!("{}_{style}_p{interval}", case.name);

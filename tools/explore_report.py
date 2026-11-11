@@ -198,7 +198,7 @@ def export_design(point, summary_path, summary, out):
         f"`{point['coefficients']}`.\n\n"
         + request_text +
         'Signed fixed-width wrapping result; independent input tuple each cycle. '
-        'Synchronous active-low reset. Latency 4, initiation interval 1. '
+        f"Synchronous active-low reset. Latency {summary['config']['latency']}, initiation interval 1. "
         'No ready/valid, stalls, FIR sample history, saturation, or full-precision output.\n\n'
         f"ECP5 LFE5U-25F-6 CABGA381: {point['comb']} TRELLIS_COMB, "
         f"{point['ff']} fabric FF, {point['dsp']} DSP; worst routed estimate "

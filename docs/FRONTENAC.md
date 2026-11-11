@@ -119,4 +119,14 @@ The wrapper SHA-256 for this submission is
 The supported split is local editing and small checks, with expensive experiment
 batches on Slurm. Independent coefficient cases can be split into bounded jobs
 with separate outputs and a concurrency cap. This pilot verifies one case on
-one compute node; a larger expanded-template sweep has not yet been submitted.
+one compute node.
+
+## Full expanded-template sweep
+
+Job **12448218** was submitted on 2026-11-10 at 23:54:35 UTC, from fixed commit
+`5b49848c6c5129ee400ed0fad8dcb5b9036ae28e`, under the
+[24-case protocol](../experiments/BALANCED_DIGITS_V1.md). It requests four CPUs,
+8 GiB and two hours, with output at
+`$HOME/hwine/runs/balanced24-20261111-r1`. The submission is confirmed; results
+are pending. Preserve `$HOME/hwine/repo` until it finishes. Follow-up experiments
+must use a different fixed checkout, and this job must not be duplicated.

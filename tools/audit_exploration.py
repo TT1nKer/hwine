@@ -21,6 +21,8 @@ def audit(summary, root, check_current_sources=False, source_commit=None):
         raise RuntimeError('Evidence audit requires Python assertions; do not use -O')
     assert summary['status'] == 'complete', 'Incomplete experiment'
     config = summary['config']
+    latency = config['latency']
+    assert 2 <= latency <= 16 and config['initiation_interval'] == 1
     hashes = {}
 
     def sha(path):
@@ -62,6 +64,7 @@ def audit(summary, root, check_current_sources=False, source_commit=None):
         assert actual == result['rtl_sha256'], 'RTL hash mismatch'
         assert sha(verification / 'source.sv') == sha(source / 'source.sv'), 'Proof composition mismatch'
         for alias in result['aliases']:
+            assert 0 <= int(alias['core_latency']) < latency
             fixture = manifest[alias['name']]
             assert fixture['case'] == result['case'] and int(fixture['width']) == result['width']
             assert list(map(int, fixture['coefficients'].split(','))) == result['coefficients']
@@ -70,6 +73,8 @@ def audit(summary, root, check_current_sources=False, source_commit=None):
             assert sha(root / 'rtl' / (alias['name'] + '.sv')) == sha(verification / 'kernel.sv')
         if result['status'] == 'proved':
             assert result['verification']['formal']['status'] == 'proved'
+            assert result['verification']['formal']['base_steps'] == latency + 2
+            assert result['verification']['formal']['induction_depth_limit'] == latency + 2
             for name in ['formal-base.log', 'formal-induction.log']:
                 assert 'Status: PASSED' in (verification / name).read_text(), name
             assert len(result['measurements']) == 2
@@ -86,7 +91,7 @@ def audit(summary, root, check_current_sources=False, source_commit=None):
         width, coefficients = result['width'], result['coefficients']
         mask = (1 << width) - 1
         vectors = (verification / 'vectors.hex').read_text().splitlines()
-        assert len(vectors) - 3 <= count <= len(vectors)
+        assert count == len(vectors) - (latency - 1)
         for vector in vectors:
             packed = int(vector, 16)
             expected, packed = packed & mask, packed >> width

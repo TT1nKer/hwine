@@ -2,7 +2,7 @@
 """Verified, measured ECP5 design-space pilot (stdlib only).
 
 All candidates have signed wrapping arithmetic, II=1, synchronous active-low
-reset, and latency 4 including a common input register. This is an arithmetic
+reset, and a declared latency (default 4) including an input register. This is an arithmetic
 kernel experiment, not a streaming FIR implementation or a board Fmax test.
 """
 import argparse
@@ -74,8 +74,10 @@ def connections(n):
     return ', '.join(f'.x{i}(x{i})' for i in range(n))
 
 
-def wrapper(case):
+def wrapper(case, latency=4):
     w, n, core_latency = case['width'], len(case['coefficients']), case['core_latency']
+    if not 0 <= core_latency < latency:
+        raise ValueError('Core must fit within the external latency after the input register')
     ports = ', '.join(f'input signed [{w-1}:0] x{i}' for i in range(n))
     lines = [f'module dut(input clk, rst_n, {ports}, output [{w-1}:0] result);']
     for i in range(n):
@@ -85,7 +87,7 @@ def wrapper(case):
     lines.extend([f'wire [{w-1}:0] raw;',
                   f'kernel core({clocks}{core_connections(n, "q")}, .result(raw));'])
     signal = 'raw'
-    for i in range(3 - core_latency):
+    for i in range(latency - 1 - core_latency):
         lines.extend([f'reg [{w-1}:0] pad{i};',
                       f'always @(posedge clk) if (!rst_n) pad{i} <= 0; else pad{i} <= {signal};'])
         signal = f'pad{i}'
@@ -99,7 +101,7 @@ def reference(case):
                       for i, c in enumerate(case['coefficients']))
 
 
-def formal(case, work, sequential, timeout):
+def formal(case, work, sequential, timeout, latency=4):
     w, n = case['width'], len(case['coefficients'])
     ports = ', '.join(f'input signed [{w-1}:0] x{i}' for i in range(n))
     lines = [f'module miter(input clk, rst_n, {ports}, output ok);',
@@ -108,17 +110,17 @@ def formal(case, work, sequential, timeout):
         lines.extend([
             f'source src({core_connections(n)}, .result(ref_value));',
             f'dut impl(.clk(clk), .rst_n(rst_n), {connections(n)}, .result(actual));',
-            f'reg [{w-1}:0] history [0:3];',
-            "reg [3:0] valid = 0; reg reset_seen = 0; integer i;",
+            f'reg [{w-1}:0] history [0:{latency-1}];',
+            f"reg [{latency-1}:0] valid = 0; reg reset_seen = 0; integer i;",
             'always @(posedge clk) begin',
             '  reset_seen <= !rst_n;',
             '  if (!rst_n) begin',
-            '    valid <= 0; for (i=0; i<4; i=i+1) history[i] <= 0;',
+            f'    valid <= 0; for (i=0; i<{latency}; i=i+1) history[i] <= 0;',
             "  end else begin valid <= (valid << 1) | 1'b1;",
             '    history[0] <= ref_value;',
-            '    for (i=1; i<4; i=i+1) history[i] <= history[i-1];',
+            f'    for (i=1; i<{latency}; i=i+1) history[i] <= history[i-1];',
             '  end', 'end',
-            'assign ok = (!valid[3] || actual == history[3]) && (!reset_seen || actual == 0);',
+            f'assign ok = (!valid[{latency-1}] || actual == history[{latency-1}]) && (!reset_seen || actual == 0);',
         ])
     else:
         lines.extend([f'assign ref_value = {reference(case)};',
@@ -135,8 +137,9 @@ def formal(case, work, sequential, timeout):
         (work / 'formal.ys').write_text(script)
         _, seconds = checked(['yosys', '-Q', '-T', '-s', 'formal.ys'], work, 'formal-generation.log')
         combined = []
+        steps = latency + 2
         for phase, options in [('base', ['--presat']), ('induction', ['-i'])]:
-            cmd = ['yosys-smtbmc', '-s', 'bitwuzla', '-t', '6', '--timeout', str(timeout),
+            cmd = ['yosys-smtbmc', '-s', 'bitwuzla', '-t', str(steps), '--timeout', str(timeout),
                    '--dump-vcd', f'counterexample-{phase}.vcd', *options, 'miter.smt2']
             output, code, elapsed = run(cmd, work, f'formal-{phase}.log', timeout + 15)
             seconds += elapsed
@@ -147,7 +150,7 @@ def formal(case, work, sequential, timeout):
             if 'timeout' in output.lower() or 'timed out' in output.lower():
                 return {'status': 'timeout', 'seconds': round(seconds, 3), 'method': 'smtbmc-bitwuzla-k-induction'}
             raise RuntimeError(f'Formal failure (not a timeout): {work / "formal.log"}\n{output[-1800:]}')
-        return {'status': 'proved', 'seconds': round(seconds, 3), 'method': 'smtbmc-bitwuzla-k-induction', 'base_steps': 6, 'induction_depth_limit': 6}
+        return {'status': 'proved', 'seconds': round(seconds, 3), 'method': 'smtbmc-bitwuzla-k-induction', 'base_steps': steps, 'induction_depth_limit': steps}
     reads = 'read_verilog -sv source.sv\n'
     proof = f'sat -prove ok 1 -verify -timeout {timeout} -dump_vcd counterexample.vcd'
     script = reads + 'read_verilog -sv miter.sv\nprep -top miter -flatten\ntechmap\nopt\ncheck -assert\n' + proof + '\n'
@@ -176,7 +179,7 @@ def linear_formal(case, work):
     return {'status': 'proved', 'seconds': seconds, 'method': certificate['method']}
 
 
-def simulate(case, work):
+def simulate(case, work, latency=4):
     w, n = case['width'], len(case['coefficients'])
     mask = (1 << w) - 1
     edges = [0, 1, mask, 1 << (w-1), (1 << (w-1))-1, mask-1]
@@ -202,7 +205,7 @@ def simulate(case, work):
 {regs}
 reg clk=0, rst_n=0;
 wire [{w-1}:0] actual;
-reg [{w-1}:0] expected, history[0:3];
+reg [{w-1}:0] expected, history[0:{latency-1}];
 reg [{(n+1)*w-1}:0] vectors[0:{len(values)-1}];
 integer i, filled=0, checked=0;
 dut impl(.clk(clk), .rst_n(rst_n), {connections(n)}, .result(actual));
@@ -212,7 +215,7 @@ initial begin
   #5; clk=1; #1;
   if (actual !== 0) $fatal(1, "MISMATCH initial reset");
   clk=0; #4;
-  for (i=0; i<{len(values)+3}; i=i+1) begin
+  for (i=0; i<{len(values)+latency-1}; i=i+1) begin
     if (i == {len(values)//2}) begin
       rst_n=0; #5; clk=1; #1;
       if (actual !== 0) $fatal(1, "MISMATCH reset");
@@ -220,11 +223,11 @@ initial begin
     end
     rst_n=1;
     {{{unpack}}} = vectors[i < {len(values)} ? i : 0];
-    history[i % 4] = expected;
+    history[i % {latency}] = expected;
     #5; clk=1; #1;
-    if (filled<4) filled=filled+1;
-    if (filled==4) begin
-      if (actual !== history[(i+1)%4]) $fatal(1, "MISMATCH i=%0d got=%h expected=%h", i, actual, history[(i+1)%4]);
+    if (filled<{latency}) filled=filled+1;
+    if (filled=={latency}) begin
+      if (actual !== history[(i+1)%{latency}]) $fatal(1, "MISMATCH i=%0d got=%h expected=%h", i, actual, history[(i+1)%{latency}]);
       checked=checked+1;
     end
     clk=0; #4;
@@ -237,7 +240,7 @@ endmodule
     checked(['iverilog', '-g2012', '-s', 'tb', '-o', 'sim.vvp', 'kernel.sv', 'top.sv', 'tb.sv'], work, 'compile.log')
     output, seconds = checked(['vvp', 'sim.vvp'], work, 'simulation.log')
     count = int(re.search(r'SIM_PASS checked=(\d+)', output).group(1))
-    if count < len(values)-3:
+    if count != len(values) - (latency - 1):
         raise RuntimeError('Missing simulation comparisons')
     return {'comparisons': count, 'seconds': seconds}
 
@@ -304,7 +307,8 @@ def measure(case, core, top, out, config, mapping):
 def evaluate(case, aliases, out, config):
     source = (out / 'rtl' / (case['name'] + '_source.sv')).read_text()
     core = (out / 'rtl' / (case['name'] + '.sv')).read_text()
-    top = wrapper(case)
+    latency = config['latency']
+    top = wrapper(case, latency)
     source_key = digest([source, case['coefficients'], case['width'], config['formal_timeout'], config['tools']])
 
     def prove_source(work):
@@ -318,8 +322,8 @@ def evaluate(case, aliases, out, config):
         (work / 'kernel.sv').write_text(core)
         (work / 'top.sv').write_text(top)
         (work / 'source.sv').write_text(source)
-        simulation = simulate(case, work)
-        proof = formal(case, work, True, config['formal_timeout'])
+        simulation = simulate(case, work, latency)
+        proof = formal(case, work, True, config['formal_timeout'], latency)
         return {'simulation': simulation, 'formal': proof}
 
     verification = cached(out, 'verification', rtl_key, verify)
@@ -341,6 +345,8 @@ def main():
     parser.add_argument('--filter', default='')
     parser.add_argument('--cases', type=Path, help='custom TSV: case, width, coefficients')
     parser.add_argument('--balanced-digits', action='store_true', help='also search balanced signed-digit multiplier trees (post-holdout extension)')
+    parser.add_argument('--latency', type=int, default=4, choices=range(2, 17),
+                        help='external cycles including input register and padding (default: 4)')
     parser.add_argument('--jobs', type=int, default=2)
     parser.add_argument('--seeds', default='1,2,3')
     parser.add_argument('--formal-timeout', type=int, default=45)
@@ -366,7 +372,7 @@ def main():
               'simulation_seed': SEED, 'tools': tools, 'scope_filter': args.filter,
               'case_manifest': {'filename': args.cases.name, 'sha256': digest(case_data)} if case_data is not None else None,
               'candidate_options': {'balanced_digits': args.balanced_digits},
-              'latency': 4, 'initiation_interval': 1,
+              'latency': args.latency, 'initiation_interval': 1,
               'source_sha256': {str(p.relative_to(ROOT)): digest(p.read_bytes()) for p in sources}}
     # Driver changes invalidate result caches rather than silently reusing old
     # checks or experimental policies. Source RTL itself is also in each key.
@@ -387,6 +393,8 @@ def main():
         custom = [str(out / 'cases.tsv')]
     if args.balanced_digits:
         custom.append('--balanced-digits')
+    if args.latency != 4:
+        custom.extend(['--latency', str(args.latency)])
     checked(['cargo', 'run', '--locked', '--manifest-path', str(ROOT / 'hwine-rs/Cargo.toml'),
              '--target-dir', str(generator_target), '--example', 'explore_fixtures', '--', str(out / 'rtl'), *custom],
             ROOT, str(out / 'generation.log'))
@@ -398,7 +406,7 @@ def main():
         c['width'], c['core_latency'], c['interval'] = int(c['width']), int(c['core_latency']), int(c['interval'])
         c['coefficients'] = list(map(int, c['coefficients'].split(',')))
         core = (out / 'rtl' / (c['name'] + '.sv')).read_text()
-        key = digest([c['case'], core, wrapper(c)])
+        key = digest([c['case'], core, wrapper(c, args.latency)])
         if key not in unique:
             unique[key] = [c, []]
         unique[key][1].append({k: c[k] for k in ['name', 'style', 'group', 'interval', 'core_latency', 'estimated_delay']})
