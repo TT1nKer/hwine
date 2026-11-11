@@ -1,0 +1,61 @@
+{
+  "status": "submitted-results-pending",
+  "submitted_at_utc": "2026-11-11T00:06:31Z",
+  "source_commit": "74991c282d8853a7f47da7555b24ffe358f14189",
+  "protocol": "experiments/LATENCY_V1.md",
+  "protocol_sha256": "cf2cd3fbfaa225393b10bbb496f8f2014bdf859b001ae21fcc0b1ad43e6e0d08",
+  "case_manifest": "experiments/latency-wide-v1.tsv",
+  "manifest_sha256": "344331e4fe2997a2b2542b425609ce90484dc3eddaf0600cefb6c7e498ae1ed3",
+  "remote_checkout": "$HOME/hwine/checkouts/latency-v1-74991c2",
+  "resource_limits_per_job": {
+    "cpus": 2,
+    "memory_gib": 8,
+    "time_limit_seconds": 7200,
+    "gpu_requested": false
+  },
+  "jobs": [
+    {
+      "job_id": 12448265,
+      "latency": 6,
+      "after_success_of": 12448218,
+      "remote_output": "$HOME/hwine/runs/latency6-wide-20261111-r1"
+    },
+    {
+      "job_id": 12448266,
+      "latency": 8,
+      "after_success_of": 12448265,
+      "remote_output": "$HOME/hwine/runs/latency8-wide-20261111-r1"
+    }
+  ],
+  "scheduler_state_at_submission": "PENDING (Dependency)",
+  "kill_on_invalid_dependency": true,
+  "validation_before_submission": {
+    "latencies_proved_and_simulated": [
+      2,
+      6,
+      8,
+      16
+    ],
+    "wrong_cycle_controls_rejected_by_simulation_and_formal": [
+      2,
+      6,
+      8,
+      16
+    ],
+    "disabled_reset_control_rejected_by_simulation_and_formal": 8,
+    "four_cycle_fixture_files_byte_identical_to_previous_expanded_run": 1309,
+    "default_custom_cases_proved": 9,
+    "invalid_manifests_rejected": 14,
+    "default_pipeline_positive_controls": 2,
+    "default_pipeline_negative_controls": [
+      "oracle",
+      "latency",
+      "reset"
+    ],
+    "prior_frontenac_pilot_reaudit": "passed",
+    "rust_unit_and_integration_tests_passed": 38,
+    "rust_doctests_passed": 4,
+    "invalid_generator_latency_arguments_rejected": 6,
+    "invalid_driver_latency_arguments_rejected": 4
+  }
+}

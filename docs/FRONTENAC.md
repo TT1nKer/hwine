@@ -130,3 +130,16 @@ Job **12448218** was submitted on 2026-11-10 at 23:54:35 UTC, from fixed commit
 `$HOME/hwine/runs/balanced24-20261111-r1`. The submission is confirmed; results
 are pending. Preserve `$HOME/hwine/repo` until it finishes. Follow-up experiments
 must use a different fixed checkout, and this job must not be duplicated.
+
+The [latency follow-up protocol](../experiments/LATENCY_V1.md) has also been
+submitted: job **12448265** tests six external cycles on the four wide cases;
+job **12448266** tests eight. Both use fixed commit
+`74991c282d8853a7f47da7555b24ffe358f14189` in
+`$HOME/hwine/checkouts/latency-v1-74991c2`. Each requests two CPUs, 8 GiB and two
+hours. They run sequentially after successful completion of the full sweep,
+with `afterok:12448218` and `afterok:12448265`, respectively. Invalid
+dependencies cancel the dependent job. Outputs are
+`$HOME/hwine/runs/latency6-wide-20261111-r1` and
+`$HOME/hwine/runs/latency8-wide-20261111-r1`. See the
+[submission and local validation record](frontenac-latency-submissions-2026-11-10.json).
+These are confirmed submissions, not completed measurements.
