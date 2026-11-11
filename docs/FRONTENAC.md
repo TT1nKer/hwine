@@ -143,3 +143,35 @@ dependencies cancel the dependent job. Outputs are
 `$HOME/hwine/runs/latency8-wide-20261111-r1`. See the
 [submission and local validation record](frontenac-latency-submissions-2026-11-10.json).
 These are confirmed submissions, not completed measurements.
+
+## Compare expanded candidate sets
+
+`compare_explorations.py` requires identical configurations and full candidate
+sets; use it for reproductions. For the balanced-digit extension, use
+`compare_candidate_extension.py`. It audits both complete evidence directories,
+requires the same measurement policy and core/checker sources, checks that all
+baseline implementations and aliases survive, and compares every common
+implementation's proof result, resources, per-seed timing and synthesis netlist.
+Only explicitly named EDA installation prefixes in `attributes.src` are
+normalized. A shared-result discrepancy fails the comparison.
+
+```bash
+python3 tools/compare_candidate_extension.py \
+  build/ecp5-holdout-v1/summary.json \
+  build/frontenac-balanced24-20261111/summary.json \
+  --left-eda-root "$LOCAL_OSS_CAD_SUITE" \
+  --right-eda-root "$REMOTE_OSS_CAD_SUITE" \
+  --out build/frontenac-balanced24-comparison.json
+```
+
+The all-case command requires identical case sets. `--case random3_0_s16` is
+available for the already completed single-case pilot and labels the output
+as a diagnostic subset. That comparison passed for all 19 common RTLs, 38
+netlists and 114 per-seed route records (including cache reuse); the extension
+adds three distinct RTLs. See the
+[retained record](frontenac-candidate-extension-2026-11-10.json). This check uses
+existing evidence and does not rerun EDA or establish a new 24-case result.
+
+`python3 tools/check_comparison.py` exercises rejection of altered measurement
+policies, core sources, per-seed timing, proof status, alias classification,
+missing/duplicate implementations and netlist structure. CI runs these controls.

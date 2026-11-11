@@ -1,0 +1,92 @@
+{
+  "status": "passed",
+  "scope": {
+    "case": "random3_0_s16",
+    "cases": [
+      "random3_0_s16"
+    ]
+  },
+  "baseline_audit": {
+    "status": "passed",
+    "current_source_hashes_checked": false,
+    "source_commit_checked": null,
+    "rtl_records": 551,
+    "proved": 551,
+    "timeouts": 0,
+    "simulation_comparisons": 1145347,
+    "source_certificates_rechecked": 225,
+    "synthesis_records": 1102,
+    "routing_records": 2958
+  },
+  "expanded_audit": {
+    "status": "passed",
+    "current_source_hashes_checked": false,
+    "source_commit_checked": null,
+    "rtl_records": 22,
+    "proved": 22,
+    "timeouts": 0,
+    "simulation_comparisons": 45518,
+    "source_certificates_rechecked": 9,
+    "synthesis_records": 44,
+    "routing_records": 108
+  },
+  "measurement_policy_identical": true,
+  "changed_source_hashes": {
+    "hwine-rs/examples/explore_fixtures.rs": {
+      "baseline": "93a43a1502a8a83f8dce74440a3852a9ebc5529f57a4306aa8d23c08cf060d10",
+      "expanded": "9ff2ea217159e798e2bd3235b0d65451b7cc9823e1627b320a3760b2c41e22c5"
+    },
+    "tools/explore.py": {
+      "baseline": "80002c1bff22657294ac9ce5d5bc6c188916385267fb226abc6519733cef8d36",
+      "expanded": "e8482843be79bfd56122a283455179001937fdf4084503c82f42ea51260acff6"
+    }
+  },
+  "common_rtl": 19,
+  "added_rtl": [
+    {
+      "case": "random3_0_s16",
+      "rtl_sha256": "7aa21c6bf70afa8f78be05494fba3b44426560c9ad287c5d8950b22ba08fc626"
+    },
+    {
+      "case": "random3_0_s16",
+      "rtl_sha256": "dde8a25114504cb9befffd0c1d73e01cbf5cc586a4e58f431f51db70c7bee83f"
+    },
+    {
+      "case": "random3_0_s16",
+      "rtl_sha256": "def2b8a06087606f320b98fe6a1d97d44d7479a1b84479130dccb6dd6a67524c"
+    }
+  ],
+  "baseline_alias_fixture_files_byte_identical": 42,
+  "shared_proof_results_and_all_per_seed_resources_and_fmax_identical": true,
+  "synthesis_netlists_compared": 38,
+  "raw_netlists_byte_identical": 0,
+  "route_records_compared_including_cache_reuse": 114,
+  "netlists_identical_after_explicit_eda_source_prefix_normalization": true,
+  "normalization": {
+    "only_field": "attributes.src",
+    "baseline_eda_root": "/home/hostsjim/.local/opt/hwine-eda-20261109/oss-cad-suite",
+    "expanded_eda_root": "/global/teaching-home/sa6079074/hwine/runtime/cache/hwine-eda/2026-11-09/oss-cad-suite",
+    "replacement": "$OSS_CAD_SUITE"
+  },
+  "excluded_from_record_comparison": [
+    "wall seconds",
+    "artifact paths",
+    "individually audited netlist hashes"
+  ],
+  "allowed_configuration_differences": [
+    "balanced-digit candidate flag",
+    "generator build metadata",
+    "listed generator/driver hashes",
+    "driver fingerprint",
+    "explicit single-case scope filter"
+  ],
+  "summary_sha256": {
+    "baseline": "f2a8d4a24ceed496c1383f703d5e0398868e405e126f7a2decc22fc809f635fc",
+    "expanded": "353326217d107eb3c84eb4072309f3606348ad1c5b07e3a27e4f8c5ce635d6c4"
+  },
+  "comparison_source_sha256": {
+    "compare_candidate_extension.py": "abd6cdf4f45836c152d29856fac761bdd8ac42eb7fafe2716a3462b67b85f473",
+    "compare_explorations.py": "b0010f801cfe6a7fa8a02343e46a390fe160008179a040779ade4dc2344ea78b",
+    "audit_exploration.py": "28032738e115d65a165323ad22088538293738f67f4dac6cef28e9f0e3ade3b2"
+  }
+}

@@ -88,7 +88,8 @@ does not compute reference answers. All generated proof obligations and logs
 are retained for inspection.
 
 `examples/explore_fixtures.rs` declares the small experiment's template and
-e-graph candidates. `tools/explore.py` pads them to a common four-cycle contract,
+e-graph candidates. `tools/explore.py` pads them to a declared common latency
+(2–16 cycles including the input register; default four),
 checks independent arithmetic and pipeline obligations, and runs ECP5 synthesis
 and three placement/routing seeds. `tools/linear_check.py` normalizes only
 equal-width add/subtract, constant multiply, and constant left shift modulo

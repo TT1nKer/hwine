@@ -7,6 +7,9 @@
 **hardware is not enough** — an experimental FPGA datapath optimizer using
 an e-graph to explore integer arithmetic implementations.
 
+See the [current project status and next decision gates](docs/PROJECT_STATUS.md)
+for implemented capabilities, verified results, queued experiments and limits.
+
 The supported engineering path is deliberately small: **fixed-width wrapping
 integer arithmetic and FIR dot products**, with checked SystemVerilog generation
 and explicit, balanced pipelines. Unsupported operations return errors. This is

@@ -1,5 +1,11 @@
 # hwine Artifact — Reproduction Guide
 
+> Historical artifact: the commands, tool versions, expected outputs and claims
+> below predate the revised integer backend. E-class membership is not an RTL
+> equivalence proof; these paper/Vivado results have not been revalidated.
+> Use the [current project status](../docs/PROJECT_STATUS.md) and
+> [root reproduction instructions](../README.md#reproduce) for supported work.
+
 ## Prerequisites
 
 | Dependency | Version | Required For |
